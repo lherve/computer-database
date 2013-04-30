@@ -19,9 +19,7 @@ public class Computer {
 		this.name = name;
 	}
 
-	public Computer(int id, String name, Calendar introduced,
-			Calendar discontinued, Company company) {
-		super();
+	public Computer(int id, String name, Calendar introduced, Calendar discontinued, Company company) {
 		this.id = id;
 		this.name = name;
 		this.introduced = introduced;
