@@ -34,4 +34,20 @@ public class Company {
 		this.name = name;
 	}
 	
+	@Override
+	public String toString() {
+		return getId() + " - " + getName() ;
+	}
+	
+	@Override
+	public int hashCode() {
+		if(getName() != null) return getName().hashCode() + getId();
+		else return getId();
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if(o == null || !(o instanceof Company)) return false;
+		else return getId() == ((Company)o).getId();
+	}
 }

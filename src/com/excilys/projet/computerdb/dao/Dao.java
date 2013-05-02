@@ -2,18 +2,20 @@ package com.excilys.projet.computerdb.dao;
 
 import java.util.Collection;
 
-public interface Dao {
+public interface Dao<T> {
 
-	public boolean insert(Object o);
+	public T insert(T t);
 	
-	public boolean update(Object o);
+	public T update(T t);
 	
-	public boolean delete(Object o);
+	public boolean delete(T t);
 	
-	public Object get(int id);
+	public T get(int id);
 
-	public Collection<Object> getFromTo(int start, int end);
+	public Collection<T> getFromTo(int start, int end);
 	
-	public Collection<Object> getAll();
+	public Collection<T> getAll();
+	
+	public int count();
 	
 }

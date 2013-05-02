@@ -30,10 +30,12 @@ public enum Connector {
 	}
 
 	public void closeConnection(Connection c) {
-		try {
-			c.close();
-		} catch (SQLException e) {
-			e.printStackTrace();
+		if(c != null) {
+			try {
+				c.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 

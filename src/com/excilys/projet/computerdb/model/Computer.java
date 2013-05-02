@@ -70,4 +70,20 @@ public class Computer {
 		this.company = company;
 	}
 	
+	@Override
+	public String toString() {
+		return getId() + " - " + getName() + " [" + getIntroduced() + "],[" + getDiscontinued() + "] -" + getCompany();
+	}
+	
+	@Override
+	public int hashCode() {
+		if(getName() != null) return getName().hashCode() + getId();
+		else return getId();
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if(o == null || !(o instanceof Computer)) return false;
+		else return getId() == ((Company)o).getId();
+	}
 }
