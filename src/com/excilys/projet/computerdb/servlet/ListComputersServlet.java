@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.excilys.projet.computerdb.daoImpl.ComputerDao;
 import com.excilys.projet.computerdb.model.Page;
+import com.excilys.projet.computerdb.service.ComputerService;
 import com.mysql.jdbc.StringUtils;
 
 public class ListComputersServlet extends HttpServlet {
@@ -18,28 +19,28 @@ public class ListComputersServlet extends HttpServlet {
 		
 		String search = req.getParameter("search");
 		
-		int count = ComputerDao.I.count(search);
+		int count = ComputerService.I.count(search);
 		
 		req.setAttribute("count", count);
 		
 		String spage = req.getParameter("page");
 		
-		int p = 0;
+		int n = 0;
 		
 		if(!StringUtils.isNullOrEmpty(spage)) {
 			try {
-				p = Integer.parseInt(spage);
+				n = Integer.parseInt(spage);
 			}
 			catch(NumberFormatException e) {
 				e.printStackTrace();
 			}
 		}
 		
-		if(p < 0) {
-			p = 0;
+		if(n < 0) {
+			n = 0;
 		}
-		else if(p >= (count / Page.SIZE)) {
-			p = -count / Page.SIZE;
+		else if(n >= (count / Page.SIZE)) {
+			n = -count / Page.SIZE;
 		}
 		
 		String sort = req.getParameter("s");
@@ -55,7 +56,7 @@ public class ListComputersServlet extends HttpServlet {
 			}
 		}
 
-		Page page = new Page(p, true, s, search);
+		Page page = new Page(n, s, search);
 
 		if(page.getEnd() > count)
 			page.setEnd(count);

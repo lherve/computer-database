@@ -18,55 +18,52 @@ public class Page {
 	private Page previous;
 	private Page next;
 	
-	public Page(int number, boolean toLoad, int s, String search) {
-		if(toLoad){
-			
-			if(number > 0)
-				previous = new Page(number - 1);
-			else if(number < 0)
-				previous = new Page(-(number + 1));
-			else
-				previous = new Page(number);
-			
-			if(number < 0)
-				next = new Page(-number);
-			else
-				next = new Page(number + 1);
-			
-			number = Math.abs(number);
-			
-			this.start = (number * SIZE) + 1;
-			this.end = (number + 1) * SIZE;
-			
-			Dao.Sort sort = Sort.NAME;
-			Dao.Order order = Order.ASC;
-			
-			if(s < 0) {
-				order = Order.DESC;
-			}
-			
-			s = Math.abs(s);
-			
-			switch(s) {
-			case 2:
-				sort = Sort.INTRODUCED;
-				break;
-			case 3:
-				sort = Sort.DISCONTINUED;
-				break;
-			case 4:
-				sort = Sort.COMPANY;
-				break;
-			}
-			
-			cpus = ComputerDao.I.getFromTo(this.start, this.end, sort, order, search);
+	private Dao.Sort sort;
+	private Dao.Order order;
+	
+	private String search;
+	
+	public Page(int number, int sort, String search) {
+		
+		if(number > 0)
+			previous = new Page(number - 1);
+		else if(number < 0)
+			previous = new Page(-(number + 1));
+		else
+			previous = new Page(number);
+		
+		if(number < 0)
+			next = new Page(-number);
+		else
+			next = new Page(number + 1);
+		
+		number = Math.abs(number);
+		
+		this.start = (number * SIZE) + 1;
+		this.end = (number + 1) * SIZE;
+		
+		this.sort = Sort.NAME;
+		this.order = Order.ASC;
+		
+		if(sort < 0) {
+			order = Order.DESC;
 		}
-		else {
-			previous = null;
-			next = null;
-			
-			cpus = null;
+		
+		sort = Math.abs(sort);
+		
+		switch(sort) {
+		case 2:
+			this.sort = Sort.INTRODUCED;
+			break;
+		case 3:
+			this.sort = Sort.DISCONTINUED;
+			break;
+		case 4:
+			this.sort = Sort.COMPANY;
+			break;
 		}
+		
+		this.search = search;
 		
 		this.number = number;
 	}
@@ -126,4 +123,29 @@ public class Page {
 	public int getSize() {
 		return SIZE;
 	}
+
+	public Dao.Sort getSort() {
+		return sort;
+	}
+
+	public void setSort(Dao.Sort sort) {
+		this.sort = sort;
+	}
+
+	public Dao.Order getOrder() {
+		return order;
+	}
+
+	public void setOrder(Dao.Order order) {
+		this.order = order;
+	}
+
+	public String getSearch() {
+		return search;
+	}
+
+	public void setSearch(String search) {
+		this.search = search;
+	}
+	
 }

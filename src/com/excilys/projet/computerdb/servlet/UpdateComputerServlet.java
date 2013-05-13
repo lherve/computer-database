@@ -70,7 +70,7 @@ public class UpdateComputerServlet extends HttpServlet {
 		}
 		
 		if(!idOk) {
-			resp.sendRedirect("");
+			resp.sendRedirect("/computers");
 		}
 
 	}
@@ -88,7 +88,7 @@ public class UpdateComputerServlet extends HttpServlet {
 		}
 		
 		if(id == 0) {
-			resp.sendRedirect("");
+			resp.sendRedirect("/computers");
 		}
 		else {
 		
@@ -185,8 +185,6 @@ public class UpdateComputerServlet extends HttpServlet {
 				req.setAttribute("err", error);
 				
 				req.setAttribute("cpu", cpu);
-				req.setAttribute("introduced", sintroduced);
-				req.setAttribute("discontinued", sdiscontinued);
 				
 				req.setAttribute("cies", ComputerService.I.getCompanies());
 				

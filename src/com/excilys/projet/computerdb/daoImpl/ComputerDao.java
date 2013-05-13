@@ -29,53 +29,46 @@ public enum ComputerDao implements Dao<Computer> {
 			checkCompany(o);
 			
 			try {
+				con = Connector.JDBC.getConnection();
 				
-				if(o.getId() <= 0) {
-					con = Connector.JDBC.getConnection();
-					
-					pstmt = con.createStatement();
-					
-					StringBuilder query = new StringBuilder("INSERT INTO computer (name, introduced, discontinued, company_id) VALUES('").append(o.getName()).append("',");
-					
-					if(o.getIntroduced() != null) {
-						query.append("'").append(new Date(o.getIntroduced().getTimeInMillis())).append("',");
-					}
-					else {
-						query.append("null, ");
-					}
-					
-					if(o.getDiscontinued() != null) {
-						query.append("'").append(new Date(o.getDiscontinued().getTimeInMillis())).append("',");
-					}
-					else {
-						query.append("null, ");
-					}
-					
-					if(o.getCompany() != null) {
-						query.append(o.getCompany().getId()).append(");");
-					}
-					else {
-						query.append("null);");
-					}
-					
-					System.out.println(query);
-					
-					if(pstmt.executeUpdate(query.toString(), Statement.RETURN_GENERATED_KEYS) > 0) {
-						ResultSet rs = pstmt.getGeneratedKeys();
-						
-						if(rs.next()) {
-							o.setId(rs.getInt(1));
-						}
-						
-						rs.close();
-					}
-					
-					System.out.println("id = "+o.getId());
-					
+				pstmt = con.createStatement();
+				
+				StringBuilder query = new StringBuilder("INSERT INTO computer (name, introduced, discontinued, company_id) VALUES('").append(o.getName()).append("',");
+				
+				if(o.getIntroduced() != null) {
+					query.append("'").append(new Date(o.getIntroduced().getTimeInMillis())).append("',");
 				}
 				else {
-					o = update(o);
+					query.append("null, ");
 				}
+				
+				if(o.getDiscontinued() != null) {
+					query.append("'").append(new Date(o.getDiscontinued().getTimeInMillis())).append("',");
+				}
+				else {
+					query.append("null, ");
+				}
+				
+				if(o.getCompany() != null) {
+					query.append(o.getCompany().getId()).append(");");
+				}
+				else {
+					query.append("null);");
+				}
+				
+				System.out.println(query);
+				
+				if(pstmt.executeUpdate(query.toString(), Statement.RETURN_GENERATED_KEYS) > 0) {
+					ResultSet rs = pstmt.getGeneratedKeys();
+					
+					if(rs.next()) {
+						o.setId(rs.getInt(1));
+					}
+					
+					rs.close();
+				}
+				
+				System.out.println("id = "+o.getId());
 			}
 			catch(SQLException e) {
 				e.printStackTrace();
@@ -104,51 +97,44 @@ public enum ComputerDao implements Dao<Computer> {
 			checkCompany(o);
 			
 			try {
+				con = Connector.JDBC.getConnection();
 				
-				if(o.getId() <= 0) {
-					o = insert(o);
+				stmt = con.createStatement();
+				
+				StringBuilder query = new StringBuilder("UPDATE computer SET name = '").append(o.getName()).append("'");
+				
+				query.append(", introduced = ");
+				
+				if(o.getIntroduced() != null) {
+					query.append("'").append(new Date(o.getIntroduced().getTimeInMillis())).append("'");
 				}
 				else {
-					con = Connector.JDBC.getConnection();
-					
-					stmt = con.createStatement();
-					
-					StringBuilder query = new StringBuilder("UPDATE computer SET name = '").append(o.getName()).append("'");
-					
-					query.append(", introduced = ");
-					
-					if(o.getIntroduced() != null) {
-						query.append("'").append(new Date(o.getIntroduced().getTimeInMillis())).append("'");
-					}
-					else {
-						query.append("null");
-					}
-					
-					query.append(", discontinued = ");
-					
-					if(o.getDiscontinued() != null) {
-						query.append("'").append(new Date(o.getDiscontinued().getTimeInMillis())).append("'");
-					}
-					else {
-						query.append("null");
-					}
-					
-					query.append(", company_id = ");
-					
-					if(o.getCompany() != null) {
-						query.append(o.getCompany().getId());
-					}
-					else {
-						query.append("null");
-					}
-					
-					query.append(" WHERE id = ").append(o.getId());
-					
-					System.out.println(query);
-					
-					stmt.execute(query.toString());
-					
+					query.append("null");
 				}
+				
+				query.append(", discontinued = ");
+				
+				if(o.getDiscontinued() != null) {
+					query.append("'").append(new Date(o.getDiscontinued().getTimeInMillis())).append("'");
+				}
+				else {
+					query.append("null");
+				}
+				
+				query.append(", company_id = ");
+				
+				if(o.getCompany() != null) {
+					query.append(o.getCompany().getId());
+				}
+				else {
+					query.append("null");
+				}
+				
+				query.append(" WHERE id = ").append(o.getId());
+				
+				System.out.println(query);
+				
+				stmt.execute(query.toString());
 			}
 			catch(SQLException e) {
 				e.printStackTrace();
@@ -321,7 +307,7 @@ public enum ComputerDao implements Dao<Computer> {
 			}
 				
 			pstmt.setInt(k++, i);
-System.out.println(pstmt.toString());
+
 			ResultSet rs = pstmt.executeQuery(); 
 			
 			while(rs.next()) {
