@@ -8,13 +8,13 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.List;
 
 import com.excilys.projet.computerdb.dao.Dao;
 import com.excilys.projet.computerdb.db.Connector;
 import com.excilys.projet.computerdb.model.Company;
 import com.excilys.projet.computerdb.model.Computer;
+import com.mysql.jdbc.StringUtils;
 
 public enum ComputerDao implements Dao<Computer> {
 
@@ -35,33 +35,32 @@ public enum ComputerDao implements Dao<Computer> {
 					
 					pstmt = con.createStatement();
 					
-					String query = "INSERT INTO computer (name, introduced, discontinued, company_id) VALUES('"
-							+ o.getName() + "',"; 
+					StringBuilder query = new StringBuilder("INSERT INTO computer (name, introduced, discontinued, company_id) VALUES('").append(o.getName()).append("',");
 					
 					if(o.getIntroduced() != null) {
-						query += "'" + new Date(o.getIntroduced().getTimeInMillis()) + "',";
+						query.append("'").append(new Date(o.getIntroduced().getTimeInMillis())).append("',");
 					}
 					else {
-						query += "null, ";
+						query.append("null, ");
 					}
 					
 					if(o.getDiscontinued() != null) {
-						query += "'" + new Date(o.getDiscontinued().getTimeInMillis()) + "',";
+						query.append("'").append(new Date(o.getDiscontinued().getTimeInMillis())).append("',");
 					}
 					else {
-						query += "null, ";
+						query.append("null, ");
 					}
 					
 					if(o.getCompany() != null) {
-						query += o.getCompany().getId() + ");";
+						query.append(o.getCompany().getId()).append(");");
 					}
 					else {
-						query += "null);";
+						query.append("null);");
 					}
 					
 					System.out.println(query);
 					
-					if(pstmt.executeUpdate(query, Statement.RETURN_GENERATED_KEYS) > 0) {
+					if(pstmt.executeUpdate(query.toString(), Statement.RETURN_GENERATED_KEYS) > 0) {
 						ResultSet rs = pstmt.getGeneratedKeys();
 						
 						if(rs.next()) {
@@ -72,14 +71,6 @@ public enum ComputerDao implements Dao<Computer> {
 					}
 					
 					System.out.println("id = "+o.getId());
-					
-					/*pstmt = con.prepareStatement("INSERT INTO computer (name, introduced, discontinued, company_id) VALUES(?,?,?,?)");
-					pstmt.setString(1, o.getName());
-					pstmt.setDate(2, new Date(o.getIntroduced().getTimeInMillis()));
-					pstmt.setDate(3, new Date(o.getDiscontinued().getTimeInMillis()));
-					pstmt.setInt(4, o.getCompany().getId());
-	
-					if(pstmt.executeUpdate()>0);*/
 					
 				}
 				else {
@@ -122,25 +113,40 @@ public enum ComputerDao implements Dao<Computer> {
 					
 					stmt = con.createStatement();
 					
-					String query = "UPDATE computer SET name = '" + o.getName() +"'";
+					StringBuilder query = new StringBuilder("UPDATE computer SET name = '").append(o.getName()).append("'");
+					
+					query.append(", introduced = ");
 					
 					if(o.getIntroduced() != null) {
-						query += ", introduced = '" + new Date(o.getIntroduced().getTimeInMillis()) + "'";
+						query.append("'").append(new Date(o.getIntroduced().getTimeInMillis())).append("'");
 					}
+					else {
+						query.append("null");
+					}
+					
+					query.append(", discontinued = ");
 					
 					if(o.getDiscontinued() != null) {
-						query += ", discontinued = '" + new Date(o.getDiscontinued().getTimeInMillis()) + "'";
+						query.append("'").append(new Date(o.getDiscontinued().getTimeInMillis())).append("'");
 					}
+					else {
+						query.append("null");
+					}
+					
+					query.append(", company_id = ");
 					
 					if(o.getCompany() != null) {
-						query += ", company_id = " + o.getCompany().getId();
+						query.append(o.getCompany().getId());
+					}
+					else {
+						query.append("null");
 					}
 					
-					query += " WHERE id = " + o.getId();
+					query.append(" WHERE id = ").append(o.getId());
 					
 					System.out.println(query);
 					
-					stmt.execute(query);
+					stmt.execute(query.toString());
 					
 				}
 			}
@@ -255,23 +261,67 @@ public enum ComputerDao implements Dao<Computer> {
 	}
 
 	@Override
-	public Collection<Computer> getFromTo(int start, int end) {
+	public List<Computer> getFromTo(int start, int end, Sort sortedBy, Order order, String search) {
 		Connection con = Connector.JDBC.getConnection();
 		PreparedStatement pstmt = null;
 		
 		List<Computer> cpus = new ArrayList<Computer>();
 		
 		try {
-			pstmt = con.prepareStatement("SELECT cpu.id, cpu.name, cpu.introduced, cpu.discontinued, cpu.company_id, cie.name FROM computer cpu LEFT OUTER JOIN company cie ON cpu.company_id = cie.id LIMIT ?,?;");
-			pstmt.setInt(1, --start);
+			
+			StringBuilder query = new StringBuilder("SELECT cpu.id, cpu.name, cpu.introduced, cpu.discontinued, cpu.company_id, cie.name FROM computer cpu LEFT OUTER JOIN company cie ON cpu.company_id = cie.id ");
+			
+			if(!StringUtils.isNullOrEmpty(search) && !search.contains("'")) {
+				query.append("WHERE cpu.name LIKE ? ");
+			}
+			
+			query.append("ORDER BY ");
+			
+			switch(sortedBy) {
+			case ID:
+				query.append("cpu.id");
+				break;
+			case NAME:
+				query.append("cpu.name");
+				break;
+			case INTRODUCED:
+				query.append("coalesce(cpu.introduced, '{')");
+				break;
+			case DISCONTINUED:
+				query.append("coalesce(cpu.discontinued, '{')");
+				break;
+			case COMPANY:
+				query.append("coalesce(cie.name, '{')");
+				break;
+			}
+			
+			if(order.equals(Dao.Order.ASC)) {
+				query.append(" ASC");
+			}
+			else
+			{
+				query.append(" DESC");
+			}
+			
+			query.append(" LIMIT ?,?;");
+
+			pstmt = con.prepareStatement(query.toString());
+			
+			int k = 1;
+			
+			if(!StringUtils.isNullOrEmpty(search) && !search.contains("'")) {
+				pstmt.setString(k++, "%"+search+"%");
+			}
+			
+			pstmt.setInt(k++, --start);
 			
 			int i = end - start;
 			if(i < 0) {
 				i = 10;
 			}
 				
-			pstmt.setInt(2, i);
-			
+			pstmt.setInt(k++, i);
+System.out.println(pstmt.toString());
 			ResultSet rs = pstmt.executeQuery(); 
 			
 			while(rs.next()) {
@@ -317,7 +367,7 @@ public enum ComputerDao implements Dao<Computer> {
 	}
 
 	@Override
-	public Collection<Computer> getAll() {
+	public List<Computer> getAll(Sort sortedBy, Order order) {
 		Connection con = Connector.JDBC.getConnection();
 		Statement pstmt = null;
 		
@@ -326,11 +376,11 @@ public enum ComputerDao implements Dao<Computer> {
 		try {
 			pstmt = con.createStatement();
 			
-			String query = "SELECT cpu.id, cpu.name, cpu.introduced, cpu.discontinued, cpu.company_id, cie.name FROM computer cpu LEFT OUTER JOIN company cie ON cpu.company_id = cie.id;";
+			StringBuilder query = new StringBuilder("SELECT cpu.id, cpu.name, cpu.introduced, cpu.discontinued, cpu.company_id, cie.name FROM computer cpu LEFT OUTER JOIN company cie ON cpu.company_id = cie.id;");
 			
 			System.out.println(query);
 			
-			ResultSet rs = pstmt.executeQuery(query); 
+			ResultSet rs = pstmt.executeQuery(query.toString()); 
 			
 			while(rs.next()) {
 				Computer cpu = new Computer(rs.getInt("cpu.id"), rs.getString("cpu.name"));
@@ -375,7 +425,7 @@ public enum ComputerDao implements Dao<Computer> {
 	}
 
 	@Override
-	public int count() {
+	public int count(String search) {
 		Connection con = null;
 		Statement stmt = null;
 
@@ -386,7 +436,15 @@ public enum ComputerDao implements Dao<Computer> {
 			
 			stmt = con.createStatement();
 			
-			ResultSet rs = stmt.executeQuery("SELECT count(id) as count FROM computer;");
+			StringBuilder query = new StringBuilder("SELECT count(id) as count FROM computer");
+			
+			if(!StringUtils.isNullOrEmpty(search) && !search.contains("'")) {
+				query.append(" WHERE name LIKE '%").append(search).append("%'");
+			}
+			
+			query.append(";");
+			
+			ResultSet rs = stmt.executeQuery(query.toString());
 			
 			if(rs.next()) {
 				count = rs.getInt("count");
@@ -417,7 +475,7 @@ public enum ComputerDao implements Dao<Computer> {
 		
 		if(c != null) {
 			
-			if(c.getId() > 0 && (c.getName() == null || c.getName().equals(""))) {
+			if(c.getId() > 0 && (StringUtils.isNullOrEmpty(c.getName()))) {
 				
 				Company search = CompanyDao.I.get(c.getId());
 				
@@ -429,7 +487,7 @@ public enum ComputerDao implements Dao<Computer> {
 				}
 				
 			}
-			else if(c.getId() <= 0 && (c.getName() != null && !c.getName().equals(""))) {
+			else if(c.getId() <= 0 && (!StringUtils.isNullOrEmpty(c.getName()))) {
 				
 				c = CompanyDao.I.insert(c);
 				

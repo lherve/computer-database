@@ -60,13 +60,13 @@ public class ComputerDaoTest {
 	}
 	
 	public static void countTest() {
-		int count = ComputerDao.I.count();
-		if(count > 0) {
-			System.out.println("countTest suceed ("+count+")");
-		}
-		else {
-			System.out.println("countTest failed");
-		}
+//		int count = ComputerDao.I.count();
+//		if(count > 0) {
+//			System.out.println("countTest suceed ("+count+")");
+//		}
+//		else {
+//			System.out.println("countTest failed");
+//		}
 	}
 	
 	public static void updateTest() {
@@ -85,19 +85,18 @@ public class ComputerDaoTest {
 	}
 	
 	public static void getAllTest() {
-		for(Computer cpu : ComputerDao.I.getAll()) {
-			System.out.println(cpu);
-		}
+//		for(Computer cpu : ComputerDao.I.getAll()) {
+//			System.out.println(cpu);
+//		}
 	}
 	
 	public static void getFromToTest() {
-		for(Computer cpu : ComputerDao.I.getFromTo(550, 560)) {
-			System.out.println(cpu);
-		}
+//		for(Computer cpu : ComputerDao.I.getFromTo(550, 560)) {
+//			System.out.println(cpu);
+//		}
 	}
 	
 	public static void main(String[] args) {
-		getFromToTest();
+		System.out.println(new Date().toString());
 	}
-	
 }

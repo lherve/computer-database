@@ -6,12 +6,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import com.excilys.projet.computerdb.dao.Dao;
 import com.excilys.projet.computerdb.db.Connector;
 import com.excilys.projet.computerdb.model.Company;
+import com.mysql.jdbc.StringUtils;
 
 public enum CompanyDao implements Dao<Company> {
 	
@@ -183,7 +183,7 @@ public enum CompanyDao implements Dao<Company> {
 	}
 
 	@Override
-	public Collection<Company> getFromTo(int start, int end) {
+	public List<Company> getFromTo(int start, int end, Sort sortedBy, Order order, String search) {
 		Connection con = Connector.JDBC.getConnection();
 		PreparedStatement pstmt = null;
 		
@@ -226,14 +226,14 @@ public enum CompanyDao implements Dao<Company> {
 	}
 
 	@Override
-	public Collection<Company> getAll() {
+	public List<Company> getAll(Sort sortedBy, Order order) {
 		Connection con = Connector.JDBC.getConnection();
 		PreparedStatement pstmt = null;
 		
 		List<Company> cies = new ArrayList<Company>();
 		
 		try {
-			pstmt = con.prepareStatement("SELECT id, name FROM company;");
+			pstmt = con.prepareStatement("SELECT id, name FROM company ORDER BY name ASC;");
 			
 			ResultSet rs = pstmt.executeQuery(); 
 			
@@ -261,7 +261,7 @@ public enum CompanyDao implements Dao<Company> {
 	}
 
 	@Override
-	public int count() {
+	public int count(String search) {
 		Connection con = null;
 		Statement stmt = null;
 
@@ -272,7 +272,15 @@ public enum CompanyDao implements Dao<Company> {
 			
 			stmt = con.createStatement();
 			
-			ResultSet rs = stmt.executeQuery("SELECT count(id) as count FROM company;");
+			StringBuilder query = new StringBuilder("SELECT count(id) as count FROM company");
+			
+			if(!StringUtils.isNullOrEmpty(search)) {
+				query.append(" WHERE name LIKE '%").append(search).append("%'");
+			}
+			
+			query.append(";");
+			
+			ResultSet rs = stmt.executeQuery(query.toString());
 			
 			if(rs.next()) {
 				count = rs.getInt("count");

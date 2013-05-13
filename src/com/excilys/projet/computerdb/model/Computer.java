@@ -1,5 +1,6 @@
 package com.excilys.projet.computerdb.model;
 
+import java.text.DateFormat;
 import java.util.Calendar;
 
 public class Computer {
@@ -49,6 +50,10 @@ public class Computer {
 	public Calendar getIntroduced() {
 		return introduced;
 	}
+	
+	public String getIntroducedToString() {
+		return introduced != null ? DateFormat.getDateInstance(DateFormat.MEDIUM).format(introduced.getTime()) : "-";
+	}
 
 	public void setIntroduced(Calendar introduced) {
 		this.introduced = introduced;
@@ -56,6 +61,10 @@ public class Computer {
 
 	public Calendar getDiscontinued() {
 		return discontinued;
+	}
+	
+	public String getDiscontinuedToString() {
+		return discontinued != null ? DateFormat.getDateInstance(DateFormat.MEDIUM).format(discontinued.getTime()) : "-";
 	}
 
 	public void setDiscontinued(Calendar discontinued) {
