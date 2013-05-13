@@ -7,7 +7,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.excilys.projet.computerdb.daoImpl.ComputerDao;
+
 import com.excilys.projet.computerdb.model.Page;
 import com.excilys.projet.computerdb.service.ComputerService;
 import com.mysql.jdbc.StringUtils;
@@ -16,6 +16,13 @@ public class ListComputersServlet extends HttpServlet {
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		
+		String info = (String) req.getSession().getAttribute("info");
+		
+		if(!StringUtils.isNullOrEmpty(info)) {
+			req.setAttribute("info", info);
+			req.getSession().setAttribute("info", null);
+		}
 		
 		String search = req.getParameter("search");
 		
@@ -56,7 +63,7 @@ public class ListComputersServlet extends HttpServlet {
 			}
 		}
 
-		Page page = new Page(n, s, search);
+		Page page = ComputerService.I.loadPage(n, s, search);
 
 		if(page.getEnd() > count)
 			page.setEnd(count);
@@ -67,8 +74,8 @@ public class ListComputersServlet extends HttpServlet {
 		req.setAttribute("page", page);
 
 		req.setAttribute("s", s);
-		
-		req.getServletContext().getRequestDispatcher("/list.jsp").forward(req, resp);
+
+		req.getServletContext().getRequestDispatcher("/WEB-INF/list.jsp").forward(req, resp);
 	}
 	
 }

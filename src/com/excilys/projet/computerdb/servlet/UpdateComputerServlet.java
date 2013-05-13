@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+
 import com.excilys.projet.computerdb.daoImpl.ComputerDao;
 import com.excilys.projet.computerdb.model.Company;
 import com.excilys.projet.computerdb.model.Computer;
@@ -56,7 +57,7 @@ public class UpdateComputerServlet extends HttpServlet {
 						
 						req.setAttribute("cies", ComputerService.I.getCompanies());
 
-						req.getServletContext().getRequestDispatcher("/update.jsp").forward(req, resp);
+						req.getServletContext().getRequestDispatcher("/WEB-INF/update.jsp").forward(req, resp);
 						
 					}
 					
@@ -188,10 +189,22 @@ public class UpdateComputerServlet extends HttpServlet {
 				
 				req.setAttribute("cies", ComputerService.I.getCompanies());
 				
-				req.getServletContext().getRequestDispatcher("/update.jsp").forward(req, resp);
+				req.getServletContext().getRequestDispatcher("/WEB-INF/update.jsp").forward(req, resp);
 			}
 			else {
-				ComputerDao.I.update(cpu);
+				ComputerService.I.updateComputer(cpu);
+				
+				StringBuilder sb = new StringBuilder("Computer ");
+				sb.append(cpu.getName()).append(" has been ");
+				
+				if(cpu.getId() > 0) {
+					sb.append("updated");
+				}
+				else {
+					sb.append("created");
+				}
+				
+				req.getSession().setAttribute("info", sb.toString());
 				resp.sendRedirect("?search="+cpu.getName());
 			}
 		}

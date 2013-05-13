@@ -5,7 +5,7 @@ import java.util.List;
 import com.excilys.projet.computerdb.dao.Dao;
 import com.excilys.projet.computerdb.dao.Dao.Order;
 import com.excilys.projet.computerdb.dao.Dao.Sort;
-import com.excilys.projet.computerdb.daoImpl.ComputerDao;
+
 
 public class Page {
 
@@ -46,7 +46,7 @@ public class Page {
 		this.order = Order.ASC;
 		
 		if(sort < 0) {
-			order = Order.DESC;
+			this.order = Order.DESC;
 		}
 		
 		sort = Math.abs(sort);

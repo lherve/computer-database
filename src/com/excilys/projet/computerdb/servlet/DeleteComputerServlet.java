@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.excilys.projet.computerdb.service.ComputerService;
 
 
+
 public class DeleteComputerServlet extends HttpServlet {
 
 	@Override
@@ -25,10 +26,11 @@ public class DeleteComputerServlet extends HttpServlet {
 		}
 		
 		if(success) {
+			req.getSession().setAttribute("info", "Computer has been deleted");
 			resp.sendRedirect("");
 		}
 		else {
-			req.getServletContext().getRequestDispatcher("/update.jsp").forward(req, resp);
+			req.getServletContext().getRequestDispatcher("/WEB-INF/update.jsp").forward(req, resp);
 		}
 	}
 

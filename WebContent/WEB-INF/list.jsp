@@ -25,14 +25,16 @@
 		
 			<h1>${count > 0 ? count : 'No' } computer${count > 1 ? 's' : '' } found</h1>
 			
-<!-- 	        <div class="alert-message warning"> -->
-<!-- 	            <strong>Done!</strong> Computer has been deleted -->
-<!-- 	        </div> -->
+			<c:if test="${not empty info }">
+		        <div class="alert-message warning">
+		            <strong>Done!</strong> ${info }
+		        </div>
+			</c:if>
 			
 			<div id="actions">
 			
 				<form action="" method="GET">
-					<input type="search" id="searchbox" name="search" value="${empty param.search ? '' : param.search }" placeholder="Filter by computer name...">
+					<input type="search" id="searchbox" name="search" value="${page.search }" placeholder="Filter by computer name...">
 	            	<input type="submit" id="searchsubmit" value="Filter by name" class="btn primary">
 	            	
 	            	<c:if test="${not empty param.s }">
@@ -59,16 +61,16 @@
 						<thead>
 							<tr>
 								<th class="col2 header ${s eq '1' ? 'headerSortUp' : s eq '-1' ? 'headerSortDown' : empty s ? 'headerSortUp' : s < -4 ? 'headerSortUp' : s > 4 ? 'headerSortUp' : ''}">
-							        <a href="?search=${param.search}&s=${param.s eq '1' ? '-1' : '1' }">Computer name</a>
+							        <a href="?search=${page.search}&s=${s eq '1' ? '-1' : '1' }">Computer name</a>
 							    </th>
 							    <th class="col3 header ${s eq '2' ? 'headerSortUp' : s eq '-2' ? 'headerSortDown' : '' }">
-							        <a href="?search=${param.search}&s=${param.s eq '2' ? '-2' : '2' }">Introduced</a>
+							        <a href="?search=${page.search}&s=${s eq '2' ? '-2' : '2' }">Introduced</a>
 							    </th>
 							    <th class="col4 header ${s eq '3' ? 'headerSortUp' : s eq '-3' ? 'headerSortDown' : '' }">
-							        <a href="?search=${param.search}&s=${param.s eq '3' ? '-3' : '3' }">Discontinued</a>
+							        <a href="?search=${page.search}&s=${s eq '3' ? '-3' : '3' }">Discontinued</a>
 							    </th>
 							    <th class="col5 header ${s eq '4' ? 'headerSortUp' : s eq '-4' ? 'headerSortDown' : '' }">
-							        <a href="?search=${param.search}&s=${param.s eq '4' ? '-4' : '4' }">Company</a>
+							        <a href="?search=${page.search}&s=${s eq '4' ? '-4' : '4' }">Company</a>
 							    </th>
 							</tr>
 						</thead>
@@ -89,13 +91,13 @@
 					<div id="pagination" class="pagination">
 			            <ul>
 							<li class="prev ${page.previous.number eq page.number ? 'disabled' : '' }">
-							    <a href="?search=${param.search}&page=${page.previous.number}&s=${param.s}">&larr; Previous</a>
+							    <a href="?search=${param.search}&page=${page.previous.number}&s=${s }">&larr; Previous</a>
 							</li>
 			                <li class="current">
 			                    <a>Displaying <c:out value="${page.start}" /> to <c:out value="${page.end}"/> of <c:out value="${count}" /></a>
 			                </li>
 							<li class="next ${page.next.number eq page.number ? 'disabled' : page.size > count ? 'disabled' : '' }">
-							    <a href="?search=${param.search}&page=${page.next.number}&s=${param.s}">Next &rarr;</a>
+							    <a href="?search=${param.search}&page=${page.next.number}&s=${s }">Next &rarr;</a>
 							</li>
 			            </ul>
 		        </div>

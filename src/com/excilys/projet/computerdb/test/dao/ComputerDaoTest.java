@@ -1,10 +1,12 @@
 package com.excilys.projet.computerdb.test.dao;
 
+import java.io.File;
 import java.util.Calendar;
 import java.util.Date;
 
 import com.excilys.projet.computerdb.daoImpl.ComputerDao;
 import com.excilys.projet.computerdb.model.Computer;
+
 
 public class ComputerDaoTest {
 
@@ -97,6 +99,6 @@ public class ComputerDaoTest {
 	}
 	
 	public static void main(String[] args) {
-		System.out.println(new Date().toString());
+		
 	}
 }

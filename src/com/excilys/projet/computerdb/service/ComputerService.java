@@ -10,13 +10,14 @@ import com.excilys.projet.computerdb.model.Company;
 import com.excilys.projet.computerdb.model.Computer;
 import com.excilys.projet.computerdb.model.Page;
 
+
 public enum ComputerService {
 
 	I;
 
 	public Computer updateComputer(Computer cpu) {
 		Computer c = null;
-		
+
 		if(cpu.getId() > 0) {
 			c = ComputerDao.I.update(cpu);
 		}

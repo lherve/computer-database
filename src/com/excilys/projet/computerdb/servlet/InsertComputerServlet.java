@@ -15,6 +15,7 @@ import com.excilys.projet.computerdb.model.Company;
 import com.excilys.projet.computerdb.model.Computer;
 import com.excilys.projet.computerdb.service.ComputerService;
 
+
 public class InsertComputerServlet extends HttpServlet {
 
 	@Override
@@ -26,7 +27,7 @@ public class InsertComputerServlet extends HttpServlet {
 		
 		req.setAttribute("cies", ComputerService.I.getCompanies());
 		
-		req.getServletContext().getRequestDispatcher("/update.jsp").forward(req, resp);
+		req.getServletContext().getRequestDispatcher("/WEB-INF/update.jsp").forward(req, resp);
 		
 	}
 	

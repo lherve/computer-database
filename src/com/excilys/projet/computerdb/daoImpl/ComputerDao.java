@@ -10,11 +10,15 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+
 import com.excilys.projet.computerdb.dao.Dao;
 import com.excilys.projet.computerdb.db.Connector;
 import com.excilys.projet.computerdb.model.Company;
 import com.excilys.projet.computerdb.model.Computer;
 import com.mysql.jdbc.StringUtils;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public enum ComputerDao implements Dao<Computer> {
 
@@ -27,7 +31,7 @@ public enum ComputerDao implements Dao<Computer> {
 			Statement pstmt = null;
 			
 			checkCompany(o);
-			
+
 			try {
 				con = Connector.JDBC.getConnection();
 				
@@ -56,7 +60,7 @@ public enum ComputerDao implements Dao<Computer> {
 					query.append("null);");
 				}
 				
-				System.out.println(query);
+				Logger.getLogger("queryLogger").log(Level.INFO, query.toString());
 				
 				if(pstmt.executeUpdate(query.toString(), Statement.RETURN_GENERATED_KEYS) > 0) {
 					ResultSet rs = pstmt.getGeneratedKeys();
@@ -68,7 +72,6 @@ public enum ComputerDao implements Dao<Computer> {
 					rs.close();
 				}
 				
-				System.out.println("id = "+o.getId());
 			}
 			catch(SQLException e) {
 				e.printStackTrace();
@@ -132,7 +135,7 @@ public enum ComputerDao implements Dao<Computer> {
 				
 				query.append(" WHERE id = ").append(o.getId());
 				
-				System.out.println(query);
+				Logger.getLogger("queryLogger").log(Level.INFO, query.toString());
 				
 				stmt.execute(query.toString());
 			}
@@ -201,6 +204,8 @@ public enum ComputerDao implements Dao<Computer> {
 		try {
 			pstmt = con.prepareStatement("SELECT cpu.id, cpu.name, cpu.introduced, cpu.discontinued, cpu.company_id, cie.name FROM computer cpu LEFT OUTER JOIN company cie ON cpu.company_id = cie.id WHERE cpu.id = ?");
 			pstmt.setInt(1, id);
+			
+			Logger.getLogger("queryLogger").log(Level.INFO, pstmt.toString().split(":\\s")[1]);
 			
 			ResultSet rs = pstmt.executeQuery(); 
 			
@@ -271,13 +276,13 @@ public enum ComputerDao implements Dao<Computer> {
 				query.append("cpu.name");
 				break;
 			case INTRODUCED:
-				query.append("coalesce(cpu.introduced, '{')");
+				query.append("isnull(cpu.introduced) asc, cpu.introduced");
 				break;
 			case DISCONTINUED:
-				query.append("coalesce(cpu.discontinued, '{')");
+				query.append("isnull(cpu.discontinued) asc, cpu.discontinued");
 				break;
 			case COMPANY:
-				query.append("coalesce(cie.name, '{')");
+				query.append("isnull(cie.name) asc, cie.name");
 				break;
 			}
 			
@@ -292,7 +297,7 @@ public enum ComputerDao implements Dao<Computer> {
 			query.append(" LIMIT ?,?;");
 
 			pstmt = con.prepareStatement(query.toString());
-			
+
 			int k = 1;
 			
 			if(!StringUtils.isNullOrEmpty(search) && !search.contains("'")) {
@@ -308,8 +313,10 @@ public enum ComputerDao implements Dao<Computer> {
 				
 			pstmt.setInt(k++, i);
 
-			ResultSet rs = pstmt.executeQuery(); 
+			Logger.getLogger("queryLogger").log(Level.INFO, pstmt.toString().split(":\\s")[1]);
 			
+			ResultSet rs = pstmt.executeQuery(); 
+
 			while(rs.next()) {
 				Computer cpu = new Computer(rs.getInt("cpu.id"), rs.getString("cpu.name"));
 				
@@ -361,10 +368,10 @@ public enum ComputerDao implements Dao<Computer> {
 		
 		try {
 			pstmt = con.createStatement();
-			
+
 			StringBuilder query = new StringBuilder("SELECT cpu.id, cpu.name, cpu.introduced, cpu.discontinued, cpu.company_id, cie.name FROM computer cpu LEFT OUTER JOIN company cie ON cpu.company_id = cie.id;");
-			
-			System.out.println(query);
+
+			Logger.getLogger("queryLogger").log(Level.INFO, query.toString());
 			
 			ResultSet rs = pstmt.executeQuery(query.toString()); 
 			
@@ -429,6 +436,8 @@ public enum ComputerDao implements Dao<Computer> {
 			}
 			
 			query.append(";");
+			
+			Logger.getLogger("queryLogger").log(Level.INFO, query.toString());
 			
 			ResultSet rs = stmt.executeQuery(query.toString());
 			
