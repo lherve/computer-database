@@ -20,13 +20,6 @@ public class ListComputersServlet extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		
-//		ServletContext application = getServletContext();
-//		String filepath = application.getRealPath("WEB-INF/conf/app.properties");
-//		File file = new File(filepath);
-//		FileInputStream in = new FileInputStream(file);
-//		
-//		System.out.println(filepath);
-		
 		String info = (String) req.getSession().getAttribute("info");
 		
 		if(!StringUtils.isNullOrEmpty(info)) {
@@ -67,6 +60,9 @@ public class ListComputersServlet extends HttpServlet {
 		if(!StringUtils.isNullOrEmpty(sort)) {
 			try {
 				s = Integer.parseInt(sort);
+				if(s > 4 || s < -4 || s == 0) {
+					s = 1;
+				}
 			}
 			catch(NumberFormatException e) {
 				e.printStackTrace();

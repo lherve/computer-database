@@ -60,7 +60,7 @@
 					
 						<thead>
 							<tr>
-								<th class="col2 header ${s eq '1' ? 'headerSortUp' : s eq '-1' ? 'headerSortDown' : empty s ? 'headerSortUp' : s < -4 ? 'headerSortUp' : s > 4 ? 'headerSortUp' : ''}">
+								<th class="col2 header ${s eq '1' ? 'headerSortUp' : s eq '-1' ? 'headerSortDown' : empty s ? 'headerSortUp' : ''}">
 							        <a href="?search=${page.search}&s=${s eq '1' ? '-1' : '1' }">Computer name</a>
 							    </th>
 							    <th class="col3 header ${s eq '2' ? 'headerSortUp' : s eq '-2' ? 'headerSortDown' : '' }">
