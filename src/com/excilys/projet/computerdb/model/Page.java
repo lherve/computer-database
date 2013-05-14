@@ -1,41 +1,13 @@
 package com.excilys.projet.computerdb.model;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
 import java.util.List;
-import java.util.Properties;
 
 import com.excilys.projet.computerdb.dao.Dao;
-import com.excilys.projet.computerdb.dao.Dao.Order;
-import com.excilys.projet.computerdb.dao.Dao.Sort;
 
 
 public class Page {
-
-	static {
-		int size = 10;
-		
-		  String path = "."; 
-		  
-		  String files;
-		  File folder = new File(path);
-		  File[] listOfFiles = folder.listFiles(); 
-		 
-		  for (int i = 0; i < listOfFiles.length; i++) 
-		  {
-		 
-		   files = listOfFiles[i].getName();
-		   System.out.println(files);
-		  }
-		
-		SIZE = size;
-		
-	}
 	
-	
-	public static final int SIZE;
+	public static final int SIZE = 10;
 	
 	private List<Computer> cpus;
 	
@@ -49,53 +21,13 @@ public class Page {
 	
 	private String search;
 	
-	public Page(int number, int sort, String search) {
-		
-		if(number > 0)
-			previous = new Page(number - 1);
-		else if(number < 0)
-			previous = new Page(-(number + 1));
-		else
-			previous = new Page(number);
-		
-		if(number < 0)
-			next = new Page(-number);
-		else
-			next = new Page(number + 1);
-		
-		number = Math.abs(number);
-		
-		this.start = (number * SIZE) + 1;
-		this.end = (number + 1) * SIZE;
-		
-		this.sort = Sort.NAME;
-		this.order = Order.ASC;
-		
-		if(sort < 0) {
-			this.order = Order.DESC;
-		}
-		
-		sort = Math.abs(sort);
-		
-		switch(sort) {
-		case 2:
-			this.sort = Sort.INTRODUCED;
-			break;
-		case 3:
-			this.sort = Sort.DISCONTINUED;
-			break;
-		case 4:
-			this.sort = Sort.COMPANY;
-			break;
-		}
-		
-		this.search = search;
-		
+	public Page(int number) {
 		this.number = number;
 	}
 	
-	public Page(int number) {
+	public Page(int number, String search) {
 		this.number = number;
+		this.search = search;
 	}
 
 	public List<Computer> getCpus() {

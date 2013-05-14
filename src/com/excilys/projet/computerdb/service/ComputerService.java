@@ -42,8 +42,50 @@ public enum ComputerService {
 	}
 	
 	public Page loadPage(int number, int sort, String search) {
-		Page p = new Page(number, sort, search);
+		Page p = new Page(number, search);
 
+		if(number > 0) {
+			p.setPrevious(new Page(number - 1));
+			p.setNext(new Page(number + 1));
+		}
+		else {
+			if(number < 0) {
+				p.setPrevious(new Page(-(number + 1)));
+			}
+			else {
+				p.setPrevious(new Page(number));
+			}
+			p.setNext(new Page(-number));
+		}
+		
+		number = Math.abs(number);
+		
+		p.setStart(number * Page.SIZE + 1);
+		p.setEnd((number + 1) * Page.SIZE);
+		
+		if(sort < 0) {
+			p.setOrder(Order.DESC);
+		}
+		else {
+			p.setOrder(Order.ASC);
+		}
+		
+		sort = Math.abs(sort);
+		
+		switch(sort) {
+		case 2:
+			p.setSort(Sort.INTRODUCED);
+			break;
+		case 3:
+			p.setSort(Sort.DISCONTINUED);
+			break;
+		case 4:
+			p.setSort(Sort.COMPANY);
+			break;
+		default:
+			p.setSort(Sort.NAME);
+		}
+		
 		p.setCpus(ComputerDao.I.getFromTo(p.getStart(), p.getEnd(), p.getSort(), p.getOrder(), p.getSearch()));
 	
 		return p;
