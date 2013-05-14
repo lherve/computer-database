@@ -1,10 +1,7 @@
 package com.excilys.projet.computerdb.servlet;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;

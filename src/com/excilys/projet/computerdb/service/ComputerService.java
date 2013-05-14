@@ -10,7 +10,6 @@ import com.excilys.projet.computerdb.model.Company;
 import com.excilys.projet.computerdb.model.Computer;
 import com.excilys.projet.computerdb.model.Page;
 
-
 public enum ComputerService {
 
 	I;

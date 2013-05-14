@@ -9,8 +9,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.excilys.projet.computerdb.service.ComputerService;
 
-
-
 public class DeleteComputerServlet extends HttpServlet {
 
 	@Override

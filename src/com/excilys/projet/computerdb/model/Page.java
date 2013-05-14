@@ -4,7 +4,6 @@ import java.util.List;
 
 import com.excilys.projet.computerdb.dao.Dao;
 
-
 public class Page {
 	
 	public static final int SIZE = 10;
