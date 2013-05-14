@@ -99,7 +99,7 @@ public class UpdateComputerServlet extends HttpServlet {
 			
 			String name = req.getParameter("name");
 			
-			if(!StringUtils.isNullOrEmpty(name)) {
+			if(name != null && name.trim().length() > 0) {
 				
 				Pattern p = Pattern.compile("^[\\w\\s+-/\"()]*$");
 				Matcher m = p.matcher(name);
@@ -192,16 +192,20 @@ public class UpdateComputerServlet extends HttpServlet {
 				req.getServletContext().getRequestDispatcher("/WEB-INF/update.jsp").forward(req, resp);
 			}
 			else {
-				ComputerService.I.updateComputer(cpu);
+				StringBuilder sb = new StringBuilder("");
 				
-				StringBuilder sb = new StringBuilder("Computer ");
-				sb.append(cpu.getName()).append(" has been ");
-				
-				if(cpu.getId() > 0) {
-					sb.append("updated");
+				if((ComputerService.I.updateComputer(cpu)).getId() == 0) {
+					sb.append("Update operation failed");
 				}
 				else {
-					sb.append("created");
+					sb.append("Computer ").append(cpu.getName()).append(" has been ");
+
+					if(cpu.getId() > 0) {
+						sb.append("updated");
+					}
+					else {
+						sb.append("created");
+					}
 				}
 				
 				req.getSession().setAttribute("info", sb.toString());

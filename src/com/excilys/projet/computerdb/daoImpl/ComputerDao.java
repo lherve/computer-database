@@ -137,7 +137,9 @@ public enum ComputerDao implements Dao<Computer> {
 				
 				Logger.getLogger("queryLogger").log(Level.INFO, query.toString());
 				
-				stmt.execute(query.toString());
+				if(!stmt.execute(query.toString())) {
+					o.setId(0);
+				}
 			}
 			catch(SQLException e) {
 				e.printStackTrace();

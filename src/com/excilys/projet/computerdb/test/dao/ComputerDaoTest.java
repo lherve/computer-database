@@ -99,6 +99,7 @@ public class ComputerDaoTest {
 	}
 	
 	public static void main(String[] args) {
-		
+		File f = new File("montest");
+                f.mkdir();
 	}
 }

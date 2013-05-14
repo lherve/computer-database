@@ -30,7 +30,8 @@ public class DeleteComputerServlet extends HttpServlet {
 			resp.sendRedirect("");
 		}
 		else {
-			req.getServletContext().getRequestDispatcher("/WEB-INF/update.jsp").forward(req, resp);
+			req.getSession().setAttribute("info", "Delete operation failed");
+			resp.sendRedirect("");
 		}
 	}
 

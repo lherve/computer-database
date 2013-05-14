@@ -1,6 +1,11 @@
 package com.excilys.projet.computerdb.model;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.List;
+import java.util.Properties;
 
 import com.excilys.projet.computerdb.dao.Dao;
 import com.excilys.projet.computerdb.dao.Dao.Order;
@@ -9,7 +14,28 @@ import com.excilys.projet.computerdb.dao.Dao.Sort;
 
 public class Page {
 
-	public static final int SIZE = 10;
+	static {
+		int size = 10;
+		
+		  String path = "."; 
+		  
+		  String files;
+		  File folder = new File(path);
+		  File[] listOfFiles = folder.listFiles(); 
+		 
+		  for (int i = 0; i < listOfFiles.length; i++) 
+		  {
+		 
+		   files = listOfFiles[i].getName();
+		   System.out.println(files);
+		  }
+		
+		SIZE = size;
+		
+	}
+	
+	
+	public static final int SIZE;
 	
 	private List<Computer> cpus;
 	

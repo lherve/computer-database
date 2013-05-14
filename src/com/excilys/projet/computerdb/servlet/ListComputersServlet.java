@@ -1,7 +1,10 @@
 package com.excilys.projet.computerdb.servlet;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -16,6 +19,13 @@ public class ListComputersServlet extends HttpServlet {
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		
+//		ServletContext application = getServletContext();
+//		String filepath = application.getRealPath("WEB-INF/conf/app.properties");
+//		File file = new File(filepath);
+//		FileInputStream in = new FileInputStream(file);
+//		
+//		System.out.println(filepath);
 		
 		String info = (String) req.getSession().getAttribute("info");
 		
