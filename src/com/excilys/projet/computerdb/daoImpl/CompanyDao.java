@@ -7,9 +7,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.excilys.projet.computerdb.dao.Dao;
 import com.excilys.projet.computerdb.db.Connector;
@@ -20,6 +20,8 @@ public enum CompanyDao implements Dao<Company> {
 	
 	I;
 
+	private static final Logger logger = LoggerFactory.getLogger(CompanyDao.class);
+	
 	@Override
 	public Company insert(Company o) {
 		if(o != null) {
@@ -35,7 +37,7 @@ public enum CompanyDao implements Dao<Company> {
 					StringBuilder query = new StringBuilder("INSERT INTO company (name) VALUES ('");
 					query.append(o.getName()).append("');");
 					
-					Logger.getLogger("queryLogger").log(Level.INFO, query.toString());
+					logger.info(query.toString());
 					
 					if(stmt.execute(query.toString(), Statement.RETURN_GENERATED_KEYS)) {
 						ResultSet rs = stmt.getGeneratedKeys();
@@ -90,7 +92,7 @@ public enum CompanyDao implements Dao<Company> {
 					StringBuilder query = new StringBuilder("UPDATE company SET name = '");
 					query.append(o.getName()).append("' WHERE id = ").append(o.getId());
 					
-					Logger.getLogger("queryLogger").log(Level.INFO, query.toString());
+					logger.info(query.toString());
 					
 					stmt.execute(query.toString());
 				}
@@ -127,7 +129,7 @@ public enum CompanyDao implements Dao<Company> {
 					pstmt = con.prepareStatement("DELETE FROM company WHERE id = ?");
 					pstmt.setInt(1, o.getId());
 					
-					Logger.getLogger("queryLogger").log(Level.INFO, pstmt.toString().split(":\\s")[1]);
+					logger.info(pstmt.toString().split(":\\s")[1]);
 					
 					if(pstmt.executeUpdate()>0)
 						result = true;
@@ -163,7 +165,7 @@ public enum CompanyDao implements Dao<Company> {
 			pstmt = con.prepareStatement("SELECT id, name FROM company WHERE id = ?");
 			pstmt.setInt(1, id);
 			
-			Logger.getLogger("queryLogger").log(Level.INFO, pstmt.toString().split(":\\s")[1]);
+			logger.info(pstmt.toString().split(":\\s")[1]);
 			
 			ResultSet rs = pstmt.executeQuery(); 
 			
@@ -209,7 +211,7 @@ public enum CompanyDao implements Dao<Company> {
 				
 			pstmt.setInt(2, i);
 			
-			Logger.getLogger("queryLogger").log(Level.INFO, pstmt.toString().split(":\\s")[1]);
+			logger.info(pstmt.toString().split(":\\s")[1]);
 			
 			ResultSet rs = pstmt.executeQuery(); 
 			
@@ -291,7 +293,7 @@ public enum CompanyDao implements Dao<Company> {
 			
 			query.append(";");
 			
-			Logger.getLogger("queryLogger").log(Level.INFO, query.toString());
+			logger.info(query.toString());
 			
 			ResultSet rs = stmt.executeQuery(query.toString());
 			

@@ -24,7 +24,7 @@ public enum ComputerDao implements Dao<Computer> {
 
 	I;
 	
-	private Logger logger = LoggerFactory.getLogger(ComputerDao.class);
+	private static final Logger logger = LoggerFactory.getLogger(ComputerDao.class);
 	
 	@Override
 	public Computer insert(Computer o) {
