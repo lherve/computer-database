@@ -71,7 +71,7 @@ public class UpdateComputerServlet extends HttpServlet {
 		}
 		
 		if(!idOk) {
-			resp.sendRedirect("/computers");
+			resp.sendRedirect("computers");
 		}
 
 	}
@@ -89,7 +89,7 @@ public class UpdateComputerServlet extends HttpServlet {
 		}
 		
 		if(id == 0) {
-			resp.sendRedirect("/computers");
+			resp.sendRedirect("computers");
 		}
 		else {
 		
@@ -193,7 +193,7 @@ public class UpdateComputerServlet extends HttpServlet {
 			}
 			else {
 				StringBuilder sb = new StringBuilder("");
-				
+
 				if((ComputerService.I.updateComputer(cpu)).getId() == 0) {
 					sb.append("Update operation failed");
 				}
@@ -209,7 +209,7 @@ public class UpdateComputerServlet extends HttpServlet {
 				}
 				
 				req.getSession().setAttribute("info", sb.toString());
-				resp.sendRedirect("?search="+cpu.getName());
+				resp.sendRedirect("computers?search="+cpu.getName());
 			}
 		}
 		
