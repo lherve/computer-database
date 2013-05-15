@@ -17,12 +17,14 @@ import com.excilys.projet.computerdb.model.Company;
 import com.excilys.projet.computerdb.model.Computer;
 import com.mysql.jdbc.StringUtils;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public enum ComputerDao implements Dao<Computer> {
 
 	I;
+	
+	private Logger logger = LoggerFactory.getLogger(ComputerDao.class);
 	
 	@Override
 	public Computer insert(Computer o) {
@@ -62,7 +64,7 @@ public enum ComputerDao implements Dao<Computer> {
 					pstmt.setString(4, null);
 				}
 				
-				Logger.getLogger("queryLogger").log(Level.INFO, pstmt.toString().split(":\\s")[1]);
+				logger.info(pstmt.toString().split(":\\s")[1]);
 				
 				if(pstmt.executeUpdate() > 0) {
 					ResultSet rs = pstmt.getGeneratedKeys();
@@ -133,8 +135,8 @@ public enum ComputerDao implements Dao<Computer> {
 				
 				pstmt.setInt(5, o.getId());
 				
-				Logger.getLogger("queryLogger").log(Level.INFO, pstmt.toString().split(":\\s")[1]);
-
+				logger.info(pstmt.toString().split(":\\s")[1]);
+				
 				if(pstmt.executeUpdate() <= 0){
 					o.setId(0);
 				}
@@ -207,7 +209,7 @@ public enum ComputerDao implements Dao<Computer> {
 			pstmt = con.prepareStatement(query);
 			pstmt.setInt(1, id);
 			
-			Logger.getLogger("queryLogger").log(Level.INFO, pstmt.toString().split(":\\s")[1]);
+			logger.info(pstmt.toString().split(":\\s")[1]);
 			
 			ResultSet rs = pstmt.executeQuery(); 
 			
@@ -264,7 +266,7 @@ public enum ComputerDao implements Dao<Computer> {
 			
 			StringBuilder query = new StringBuilder("SELECT cpu.id, cpu.name, cpu.introduced, cpu.discontinued, cpu.company_id, cie.name FROM computer cpu LEFT OUTER JOIN company cie ON cpu.company_id = cie.id ");
 			
-			if(search != null && search.trim().length() > 0) {
+			if(search != null && search.trim().isEmpty()) {
 				query.append("WHERE cpu.name LIKE ? ");
 			}
 			
@@ -302,7 +304,7 @@ public enum ComputerDao implements Dao<Computer> {
 
 			int k = 1;
 			
-			if(search != null && search.trim().length() > 0) {
+			if(search != null && search.trim().isEmpty()) {
 				pstmt.setString(k++, "%"+search+"%");
 			}
 			
@@ -315,7 +317,7 @@ public enum ComputerDao implements Dao<Computer> {
 				
 			pstmt.setInt(k++, i);
 
-			Logger.getLogger("queryLogger").log(Level.INFO, pstmt.toString().split(":\\s")[1]);
+			logger.info(pstmt.toString().split(":\\s")[1]);
 			
 			ResultSet rs = pstmt.executeQuery(); 
 
@@ -373,7 +375,7 @@ public enum ComputerDao implements Dao<Computer> {
 
 			StringBuilder query = new StringBuilder("SELECT cpu.id, cpu.name, cpu.introduced, cpu.discontinued, cpu.company_id, cie.name FROM computer cpu LEFT OUTER JOIN company cie ON cpu.company_id = cie.id;");
 
-			Logger.getLogger("queryLogger").log(Level.INFO, query.toString());
+			logger.info(query.toString());
 			
 			ResultSet rs = pstmt.executeQuery(query.toString()); 
 			
@@ -443,7 +445,7 @@ public enum ComputerDao implements Dao<Computer> {
 				pstmt.setString(1, "%"+search+"%");
 			}
 			
-			Logger.getLogger("queryLogger").log(Level.INFO, pstmt.toString().split(":\\s")[1]);
+			logger.info(pstmt.toString().split(":\\s")[1]);
 			
 			ResultSet rs = pstmt.executeQuery();
 			

@@ -78,7 +78,6 @@ public class UpdateComputerServlet extends HttpServlet {
 
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		
 		int id = 0;
 		
 		try {
@@ -99,7 +98,7 @@ public class UpdateComputerServlet extends HttpServlet {
 			
 			String name = req.getParameter("name");
 			
-			if(name != null && name.trim().length() > 0) {
+			if(name != null && !name.trim().isEmpty()) {
 				
 				Pattern p = Pattern.compile("^[\\w\\s+-/\"\'()]*$");
 				Matcher m = p.matcher(name);
