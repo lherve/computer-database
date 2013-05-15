@@ -101,7 +101,7 @@ public class UpdateComputerServlet extends HttpServlet {
 			
 			if(name != null && name.trim().length() > 0) {
 				
-				Pattern p = Pattern.compile("^[\\w\\s+-/\"()]*$");
+				Pattern p = Pattern.compile("^[\\w\\s+-/\"\'()]*$");
 				Matcher m = p.matcher(name);
 				
 				if(!m.find()) {

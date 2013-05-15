@@ -264,7 +264,7 @@ public enum ComputerDao implements Dao<Computer> {
 			
 			StringBuilder query = new StringBuilder("SELECT cpu.id, cpu.name, cpu.introduced, cpu.discontinued, cpu.company_id, cie.name FROM computer cpu LEFT OUTER JOIN company cie ON cpu.company_id = cie.id ");
 			
-			if(!StringUtils.isNullOrEmpty(search) && !search.contains("'")) {
+			if(search != null && search.trim().length() > 0) {
 				query.append("WHERE cpu.name LIKE ? ");
 			}
 			
@@ -302,7 +302,7 @@ public enum ComputerDao implements Dao<Computer> {
 
 			int k = 1;
 			
-			if(!StringUtils.isNullOrEmpty(search) && !search.contains("'")) {
+			if(search != null && search.trim().length() > 0) {
 				pstmt.setString(k++, "%"+search+"%");
 			}
 			
@@ -422,26 +422,30 @@ public enum ComputerDao implements Dao<Computer> {
 	@Override
 	public int count(String search) {
 		Connection con = null;
-		Statement stmt = null;
+		PreparedStatement pstmt = null;
 
 		int count = 0;
 		
 		try {
 			con = Connector.JDBC.getConnection();
 			
-			stmt = con.createStatement();
-			
 			StringBuilder query = new StringBuilder("SELECT count(id) as count FROM computer");
 			
-			if(!StringUtils.isNullOrEmpty(search) && !search.contains("'")) {
-				query.append(" WHERE name LIKE '%").append(search).append("%'");
+			if(search != null && search.trim().length() > 0) {
+				query.append(" WHERE name LIKE ?");
 			}
 			
 			query.append(";");
 			
-			Logger.getLogger("queryLogger").log(Level.INFO, query.toString());
+			pstmt = con.prepareStatement(query.toString());
 			
-			ResultSet rs = stmt.executeQuery(query.toString());
+			if(search != null && search.trim().length() > 0) {
+				pstmt.setString(1, "%"+search+"%");
+			}
+			
+			Logger.getLogger("queryLogger").log(Level.INFO, pstmt.toString().split(":\\s")[1]);
+			
+			ResultSet rs = pstmt.executeQuery();
 			
 			if(rs.next()) {
 				count = rs.getInt("count");
@@ -454,8 +458,8 @@ public enum ComputerDao implements Dao<Computer> {
 		}
 		finally {
 			try {
-				if(stmt != null) {
-					stmt.close();
+				if(pstmt != null) {
+					pstmt.close();
 				}
 			}
 			catch(SQLException e) {
