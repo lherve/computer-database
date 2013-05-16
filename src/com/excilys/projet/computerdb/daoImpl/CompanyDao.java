@@ -14,120 +14,43 @@ import org.slf4j.LoggerFactory;
 
 import com.excilys.projet.computerdb.dao.Dao;
 import com.excilys.projet.computerdb.model.Company;
+import com.excilys.projet.computerdb.utils.Connector;
 
 import com.mysql.jdbc.StringUtils;
 
 public enum CompanyDao implements Dao<Company> {
 	
 	I;
-
+	
 	private static final Logger logger = LoggerFactory.getLogger(CompanyDao.class);
 	
+	private static final String INSERT_COMPANY = "INSERT INTO company (name) VALUES (?);";
+	private static final String UPDATE_COMPANY = "UPDATE company SET name = ? WHERE id = ?;";
+	private static final String DELETE_COMPANY = "DELETE FROM company WHERE id = ?;";
+	
 	@Override
-	public Company insert(Company o, Connection con) {
+	public Company insert(Company o) throws SQLException {
 		if(o != null) {
-			Statement stmt = null;
 			
-			try {
-				if(o.getId() <= 0) {
-					stmt = con.createStatement();
-					
-					StringBuilder query = new StringBuilder("INSERT INTO company (name) VALUES ('");
-					query.append(o.getName()).append("');");
-					
-					logger.info(query.toString());
-					
-					if(stmt.execute(query.toString(), Statement.RETURN_GENERATED_KEYS)) {
-						ResultSet rs = stmt.getGeneratedKeys();
-						
-						if(rs.next()) {
-							o.setId(rs.getInt(1));
-						}
-						
-						rs.close();
-					}
-					
-					System.out.println("id = "+o.getId());
-					
-				}
-				else {
-					o = update(o, con);
-				}
-			}
-			catch(SQLException e) {
-				e.printStackTrace();
-			}
-			finally {
-				try {
-					if(stmt != null) {
-						stmt.close();
-					}
-				}
-				catch(SQLException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-		return o;
-	}
-
-	@Override
-	public Company update(Company o, Connection con) {
-		if(o != null) {
-			Statement stmt = null;
-			
-			try {
-				if(o.getId() <= 0) {
-					o = insert(o, con);
-				}
-				else {
-					stmt = con.createStatement();
-					
-					StringBuilder query = new StringBuilder("UPDATE company SET name = '");
-					query.append(o.getName()).append("' WHERE id = ").append(o.getId());
-					
-					logger.info(query.toString());
-					
-					stmt.execute(query.toString());
-				}
-			}
-			catch(SQLException e) {
-				e.printStackTrace();
-			}
-			finally {
-				try {
-					if(stmt != null) {
-						stmt.close();
-					}
-				}
-				catch(SQLException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-		return o;
-	}
-
-	@Override
-	public boolean delete(Company o, Connection con) {
-		boolean result = false;
-		if(o != null) {
 			PreparedStatement pstmt = null;
 			
 			try {
-				if(o.getId() > 0) {
-					pstmt = con.prepareStatement("DELETE FROM company WHERE id = ?");
-					pstmt.setInt(1, o.getId());
+				pstmt = Connector.JDBC.getConnection().prepareStatement(INSERT_COMPANY, Statement.RETURN_GENERATED_KEYS);
+				
+				pstmt.setString(1, o.getName());
+				
+				logger.info(pstmt.toString().split(":\\s")[1]);
+				
+				if(pstmt.executeUpdate() > 0) {
+					ResultSet rs = pstmt.getGeneratedKeys();
 					
-					logger.info(pstmt.toString().split(":\\s")[1]);
+					if(rs.next()) {
+						o.setId(rs.getInt(1));
+					}
 					
-					if(pstmt.executeUpdate()>0)
-						result = true;
-					
+					rs.close();
 				}
-			}
-			catch(SQLException e) {
-				e.printStackTrace();
+					
 			}
 			finally {
 				try {
@@ -136,21 +59,87 @@ public enum CompanyDao implements Dao<Company> {
 					}
 				}
 				catch(SQLException e) {
-					e.printStackTrace();
+					logger.warn("insert company - DAO Statement close failed");
+				}
+			}
+		}
+		return o;
+	}
+
+	@Override
+	public Company update(Company o) throws SQLException {
+		if(o != null) {
+			
+			PreparedStatement pstmt = null;
+			
+			try {
+				pstmt = Connector.JDBC.getConnection().prepareStatement(UPDATE_COMPANY);
+				
+				pstmt.setString(1, o.getName());
+				pstmt.setInt(2, o.getId());
+				
+				logger.info(pstmt.toString().split(":\\s")[1]);
+				
+				if(pstmt.executeUpdate() <= 0){
+					o.setId(0);
+				}
+			}
+			finally {
+				try {
+					if(pstmt != null) {
+						pstmt.close();
+					}
+				}
+				catch(SQLException e) {
+					logger.warn("update company - DAO Statement close failed");
+				}
+			}
+		}
+		return o;
+	}
+
+	@Override
+	public boolean delete(Company o) throws SQLException {
+		boolean result = false;
+		
+		if(o != null && o.getId() > 0) {
+			
+			PreparedStatement pstmt = null;
+			
+			try {
+					pstmt = Connector.JDBC.getConnection().prepareStatement(DELETE_COMPANY);
+					
+					pstmt.setInt(1, o.getId());
+					
+					logger.info(pstmt.toString().split(":\\s")[1]);
+					
+					if(pstmt.executeUpdate() > 0) {
+						result = true;
+					}
+			}
+			finally {
+				try {
+					if(pstmt != null) {
+						pstmt.close();
+					}
+				}
+				catch(SQLException e) {
+					logger.warn("delete company - DAO Statement close failed");
 				}
 			}
 		}
 		return result;
 	}
 
+	/* A MODIFIER */
 	@Override
-	public Company get(int id, Connection con) {
+	public Company get(int id) {
 		PreparedStatement pstmt = null;
 		
 		Company cie = null;
 		
 		try {
-			pstmt = con.prepareStatement("SELECT id, name FROM company WHERE id = ?");
+			pstmt = Connector.JDBC.getConnection().prepareStatement("SELECT id, name FROM company WHERE id = ?");
 			pstmt.setInt(1, id);
 			
 			logger.info(pstmt.toString().split(":\\s")[1]);
@@ -180,14 +169,15 @@ public enum CompanyDao implements Dao<Company> {
 		return cie;
 	}
 
+	/* A MODIFIER */
 	@Override
-	public List<Company> getFromTo(int start, int end, Sort sortedBy, Order order, String search, Connection con) {
+	public List<Company> getFromTo(int start, int end, Sort sortedBy, Order order, String search) {
 		PreparedStatement pstmt = null;
 		
 		List<Company> cies = new ArrayList<Company>();
 		
 		try {
-			pstmt = con.prepareStatement("SELECT id, name FROM company LIMIT ?,?;");
+			pstmt = Connector.JDBC.getConnection().prepareStatement("SELECT id, name FROM company LIMIT ?,?;");
 			pstmt.setInt(1, --start);
 			
 			int i = end - start;
@@ -223,14 +213,15 @@ public enum CompanyDao implements Dao<Company> {
 		return cies;
 	}
 
+	/* A MODIFIER */
 	@Override
-	public List<Company> getAll(Sort sortedBy, Order order, Connection con) {
+	public List<Company> getAll(Sort sortedBy, Order order) {
 		PreparedStatement pstmt = null;
 		
 		List<Company> cies = new ArrayList<Company>();
 		
 		try {
-			pstmt = con.prepareStatement("SELECT id, name FROM company ORDER BY name ASC;");
+			pstmt = Connector.JDBC.getConnection().prepareStatement("SELECT id, name FROM company ORDER BY name ASC;");
 			
 			ResultSet rs = pstmt.executeQuery(); 
 			
@@ -256,14 +247,15 @@ public enum CompanyDao implements Dao<Company> {
 		return cies;
 	}
 
+	/* A MODIFIER */
 	@Override
-	public int count(String search, Connection con) {
+	public int count(String search) {
 		Statement stmt = null;
 
 		int count = 0;
 		
 		try {
-			stmt = con.createStatement();
+			stmt = Connector.JDBC.getConnection().createStatement();
 			
 			StringBuilder query = new StringBuilder("SELECT count(id) as count FROM company");
 			

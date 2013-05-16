@@ -1,6 +1,5 @@
 package com.excilys.projet.computerdb.service;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -11,10 +10,11 @@ import com.excilys.projet.computerdb.dao.Dao.Order;
 import com.excilys.projet.computerdb.dao.Dao.Sort;
 import com.excilys.projet.computerdb.daoImpl.CompanyDao;
 import com.excilys.projet.computerdb.daoImpl.ComputerDao;
-import com.excilys.projet.computerdb.db.Connector;
 import com.excilys.projet.computerdb.model.Company;
 import com.excilys.projet.computerdb.model.Computer;
 import com.excilys.projet.computerdb.model.Page;
+import com.excilys.projet.computerdb.utils.Connector;
+import com.mysql.jdbc.StringUtils;
 
 public enum ComputerService {
 
@@ -23,95 +23,166 @@ public enum ComputerService {
 	private final static Logger logger = LoggerFactory.getLogger(ComputerService.class);
 	
 	public Computer getComputer(int id) {
-		Connection con = Connector.JDBC.getConnection();
-		
 		Computer cpu = null;
 		
 		try {
-			cpu = ComputerDao.I.get(id, con);
+			cpu = ComputerDao.I.get(id);
 		} catch (SQLException e) {
 			logger.warn("Service - get computer:"+e.getMessage());
 			logger.warn("Service - get "+id);
 		}
 		
-		Connector.JDBC.closeConnection(con);
+		Connector.JDBC.closeConnection();
 		
 		return cpu;
 	}
 
 	public Computer updateComputer(Computer cpu) {
-		Connection con = Connector.JDBC.getConnection();
+		boolean commit = true;
+		
+		try {
+			checkCompany(cpu);
+		}
+		catch (SQLException e) {
+			logger.warn("Service - check company:"+e.getMessage());
+			logger.warn("Service - check "+cpu);
+			commit = false;
+		}
 		
 		if(cpu.getId() > 0) {
 			try {
-				cpu = ComputerDao.I.update(cpu, con);
+				cpu = ComputerDao.I.update(cpu);
 			} catch (SQLException e) {
 				logger.warn("Service - update computer:"+e.getMessage());
 				logger.warn("Service - update "+cpu);
+				commit = false;
 			}
 		}
 		else {
 			try {
-				cpu = ComputerDao.I.insert(cpu, con);
+				cpu = ComputerDao.I.insert(cpu);
 			} catch (SQLException e) {
 				logger.warn("Service - insert computer:"+e.getMessage());
 				logger.warn("Service - insert "+cpu);
+				commit = false;
 			}
 		}
 		
-		Connector.JDBC.closeConnection(con);
+		if(commit) {
+			try {
+				Connector.JDBC.getConnection().commit();
+			} catch (SQLException e) {
+				logger.warn("Service - update computer commit failed");
+			}
+		}
+		else {
+			try {
+				Connector.JDBC.getConnection().rollback();
+			} catch (SQLException e) {
+				logger.warn("Service - update computer rollback failed");
+			}
+		}
+		
+		Connector.JDBC.closeConnection();
 		
 		return cpu;
 	}
 	
-	public boolean deleteComputer(int id) {
-		Connection con = Connector.JDBC.getConnection();
+	/* Méthode utilisée lors de l'ajout ou la mise-à-jour de computers 
+	 * pour valider la company associée
+	 */
+	private Company checkCompany(Computer o) throws SQLException {
+		Company c = o != null ? o.getCompany() : null;
 		
+		if(c != null) {
+			
+			if(c.getId() > 0 && (StringUtils.isEmptyOrWhitespaceOnly(c.getName()))) {
+				
+				Company search = CompanyDao.I.get(c.getId());
+				
+				if(search != null) {
+					c = search;
+				}
+				else {
+					c = null;
+				}
+				
+			}
+			else if(c.getId() <= 0 && (!StringUtils.isEmptyOrWhitespaceOnly(c.getName()))) {
+				
+				c = CompanyDao.I.insert(c);
+				
+			}
+			else {
+				
+				c = null;
+				
+			}
+			
+			o.setCompany(c);
+		}
+		
+		return c;
+	}
+	
+	public boolean deleteComputer(int id) {
 		boolean result = false;
 		
+		boolean commit = true;
+		
 		try {
-			result = ComputerDao.I.delete(new Computer(id, null), con);
+			result = ComputerDao.I.delete(new Computer(id, null));
 		} catch (SQLException e) {
 			logger.warn("Service - delete computer:"+e.getMessage());
 			logger.warn("Service - delete "+id);
+			commit = false;
 		}
 		
-		Connector.JDBC.closeConnection(con);
+		if(commit) {
+			try {
+				Connector.JDBC.getConnection().commit();
+			} catch (SQLException e) {
+				logger.warn("Service - update computer commit failed");
+			}
+		}
+		else {
+			try {
+				Connector.JDBC.getConnection().rollback();
+			} catch (SQLException e) {
+				logger.warn("Service - update computer rollback failed");
+			}
+		}
+		
+		Connector.JDBC.closeConnection();
 		
 		return result;
 	}
 
 	public List<Company> getCompanies() {
-		Connection con = Connector.JDBC.getConnection();
+		List<Company> companies = CompanyDao.I.getAll(Sort.NAME, Order.ASC);
 		
-		List<Company> companies = CompanyDao.I.getAll(Sort.NAME, Order.ASC, con);
-		
-		Connector.JDBC.closeConnection(con);
+		Connector.JDBC.closeConnection();
 		
 		return companies;
 	}
 
 	public int count(String search) {
-		Connection con = Connector.JDBC.getConnection();
-		
 		int i = -1;
 		
 		try {
-			i =  ComputerDao.I.count(search, con);
+			i =  ComputerDao.I.count(search);
 		}
 		catch (SQLException e) {
 			logger.warn("Service - count computers:"+e.getMessage());
 			logger.warn("Service - count with "+search);
 		}
 		
-		Connector.JDBC.closeConnection(con);
+		Connector.JDBC.closeConnection();
 		
 		return i;
 	}
 	
 	public Page loadPage(int number, int sort, String search) {
-		Connection con = Connector.JDBC.getConnection();
-		
 		Page p = new Page(number, search);
 
 		if(number < 0) {
@@ -157,13 +228,13 @@ public enum ComputerService {
 		}
 		
 		try {
-			p.setCpus(ComputerDao.I.getFromTo(p.getStart(), p.getEnd(), p.getSort(), p.getOrder(), p.getSearch(), con));
+			p.setCpus(ComputerDao.I.getFromTo(p.getStart(), p.getEnd(), p.getSort(), p.getOrder(), p.getSearch()));
 		} catch (SQLException e) {
 			logger.warn("Service - load page:"+e.getMessage());
 			logger.warn("Service - load "+p);
 		}
 	
-		Connector.JDBC.closeConnection(con);
+		Connector.JDBC.closeConnection();
 		
 		return p;
 	}

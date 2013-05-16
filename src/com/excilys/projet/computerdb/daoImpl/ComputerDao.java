@@ -14,6 +14,7 @@ import java.util.List;
 import com.excilys.projet.computerdb.dao.Dao;
 import com.excilys.projet.computerdb.model.Company;
 import com.excilys.projet.computerdb.model.Computer;
+import com.excilys.projet.computerdb.utils.Connector;
 
 import com.mysql.jdbc.StringUtils;
 
@@ -33,15 +34,13 @@ public enum ComputerDao implements Dao<Computer> {
 	private static final String GET_ALL_COMPUTERS = "SELECT cpu.id, cpu.name, cpu.introduced, cpu.discontinued, cpu.company_id, cie.name FROM computer cpu LEFT OUTER JOIN company cie ON cpu.company_id = cie.id;";
 	
 	@Override
-	public Computer insert(Computer o, Connection con) throws SQLException {
+	public Computer insert(Computer o) throws SQLException {
 		if(o != null) {
 			
 			PreparedStatement pstmt = null;
-			
-			checkCompany(o, con);
 
 			try {
-				pstmt = con.prepareStatement(INSERT_COMPUTER, Statement.RETURN_GENERATED_KEYS);
+				pstmt = Connector.JDBC.getConnection().prepareStatement(INSERT_COMPUTER, Statement.RETURN_GENERATED_KEYS);
 				
 				pstmt.setString(1, o.getName());
 				
@@ -94,15 +93,13 @@ public enum ComputerDao implements Dao<Computer> {
 	}
 
 	@Override
-	public Computer update(Computer o, Connection con) throws SQLException {
+	public Computer update(Computer o) throws SQLException {
 		if(o != null) {
 			
 			PreparedStatement pstmt = null;
-	
-			checkCompany(o, con);
 			
 			try {
-				pstmt = con.prepareStatement(UPDATE_COMPUTER);
+				pstmt = Connector.JDBC.getConnection().prepareStatement(UPDATE_COMPUTER);
 				
 				pstmt.setString(1, o.getName());
 				
@@ -151,7 +148,7 @@ public enum ComputerDao implements Dao<Computer> {
 	}
 
 	@Override
-	public boolean delete(Computer o, Connection con) throws SQLException {
+	public boolean delete(Computer o) throws SQLException {
 		boolean result = false;
 		
 		if(o != null && o.getId() > 0) {
@@ -159,11 +156,13 @@ public enum ComputerDao implements Dao<Computer> {
 			PreparedStatement pstmt = null;
 			
 			try {
-				pstmt = con.prepareStatement(DELETE_COMPUTER);
+				pstmt = Connector.JDBC.getConnection().prepareStatement(DELETE_COMPUTER);
 				
 				pstmt.setInt(1, o.getId());
 				
-				if(pstmt.executeUpdate()>0) {
+				logger.info(pstmt.toString().split(":\\s")[1]);
+				
+				if(pstmt.executeUpdate() > 0) {
 					result = true;
 				}
 					
@@ -184,13 +183,13 @@ public enum ComputerDao implements Dao<Computer> {
 	}
 
 	@Override
-	public Computer get(int id, Connection con) throws SQLException {
+	public Computer get(int id) throws SQLException {
 		PreparedStatement pstmt = null;
 		
 		Computer cpu = null;
 		
 		try {
-			pstmt = con.prepareStatement(GET_ONE_COMPUTER);
+			pstmt = Connector.JDBC.getConnection().prepareStatement(GET_ONE_COMPUTER);
 			
 			pstmt.setInt(1, id);
 			
@@ -235,7 +234,7 @@ public enum ComputerDao implements Dao<Computer> {
 	}
 
 	@Override
-	public List<Computer> getFromTo(int start, int end, Sort sortedBy, Order order, String search, Connection con) throws SQLException {
+	public List<Computer> getFromTo(int start, int end, Sort sortedBy, Order order, String search) throws SQLException {
 		PreparedStatement pstmt = null;
 		
 		List<Computer> cpus = new ArrayList<Computer>();
@@ -277,7 +276,7 @@ public enum ComputerDao implements Dao<Computer> {
 			
 			query.append(" LIMIT ?,?;");
 
-			pstmt = con.prepareStatement(query.toString());
+			pstmt = Connector.JDBC.getConnection().prepareStatement(query.toString());
 
 			int k = 1;
 			
@@ -318,13 +317,13 @@ public enum ComputerDao implements Dao<Computer> {
 	}
 
 	@Override
-	public List<Computer> getAll(Sort sortedBy, Order order, Connection con) throws SQLException {
+	public List<Computer> getAll(Sort sortedBy, Order order) throws SQLException {
 		Statement pstmt = null;
 		
 		List<Computer> cpus = new ArrayList<Computer>();
 		
 		try {
-			pstmt = con.createStatement();
+			pstmt = Connector.JDBC.getConnection().createStatement();
 
 			logger.info(GET_ALL_COMPUTERS);
 			
@@ -350,7 +349,7 @@ public enum ComputerDao implements Dao<Computer> {
 	}
 
 	@Override
-	public int count(String search, Connection con) throws SQLException {
+	public int count(String search) throws SQLException {
 		PreparedStatement pstmt = null;
 
 		int count = 0;
@@ -364,7 +363,7 @@ public enum ComputerDao implements Dao<Computer> {
 			
 			query.append(";");
 			
-			pstmt = con.prepareStatement(query.toString());
+			pstmt = Connector.JDBC.getConnection().prepareStatement(query.toString());
 			
 			if(!StringUtils.isEmptyOrWhitespaceOnly(search)) {
 				pstmt.setString(1, "%"+search+"%");
@@ -393,38 +392,6 @@ public enum ComputerDao implements Dao<Computer> {
 		}
 		
 		return count;
-	}
-	
-	private Company checkCompany(Computer o, Connection con) {
-		Company c = o != null ? o.getCompany() : null;
-		
-		if(c != null) {
-			
-			if(c.getId() > 0 && (StringUtils.isNullOrEmpty(c.getName()))) {
-				
-				Company search = CompanyDao.I.get(c.getId(), con);
-				
-				if(search != null) {
-					c = search;
-				}
-				else {
-					c = null;
-				}
-				
-			}
-			else if(c.getId() <= 0 && (!StringUtils.isNullOrEmpty(c.getName()))) {
-				
-				c = CompanyDao.I.insert(c, con);
-				
-			}
-			else {
-				c = null;
-			}
-			
-			o.setCompany(c);
-		}
-		
-		return c;
 	}
 	
 	private List<Computer> fillComputers(ResultSet rs) {
