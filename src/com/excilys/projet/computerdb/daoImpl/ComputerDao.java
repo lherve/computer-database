@@ -6,15 +6,15 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-
 import com.excilys.projet.computerdb.dao.Dao;
-import com.excilys.projet.computerdb.db.Connector;
 import com.excilys.projet.computerdb.model.Company;
 import com.excilys.projet.computerdb.model.Computer;
+
 import com.mysql.jdbc.StringUtils;
 
 import org.slf4j.Logger;
@@ -26,23 +26,25 @@ public enum ComputerDao implements Dao<Computer> {
 	
 	private static final Logger logger = LoggerFactory.getLogger(ComputerDao.class);
 	
+	private static final String INSERT_COMPUTER = "INSERT INTO computer (name, introduced, discontinued, company_id) VALUES(?, ?, ?, ?);";
+	private static final String UPDATE_COMPUTER = "UPDATE computer SET name = ? , introduced = ? , discontinued = ? , company_id = ? WHERE id = ?;";
+	private static final String DELETE_COMPUTER = "DELETE FROM computer WHERE id = ?;";
+	private static final String GET_ONE_COMPUTER = "SELECT cpu.id, cpu.name, cpu.introduced, cpu.discontinued, cpu.company_id, cie.name FROM computer cpu LEFT OUTER JOIN company cie ON cpu.company_id = cie.id WHERE cpu.id = ?;";
+	private static final String GET_ALL_COMPUTERS = "SELECT cpu.id, cpu.name, cpu.introduced, cpu.discontinued, cpu.company_id, cie.name FROM computer cpu LEFT OUTER JOIN company cie ON cpu.company_id = cie.id;";
+	
 	@Override
-	public Computer insert(Computer o) {
+	public Computer insert(Computer o, Connection con) throws SQLException {
 		if(o != null) {
-			Connection con = null;
+			
 			PreparedStatement pstmt = null;
 			
-			checkCompany(o);
+			checkCompany(o, con);
 
 			try {
-				con = Connector.JDBC.getConnection();
+				pstmt = con.prepareStatement(INSERT_COMPUTER, Statement.RETURN_GENERATED_KEYS);
 				
-				String query = "INSERT INTO computer (name, introduced, discontinued, company_id) VALUES(?, ?, ?, ?);";
-				
-				pstmt = con.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-
 				pstmt.setString(1, o.getName());
-
+				
 				if(o.getIntroduced() != null) {
 					pstmt.setDate(2, new Date(o.getIntroduced().getTimeInMillis()));
 				}
@@ -77,9 +79,6 @@ public enum ComputerDao implements Dao<Computer> {
 				}
 				
 			}
-			catch(SQLException e) {
-				e.printStackTrace();
-			}
 			finally {
 				try {
 					if(pstmt != null) {
@@ -87,28 +86,23 @@ public enum ComputerDao implements Dao<Computer> {
 					}
 				}
 				catch(SQLException e) {
-					e.printStackTrace();
+					logger.warn("insert computer - DAO Statement close failed");
 				}
-				Connector.JDBC.closeConnection(con);
 			}
 		}
 		return o;
 	}
 
 	@Override
-	public Computer update(Computer o) {
+	public Computer update(Computer o, Connection con) throws SQLException {
 		if(o != null) {
-			Connection con = null;
+			
 			PreparedStatement pstmt = null;
 	
-			checkCompany(o);
+			checkCompany(o, con);
 			
 			try {
-				con = Connector.JDBC.getConnection();
-				
-				String query = "UPDATE computer SET name = ? , introduced = ? , discontinued = ? , company_id = ? WHERE id = ?;";
-				
-				pstmt = con.prepareStatement(query);
+				pstmt = con.prepareStatement(UPDATE_COMPUTER);
 				
 				pstmt.setString(1, o.getName());
 				
@@ -140,9 +134,7 @@ public enum ComputerDao implements Dao<Computer> {
 				if(pstmt.executeUpdate() <= 0){
 					o.setId(0);
 				}
-			}
-			catch(SQLException e) {
-				e.printStackTrace();
+				
 			}
 			finally {
 				try {
@@ -151,35 +143,30 @@ public enum ComputerDao implements Dao<Computer> {
 					}
 				}
 				catch(SQLException e) {
-					e.printStackTrace();
+					logger.warn("update computer - DAO Statement close failed");
 				}
-				Connector.JDBC.closeConnection(con);
 			}
 		}
 		return o;
 	}
 
 	@Override
-	public boolean delete(Computer o) {
+	public boolean delete(Computer o, Connection con) throws SQLException {
 		boolean result = false;
-		if(o != null) {
-			Connection con = null;
+		
+		if(o != null && o.getId() > 0) {
+			
 			PreparedStatement pstmt = null;
 			
 			try {
-				if(o.getId() > 0) {
-					con = Connector.JDBC.getConnection();
-					
-					pstmt = con.prepareStatement("DELETE FROM computer WHERE id = ?");
-					pstmt.setInt(1, o.getId());
-					
-					if(pstmt.executeUpdate()>0)
-						result = true;
-					
+				pstmt = con.prepareStatement(DELETE_COMPUTER);
+				
+				pstmt.setInt(1, o.getId());
+				
+				if(pstmt.executeUpdate()>0) {
+					result = true;
 				}
-			}
-			catch(SQLException e) {
-				e.printStackTrace();
+					
 			}
 			finally {
 				try {
@@ -188,25 +175,23 @@ public enum ComputerDao implements Dao<Computer> {
 					}
 				}
 				catch(SQLException e) {
-					e.printStackTrace();
+					logger.warn("delete computer - DAO Statement close failed");
 				}
-				Connector.JDBC.closeConnection(con);
 			}
 		}
+		
 		return result;
 	}
 
 	@Override
-	public Computer get(int id) {
-		Connection con = Connector.JDBC.getConnection();
+	public Computer get(int id, Connection con) throws SQLException {
 		PreparedStatement pstmt = null;
 		
 		Computer cpu = null;
 		
 		try {
-			String query = "SELECT cpu.id, cpu.name, cpu.introduced, cpu.discontinued, cpu.company_id, cie.name FROM computer cpu LEFT OUTER JOIN company cie ON cpu.company_id = cie.id WHERE cpu.id = ?";
+			pstmt = con.prepareStatement(GET_ONE_COMPUTER);
 			
-			pstmt = con.prepareStatement(query);
 			pstmt.setInt(1, id);
 			
 			logger.info(pstmt.toString().split(":\\s")[1]);
@@ -234,11 +219,6 @@ public enum ComputerDao implements Dao<Computer> {
 					cpu.setCompany(new Company(company_id, rs.getString("cie.name")));
 				}
 			}
-			
-			pstmt.close();
-			
-		} catch (SQLException e) {
-			e.printStackTrace();
 		}
 		finally {
 			try {
@@ -247,26 +227,23 @@ public enum ComputerDao implements Dao<Computer> {
 				}
 			}
 			catch(SQLException e) {
-				e.printStackTrace();
+				logger.warn("get one computer - DAO Statement close failed");
 			}
-			Connector.JDBC.closeConnection(con);
 		}
 		
 		return cpu;
 	}
 
 	@Override
-	public List<Computer> getFromTo(int start, int end, Sort sortedBy, Order order, String search) {
-		Connection con = Connector.JDBC.getConnection();
+	public List<Computer> getFromTo(int start, int end, Sort sortedBy, Order order, String search, Connection con) throws SQLException {
 		PreparedStatement pstmt = null;
 		
 		List<Computer> cpus = new ArrayList<Computer>();
 		
 		try {
-			
 			StringBuilder query = new StringBuilder("SELECT cpu.id, cpu.name, cpu.introduced, cpu.discontinued, cpu.company_id, cie.name FROM computer cpu LEFT OUTER JOIN company cie ON cpu.company_id = cie.id ");
 			
-			if(search != null && search.trim().isEmpty()) {
+			if(!StringUtils.isEmptyOrWhitespaceOnly(search)) {
 				query.append("WHERE cpu.name LIKE ? ");
 			}
 			
@@ -304,7 +281,7 @@ public enum ComputerDao implements Dao<Computer> {
 
 			int k = 1;
 			
-			if(search != null && search.trim().isEmpty()) {
+			if(!StringUtils.isEmptyOrWhitespaceOnly(search)) {
 				pstmt.setString(k++, "%"+search+"%");
 			}
 			
@@ -314,39 +291,17 @@ public enum ComputerDao implements Dao<Computer> {
 			if(i < 0) {
 				i = 10;
 			}
-				
+			
 			pstmt.setInt(k++, i);
 
 			logger.info(pstmt.toString().split(":\\s")[1]);
 			
 			ResultSet rs = pstmt.executeQuery(); 
 
-			while(rs.next()) {
-				Computer cpu = new Computer(rs.getInt("cpu.id"), rs.getString("cpu.name"));
-				
-				Date dt;
-				
-				if((dt = rs.getDate("cpu.introduced")) != null) {
-					cpu.setIntroduced(Calendar.getInstance());
-					cpu.getIntroduced().setTime(dt);
-				}
-				
-				if((dt = rs.getDate("cpu.discontinued")) != null) {
-					cpu.setDiscontinued(Calendar.getInstance());
-					cpu.getDiscontinued().setTime(dt);
-				}
-				
-				int company_id = rs.getInt("cpu.company_id");
-				
-				if(company_id > 0) {
-					cpu.setCompany(new Company(company_id, rs.getString("cie.name")));
-				}
-				
-				cpus.add(cpu);
-			}
+			cpus = fillComputers(rs);
 			
-		} catch (SQLException e) {
-			e.printStackTrace();
+			rs.close();
+			
 		}
 		finally {
 			try {
@@ -355,17 +310,15 @@ public enum ComputerDao implements Dao<Computer> {
 				}
 			}
 			catch(SQLException e) {
-				e.printStackTrace();
+				logger.warn("get some computers - DAO Statement close failed");
 			}
-			Connector.JDBC.closeConnection(con);
 		}
 		
 		return cpus;
 	}
 
 	@Override
-	public List<Computer> getAll(Sort sortedBy, Order order) {
-		Connection con = Connector.JDBC.getConnection();
+	public List<Computer> getAll(Sort sortedBy, Order order, Connection con) throws SQLException {
 		Statement pstmt = null;
 		
 		List<Computer> cpus = new ArrayList<Computer>();
@@ -373,38 +326,14 @@ public enum ComputerDao implements Dao<Computer> {
 		try {
 			pstmt = con.createStatement();
 
-			StringBuilder query = new StringBuilder("SELECT cpu.id, cpu.name, cpu.introduced, cpu.discontinued, cpu.company_id, cie.name FROM computer cpu LEFT OUTER JOIN company cie ON cpu.company_id = cie.id;");
-
-			logger.info(query.toString());
+			logger.info(GET_ALL_COMPUTERS);
 			
-			ResultSet rs = pstmt.executeQuery(query.toString()); 
+			ResultSet rs = pstmt.executeQuery(GET_ALL_COMPUTERS); 
 			
-			while(rs.next()) {
-				Computer cpu = new Computer(rs.getInt("cpu.id"), rs.getString("cpu.name"));
-				
-				Date dt;
-				
-				if((dt = rs.getDate("cpu.introduced")) != null) {
-					cpu.setIntroduced(Calendar.getInstance());
-					cpu.getIntroduced().setTime(dt);
-				}
-				
-				if((dt = rs.getDate("cpu.discontinued")) != null) {
-					cpu.setDiscontinued(Calendar.getInstance());
-					cpu.getDiscontinued().setTime(dt);
-				}
-				
-				int company_id = rs.getInt("cpu.company_id");
-				
-				if(company_id > 0) {
-					cpu.setCompany(new Company(company_id, rs.getString("cie.name")));
-				}
-				
-				cpus.add(cpu);
-			}
+			cpus = fillComputers(rs);
 			
-		} catch (SQLException e) {
-			e.printStackTrace();
+			rs.close();
+			
 		}
 		finally {
 			try {
@@ -413,27 +342,23 @@ public enum ComputerDao implements Dao<Computer> {
 				}
 			}
 			catch(SQLException e) {
-				e.printStackTrace();
+				logger.warn("get all computers - DAO Statement close failed");
 			}
-			Connector.JDBC.closeConnection(con);
 		}
 		
 		return cpus;
 	}
 
 	@Override
-	public int count(String search) {
-		Connection con = null;
+	public int count(String search, Connection con) throws SQLException {
 		PreparedStatement pstmt = null;
 
 		int count = 0;
 		
 		try {
-			con = Connector.JDBC.getConnection();
-			
 			StringBuilder query = new StringBuilder("SELECT count(id) as count FROM computer");
 			
-			if(search != null && search.trim().length() > 0) {
+			if(!StringUtils.isEmptyOrWhitespaceOnly(search)) {
 				query.append(" WHERE name LIKE ?");
 			}
 			
@@ -441,7 +366,7 @@ public enum ComputerDao implements Dao<Computer> {
 			
 			pstmt = con.prepareStatement(query.toString());
 			
-			if(search != null && search.trim().length() > 0) {
+			if(!StringUtils.isEmptyOrWhitespaceOnly(search)) {
 				pstmt.setString(1, "%"+search+"%");
 			}
 			
@@ -454,9 +379,7 @@ public enum ComputerDao implements Dao<Computer> {
 			}
 			
 			rs.close();
-		}
-		catch(SQLException e) {
-			e.printStackTrace();
+			
 		}
 		finally {
 			try {
@@ -465,22 +388,21 @@ public enum ComputerDao implements Dao<Computer> {
 				}
 			}
 			catch(SQLException e) {
-				e.printStackTrace();
+				logger.warn("count computers - DAO Statement close failed");
 			}
-			Connector.JDBC.closeConnection(con);
 		}
 		
 		return count;
 	}
 	
-	private Company checkCompany(Computer o) {
+	private Company checkCompany(Computer o, Connection con) {
 		Company c = o != null ? o.getCompany() : null;
 		
 		if(c != null) {
 			
 			if(c.getId() > 0 && (StringUtils.isNullOrEmpty(c.getName()))) {
 				
-				Company search = CompanyDao.I.get(c.getId());
+				Company search = CompanyDao.I.get(c.getId(), con);
 				
 				if(search != null) {
 					c = search;
@@ -492,7 +414,7 @@ public enum ComputerDao implements Dao<Computer> {
 			}
 			else if(c.getId() <= 0 && (!StringUtils.isNullOrEmpty(c.getName()))) {
 				
-				c = CompanyDao.I.insert(c);
+				c = CompanyDao.I.insert(c, con);
 				
 			}
 			else {
@@ -503,6 +425,40 @@ public enum ComputerDao implements Dao<Computer> {
 		}
 		
 		return c;
+	}
+	
+	private List<Computer> fillComputers(ResultSet rs) {
+		List<Computer> cpus = new ArrayList<Computer>();
+		
+		try {
+			while(rs.next()) {
+				Computer cpu = new Computer(rs.getInt("cpu.id"), rs.getString("cpu.name"));
+				
+				Date dt;
+				
+				if((dt = rs.getDate("cpu.introduced")) != null) {
+					cpu.setIntroduced(Calendar.getInstance());
+					cpu.getIntroduced().setTime(dt);
+				}
+				
+				if((dt = rs.getDate("cpu.discontinued")) != null) {
+					cpu.setDiscontinued(Calendar.getInstance());
+					cpu.getDiscontinued().setTime(dt);
+				}
+				
+				int company_id = rs.getInt("cpu.company_id");
+				
+				if(company_id > 0) {
+					cpu.setCompany(new Company(company_id, rs.getString("cie.name")));
+				}
+				
+				cpus.add(cpu);
+			}
+		} catch (SQLException e) {
+			logger.warn("fill computers from result set: "+e.getMessage());
+		}
+		
+		return cpus;
 	}
 	
 }

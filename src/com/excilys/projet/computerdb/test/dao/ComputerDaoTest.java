@@ -10,7 +10,7 @@ public class ComputerDaoTest {
 	private static Logger logger = LoggerFactory.getLogger(ComputerDao.class);
 	
 	public static void main(String... args) {
-		logger.info("salut");
+		
 	}
 	
 }

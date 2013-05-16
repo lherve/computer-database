@@ -15,7 +15,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 
-import com.excilys.projet.computerdb.daoImpl.ComputerDao;
 import com.excilys.projet.computerdb.model.Company;
 import com.excilys.projet.computerdb.model.Computer;
 import com.excilys.projet.computerdb.service.ComputerService;
@@ -39,7 +38,7 @@ public class UpdateComputerServlet extends HttpServlet {
 				
 				if(id > 0) {
 					
-					Computer cpu = ComputerDao.I.get(id);
+					Computer cpu = ComputerService.I.getComputer(id);
 					
 					if(cpu != null) {
 						

@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,8 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.excilys.projet.computerdb.dao.Dao;
-import com.excilys.projet.computerdb.db.Connector;
 import com.excilys.projet.computerdb.model.Company;
+
 import com.mysql.jdbc.StringUtils;
 
 public enum CompanyDao implements Dao<Company> {
@@ -23,15 +24,12 @@ public enum CompanyDao implements Dao<Company> {
 	private static final Logger logger = LoggerFactory.getLogger(CompanyDao.class);
 	
 	@Override
-	public Company insert(Company o) {
+	public Company insert(Company o, Connection con) {
 		if(o != null) {
-			Connection con = null;
 			Statement stmt = null;
 			
 			try {
 				if(o.getId() <= 0) {
-					con = Connector.JDBC.getConnection();
-					
 					stmt = con.createStatement();
 					
 					StringBuilder query = new StringBuilder("INSERT INTO company (name) VALUES ('");
@@ -53,7 +51,7 @@ public enum CompanyDao implements Dao<Company> {
 					
 				}
 				else {
-					o = update(o);
+					o = update(o, con);
 				}
 			}
 			catch(SQLException e) {
@@ -68,25 +66,21 @@ public enum CompanyDao implements Dao<Company> {
 				catch(SQLException e) {
 					e.printStackTrace();
 				}
-				Connector.JDBC.closeConnection(con);
 			}
 		}
 		return o;
 	}
 
 	@Override
-	public Company update(Company o) {
+	public Company update(Company o, Connection con) {
 		if(o != null) {
-			Connection con = null;
 			Statement stmt = null;
 			
 			try {
 				if(o.getId() <= 0) {
-					o = insert(o);
+					o = insert(o, con);
 				}
 				else {
-					con = Connector.JDBC.getConnection();
-					
 					stmt = con.createStatement();
 					
 					StringBuilder query = new StringBuilder("UPDATE company SET name = '");
@@ -109,23 +103,19 @@ public enum CompanyDao implements Dao<Company> {
 				catch(SQLException e) {
 					e.printStackTrace();
 				}
-				Connector.JDBC.closeConnection(con);
 			}
 		}
 		return o;
 	}
 
 	@Override
-	public boolean delete(Company o) {
+	public boolean delete(Company o, Connection con) {
 		boolean result = false;
 		if(o != null) {
-			Connection con = null;
 			PreparedStatement pstmt = null;
 			
 			try {
 				if(o.getId() > 0) {
-					con = Connector.JDBC.getConnection();
-					
 					pstmt = con.prepareStatement("DELETE FROM company WHERE id = ?");
 					pstmt.setInt(1, o.getId());
 					
@@ -148,15 +138,13 @@ public enum CompanyDao implements Dao<Company> {
 				catch(SQLException e) {
 					e.printStackTrace();
 				}
-				Connector.JDBC.closeConnection(con);
 			}
 		}
 		return result;
 	}
 
 	@Override
-	public Company get(int id) {
-		Connection con = Connector.JDBC.getConnection();
+	public Company get(int id, Connection con) {
 		PreparedStatement pstmt = null;
 		
 		Company cie = null;
@@ -187,15 +175,13 @@ public enum CompanyDao implements Dao<Company> {
 			catch(SQLException e) {
 				e.printStackTrace();
 			}
-			Connector.JDBC.closeConnection(con);
 		}
 		
 		return cie;
 	}
 
 	@Override
-	public List<Company> getFromTo(int start, int end, Sort sortedBy, Order order, String search) {
-		Connection con = Connector.JDBC.getConnection();
+	public List<Company> getFromTo(int start, int end, Sort sortedBy, Order order, String search, Connection con) {
 		PreparedStatement pstmt = null;
 		
 		List<Company> cies = new ArrayList<Company>();
@@ -232,15 +218,13 @@ public enum CompanyDao implements Dao<Company> {
 			catch(SQLException e) {
 				e.printStackTrace();
 			}
-			Connector.JDBC.closeConnection(con);
 		}
 		
 		return cies;
 	}
 
 	@Override
-	public List<Company> getAll(Sort sortedBy, Order order) {
-		Connection con = Connector.JDBC.getConnection();
+	public List<Company> getAll(Sort sortedBy, Order order, Connection con) {
 		PreparedStatement pstmt = null;
 		
 		List<Company> cies = new ArrayList<Company>();
@@ -267,22 +251,18 @@ public enum CompanyDao implements Dao<Company> {
 			catch(SQLException e) {
 				e.printStackTrace();
 			}
-			Connector.JDBC.closeConnection(con);
 		}
 		
 		return cies;
 	}
 
 	@Override
-	public int count(String search) {
-		Connection con = null;
+	public int count(String search, Connection con) {
 		Statement stmt = null;
 
 		int count = 0;
 		
 		try {
-			con = Connector.JDBC.getConnection();
-			
 			stmt = con.createStatement();
 			
 			StringBuilder query = new StringBuilder("SELECT count(id) as count FROM company");
@@ -315,7 +295,6 @@ public enum CompanyDao implements Dao<Company> {
 			catch(SQLException e) {
 				e.printStackTrace();
 			}
-			Connector.JDBC.closeConnection(con);
 		}
 		
 		return count;

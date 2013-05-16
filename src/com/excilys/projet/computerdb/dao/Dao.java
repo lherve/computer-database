@@ -1,24 +1,26 @@
 package com.excilys.projet.computerdb.dao;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Collection;
 
 public interface Dao<T> {
 
-	public T insert(T t);
+	T insert(T t, Connection con) throws SQLException;
 	
-	public T update(T t);
+	T update(T t, Connection con) throws SQLException;
 	
-	public boolean delete(T t);
+	boolean delete(T t, Connection con) throws SQLException;
 	
-	public T get(int id);
+	T get(int id, Connection con) throws SQLException;
 
-	public Collection<T> getFromTo(int start, int end, Sort sortedBy, Order order, String search);
+	Collection<T> getFromTo(int start, int end, Sort sortedBy, Order order, String search, Connection con) throws SQLException;
 	
-	public Collection<T> getAll(Sort sortedBy, Order order);
+	Collection<T> getAll(Sort sortedBy, Order order, Connection con) throws SQLException;
 	
-	public int count(String search);
+	int count(String search, Connection con) throws SQLException;
 	
-	public static enum Sort {
+	enum Sort {
 		ID,
 		NAME,
 		INTRODUCED,
@@ -26,7 +28,7 @@ public interface Dao<T> {
 		COMPANY;
 	}
 	
-	public static enum Order {
+	enum Order {
 		ASC,
 		DESC;
 	}

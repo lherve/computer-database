@@ -104,5 +104,26 @@ public class Page {
 	public void setSearch(String search) {
 		this.search = search;
 	}
+
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder("Page ");
+		
+		sb.append(this.number).append(" [").append(this.start).append(",").append(this.end).append("] /");
+		
+		if(this.sort != null) {
+			sb.append(this.sort);
+		}
+		
+		sb.append(" ");
+		
+		if(this.order != null) {
+			sb.append(this.order);
+		}
+		
+		sb.append("/ cpus:").append(cpus != null ? cpus.size() : null);
+		
+		return sb.toString();
+	}
 	
 }
