@@ -1,6 +1,5 @@
 package com.excilys.projet.computerdb.daoImpl;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -8,6 +7,7 @@ import java.sql.Statement;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Observable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +28,23 @@ public enum CompanyDao implements Dao<Company> {
 	private static final String UPDATE_COMPANY = "UPDATE company SET name = ? WHERE id = ?;";
 	private static final String DELETE_COMPANY = "DELETE FROM company WHERE id = ?;";
 	
+	private Observable dataUpdateNotifier = new Observable() {
+		@Override
+		public void notifyObservers() {
+			super.setChanged();
+			super.notifyObservers();
+			super.clearChanged();
+		}
+	};
+	
+	public Observable getDataUpdateNotifier() {
+		return dataUpdateNotifier;
+	}
+	
+	private void notifyUpdate() {
+		dataUpdateNotifier.notifyObservers();
+	}
+	
 	@Override
 	public Company insert(Company o) throws SQLException {
 		if(o != null) {
@@ -40,7 +57,7 @@ public enum CompanyDao implements Dao<Company> {
 				pstmt.setString(1, o.getName());
 				
 				logger.info(pstmt.toString().split(":\\s")[1]);
-				
+
 				if(pstmt.executeUpdate() > 0) {
 					ResultSet rs = pstmt.getGeneratedKeys();
 					
@@ -49,8 +66,9 @@ public enum CompanyDao implements Dao<Company> {
 					}
 					
 					rs.close();
+
+					notifyUpdate();
 				}
-					
 			}
 			finally {
 				try {
@@ -82,6 +100,9 @@ public enum CompanyDao implements Dao<Company> {
 				
 				if(pstmt.executeUpdate() <= 0){
 					o.setId(0);
+				}
+				else {
+					notifyUpdate();
 				}
 			}
 			finally {
@@ -115,6 +136,7 @@ public enum CompanyDao implements Dao<Company> {
 					
 					if(pstmt.executeUpdate() > 0) {
 						result = true;
+						notifyUpdate();
 					}
 			}
 			finally {

@@ -13,6 +13,7 @@ import com.excilys.projet.computerdb.daoImpl.ComputerDao;
 import com.excilys.projet.computerdb.model.Company;
 import com.excilys.projet.computerdb.model.Computer;
 import com.excilys.projet.computerdb.model.Page;
+import com.excilys.projet.computerdb.utils.CompaniesList;
 import com.excilys.projet.computerdb.utils.Connector;
 import com.mysql.jdbc.StringUtils;
 
@@ -159,11 +160,11 @@ public enum ComputerService {
 	}
 
 	public List<Company> getCompanies() {
-		List<Company> companies = CompanyDao.I.getAll(Sort.NAME, Order.ASC);
+//		List<Company> companies = CompanyDao.I.getAll(Sort.NAME, Order.ASC);
+//		
+//		Connector.JDBC.closeConnection();
 		
-		Connector.JDBC.closeConnection();
-		
-		return companies;
+		return CompaniesList.getInstance().getList();
 	}
 
 	public int count(String search) {
@@ -183,26 +184,33 @@ public enum ComputerService {
 	}
 	
 	public Page loadPage(int number, int sort, String search) {
-		Page p = new Page(number, search);
-
-		if(number < 0) {
-			p.setPrevious(new Page(-(number + 1)));
-			p.setNext(new Page(-number));
-		}
-		else {
-			p.setNext(new Page(number + 1));
-			if(number > 0) {
-				p.setPrevious(new Page(number - 1));
-			}
-			else {
-				p.setPrevious(new Page(number));
-			}
-		}
-
-		number = Math.abs(number);
 		
-		p.setStart(number * Page.SIZE + 1);
-		p.setEnd((number + 1) * Page.SIZE);
+		int count = 0;
+		
+		try {
+			count = ComputerDao.I.count(null);
+		} catch (SQLException e) {
+			logger.warn("Service - load page:"+e.getMessage());
+			logger.warn("Service - count total");
+		}
+		
+		int maxPage = count / Page.SIZE;
+		
+		if(number > maxPage) {
+			number = maxPage;
+		}
+		
+		Page p = new Page(number, search);
+		
+		p.setTotal(count);
+		
+		p.setNext(number == maxPage ? new Page(maxPage) : new Page(number + 1));
+		p.setPrevious(number == 0 ? new Page(0) : new Page(number -1));
+		
+		p.setStart(count == 0 ? 0 : number * Page.SIZE + 1);
+		
+		int last = ((number + 1) * Page.SIZE);
+		p.setEnd(last > count ? count : last);
 		
 		if(sort < 0) {
 			p.setOrder(Order.DESC);

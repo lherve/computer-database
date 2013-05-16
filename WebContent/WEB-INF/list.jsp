@@ -23,7 +23,7 @@
 
 		<section id="main">
 		
-			<h1>${count > 0 ? count : 'No' } computer${count > 1 ? 's' : '' } found</h1>
+			<h1>${page.total > 0 ? page.total : 'No' } computer${page.total > 1 ? 's' : '' } found</h1>
 			
 			<c:if test="${not empty info }">
 		        <div class="alert-message warning">
@@ -47,7 +47,7 @@
 			</div>
 			
 			<c:choose>
-				<c:when test="${count eq 0 }">
+				<c:when test="${page.total eq 0 }">
 				
 			        <div class="well">
 			            <em>Nothing to display</em>
@@ -94,9 +94,9 @@
 							    <a href="?search=${param.search}&page=${page.previous.number}&s=${s }">&larr; Previous</a>
 							</li>
 			                <li class="current">
-			                    <a>Displaying <c:out value="${page.start}" /> to <c:out value="${page.end}"/> of <c:out value="${count}" /></a>
+			                    <a>Displaying <c:out value="${page.start}" /> to <c:out value="${page.end}"/> of <c:out value="${page.total}" /></a>
 			                </li>
-							<li class="next ${page.next.number eq page.number ? 'disabled' : page.size > count ? 'disabled' : '' }">
+							<li class="next ${page.next.number eq page.number ? 'disabled' : page.size > page.total ? 'disabled' : '' }">
 							    <a href="?search=${param.search}&page=${page.next.number}&s=${s }">Next &rarr;</a>
 							</li>
 			            </ul>

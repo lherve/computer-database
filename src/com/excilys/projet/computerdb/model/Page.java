@@ -10,8 +10,8 @@ public class Page {
 	
 	private List<Computer> cpus;
 	
-	private int number, start, end;
-	
+	private int number, start, end, total;
+
 	private Page previous;
 	private Page next;
 	
@@ -75,6 +75,14 @@ public class Page {
 
 	public void setEnd(int end) {
 		this.end = end;
+	}
+	
+	public int getTotal() {
+		return total;
+	}
+
+	public void setTotal(int total) {
+		this.total = total;
 	}
 	
 	public int getSize() {

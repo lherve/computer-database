@@ -22,10 +22,6 @@ public class ListComputersServlet extends HttpServlet {
 		
 		String search = req.getParameter("search");
 		
-		int count = ComputerService.I.count(search);
-		
-		req.setAttribute("count", count);
-		
 		String spage = req.getParameter("page");
 		
 		int n = 0;
@@ -42,15 +38,12 @@ public class ListComputersServlet extends HttpServlet {
 		if(n < 0) {
 			n = 0;
 		}
-		else if(n >= (count / Page.SIZE)) {
-			n = -count / Page.SIZE;
-		}
 		
 		String sort = req.getParameter("s");
 		
 		int s = 1;
 		
-		if(!StringUtils.isNullOrEmpty(sort)) {
+		if(!StringUtils.isEmptyOrWhitespaceOnly(sort)) {
 			try {
 				s = Integer.parseInt(sort);
 				if(s > 4 || s < -4 || s == 0) {
@@ -64,16 +57,9 @@ public class ListComputersServlet extends HttpServlet {
 
 		Page page = ComputerService.I.loadPage(n, s, search);
 
-		if(page.getEnd() > count)
-			page.setEnd(count);
-		
-		if(count == 0)
-			page.setStart(0);
-		
 		req.setAttribute("page", page);
 
 		req.setAttribute("s", s);
-		
 		
 		// gestion des messages d'information (insert/update/delete)
 		
