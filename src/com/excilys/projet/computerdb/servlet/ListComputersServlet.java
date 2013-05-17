@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.excilys.projet.computerdb.exception.DataAccessException;
 import com.excilys.projet.computerdb.model.Page;
 import com.excilys.projet.computerdb.service.ComputerService;
 
@@ -28,7 +29,6 @@ public class ListComputersServlet extends HttpServlet {
 				n = Integer.parseInt(spage);
 			}
 			catch(NumberFormatException e) {
-				e.printStackTrace();
 			}
 		}
 		
@@ -48,26 +48,32 @@ public class ListComputersServlet extends HttpServlet {
 				}
 			}
 			catch(NumberFormatException e) {
-				e.printStackTrace();
 			}
 		}
 
-		Page page = ComputerService.I.loadPage(n, s, search);
+		try {
+			Page page = ComputerService.I.loadPage(n, s, search);
 
-		req.setAttribute("page", page);
-
-		req.setAttribute("s", s);
-		
-		// gestion des messages d'information (insert/update/delete)
-		
-		String info = (String) req.getSession().getAttribute("info");
-		
-		if(!StringUtils.isEmptyOrWhitespaceOnly(info)) {
-			req.setAttribute("info", info);
-			req.getSession().setAttribute("info", null);
+			req.setAttribute("page", page);
+	
+			req.setAttribute("s", s);
+			
+			// gestion des messages d'information (insert/update/delete)
+			
+			String info = (String) req.getSession().getAttribute("info");
+			
+			if(!StringUtils.isEmptyOrWhitespaceOnly(info)) {
+				req.setAttribute("info", info);
+				req.getSession().setAttribute("info", null);
+			}
+	
+			req.getServletContext().getRequestDispatcher("/WEB-INF/list.jsp").forward(req, resp);
+			
+		} catch (DataAccessException e) {
+			req.setAttribute("exception", e);
+			req.getServletContext().getRequestDispatcher("/WEB-INF/error.jsp").forward(req, resp);
 		}
-
-		req.getServletContext().getRequestDispatcher("/WEB-INF/list.jsp").forward(req, resp);
+		
 	}
 	
 }

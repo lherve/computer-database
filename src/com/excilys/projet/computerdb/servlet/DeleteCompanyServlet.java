@@ -26,14 +26,13 @@ public class DeleteCompanyServlet extends HttpServlet {
 			success = CompanyService.I.deleteCompany(id);
 			}
 		catch (NumberFormatException e){
-			e.printStackTrace();
 		}
 		
 		if(success) {
-			req.getSession().setAttribute("info", "Company has been deleted");
+			req.getSession().setAttribute("info", "Done ! Company has been deleted");
 		}
 		else {
-			req.getSession().setAttribute("info", "Delete operation failed");
+			req.getSession().setAttribute("info", "Error : Delete operation failed");
 		}
 		
 		resp.sendRedirect("companies");

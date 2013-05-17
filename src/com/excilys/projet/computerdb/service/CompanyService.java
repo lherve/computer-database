@@ -55,6 +55,7 @@ public enum CompanyService {
 			if(commit) {
 				try {
 					Connector.JDBC.getConnection().commit();
+					CompanyDao.I.notifyUpdate();
 				} catch (SQLException e) {
 					logger.warn("Service - update company commit failed (ERRCODE:"+e.getErrorCode()+")");
 				}
@@ -91,6 +92,7 @@ public enum CompanyService {
 		if(commit) {
 			try {
 				Connector.JDBC.getConnection().commit();
+				CompanyDao.I.notifyUpdate();
 			} catch (SQLException e) {
 				logger.warn("Service - delete company commit failed (ERRCODE:"+e.getErrorCode()+")");
 			}

@@ -41,15 +41,15 @@ public class UpdateComputerServlet extends HttpServlet {
 				
 				if(id > 0) {
 					
-					Computer cpu = ComputerService.I.getComputer(id);
-					
-					if(cpu != null) {
+					try {
+						Computer cpu = ComputerService.I.getComputer(id);
 						
-						idOk = true;
-						
-						List<Company> cies = null;
-						
-						try {
+						if(cpu != null) {
+							
+							idOk = true;
+							
+							List<Company> cies = null;
+							
 							cies = CompanyService.I.getCompanies();
 
 							req.setAttribute("cies", cies);
@@ -66,21 +66,17 @@ public class UpdateComputerServlet extends HttpServlet {
 							
 							req.getServletContext().getRequestDispatcher("/WEB-INF/update.jsp").forward(req, resp);
 								
-						} catch (DataAccessException e) {
-							
-							req.setAttribute("exception", e);
-							
-							req.getServletContext().getRequestDispatcher("/WEB-INF/error.jsp").forward(req, resp);
-							
 						}
-						
+					}
+					catch (DataAccessException e) {
+						req.setAttribute("exception", e);
+						req.getServletContext().getRequestDispatcher("/WEB-INF/error.jsp").forward(req, resp);
 					}
 					
 				}
 				
 			}
 			catch (NumberFormatException e){
-				e.printStackTrace();
 			}
 			
 		}
@@ -99,7 +95,6 @@ public class UpdateComputerServlet extends HttpServlet {
 			id = Integer.parseInt(req.getParameter("id"));
 		}
 		catch(NumberFormatException e) {
-			e.printStackTrace();
 		}
 		
 		if(id == 0) {
@@ -183,14 +178,13 @@ public class UpdateComputerServlet extends HttpServlet {
 			
 			cpu.setCompany(null);
 			
-			if(!StringUtils.isNullOrEmpty(scompany)) {
+			if(!StringUtils.isEmptyOrWhitespaceOnly(scompany)) {
 				
 				try {
 					int company = Integer.parseInt(scompany);
-					cpu.setCompany(new Company(company, ""));
+					cpu.setCompany(new Company(company, null));
 				}
 				catch(NumberFormatException e) {
-					System.out.println("Erreur de format lors de la récupération de l'id company : '"+scompany+"'");
 				}
 				
 			}
@@ -212,11 +206,8 @@ public class UpdateComputerServlet extends HttpServlet {
 					req.getServletContext().getRequestDispatcher("/WEB-INF/update.jsp").forward(req, resp);
 					
 				} catch (DataAccessException e) {
-					
 					req.setAttribute("exception", e);
-					
 					req.getServletContext().getRequestDispatcher("/WEB-INF/error.jsp").forward(req, resp);
-					
 				}
 
 			}

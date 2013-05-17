@@ -27,7 +27,7 @@
 			
 			<c:if test="${not empty info }">
 		        <div class="alert-message warning">
-		            <strong>Done!</strong> ${info }
+		            ${info }
 		        </div>
 			</c:if>
 			

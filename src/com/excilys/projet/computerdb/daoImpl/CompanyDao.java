@@ -45,8 +45,8 @@ public enum CompanyDao implements Dao<Company> {
 		return dataUpdateNotifier;
 	}
 	
-	private void notifyUpdate() {
-		logger.info("OBSERVER - Company change notified");
+	public void notifyUpdate() {
+		logger.info("(observer) - Company change notified");
 		dataUpdateNotifier.notifyObservers();
 	}
 	
@@ -71,8 +71,6 @@ public enum CompanyDao implements Dao<Company> {
 					}
 					
 					rs.close();
-
-					notifyUpdate();
 				}
 			}
 			finally {
@@ -106,9 +104,6 @@ public enum CompanyDao implements Dao<Company> {
 				if(pstmt.executeUpdate() <= 0){
 					o.setId(0);
 				}
-				else {
-					notifyUpdate();
-				}
 			}
 			finally {
 				try {
@@ -141,7 +136,6 @@ public enum CompanyDao implements Dao<Company> {
 					
 					if(pstmt.executeUpdate() > 0) {
 						result = true;
-						notifyUpdate();
 					}
 			}
 			finally {
@@ -268,7 +262,7 @@ public enum CompanyDao implements Dao<Company> {
 	}
 
 	@Override
-	public int count(String search) {
+	public int count(String search) throws SQLException {
 		PreparedStatement pstmt = null;
 
 		int count = 0;
@@ -297,9 +291,6 @@ public enum CompanyDao implements Dao<Company> {
 			}
 			
 			rs.close();
-		}
-		catch(SQLException e) {
-			e.printStackTrace();
 		}
 		finally {
 			try {

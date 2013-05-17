@@ -39,11 +39,8 @@ public class UpdateCompanyServlet extends HttpServlet {
 			req.getServletContext().getRequestDispatcher("/WEB-INF/companies.jsp").forward(req, resp);
 			
 		} catch (DataAccessException e) {
-			
 			req.setAttribute("exception", e);
-			
 			req.getServletContext().getRequestDispatcher("/WEB-INF/error.jsp").forward(req, resp);
-			
 		}
 		
 	}
@@ -85,10 +82,10 @@ public class UpdateCompanyServlet extends HttpServlet {
 			StringBuilder info = new StringBuilder();
 			
 			if(cie == null) {
-				info.append("Update operation failed");
+				info.append("Error : Update operation failed");
 			}
 			else {
-				info.append("Company ").append(cie.getName()).append(" has been ");
+				info.append("Done ! Company ").append(cie.getName()).append(" has been ");
 
 				if(id > 0) {
 					info.append("updated");
@@ -116,11 +113,8 @@ public class UpdateCompanyServlet extends HttpServlet {
 				req.getServletContext().getRequestDispatcher("/WEB-INF/companies.jsp").forward(req, resp);
 				
 			} catch (DataAccessException e) {
-				
 				req.setAttribute("exception", e);
-				
 				req.getServletContext().getRequestDispatcher("/WEB-INF/error.jsp").forward(req, resp);
-				
 			}
 		}
 	}

@@ -182,6 +182,9 @@ public enum ComputerDao implements Dao<Computer> {
 		return result;
 	}
 
+	/*
+	 * Retourne null si aucun computer trouvé avec l'id renseigné
+	 */
 	@Override
 	public Computer get(int id) throws SQLException {
 		PreparedStatement pstmt = null;
@@ -352,11 +355,11 @@ public enum ComputerDao implements Dao<Computer> {
 	public int count(String search) throws SQLException {
 		PreparedStatement pstmt = null;
 
-		int count = 0;
+		int count = -1;
 		
 		try {
 			StringBuilder query = new StringBuilder(COUNT_COMPUTERS);
-			
+
 			if(!StringUtils.isEmptyOrWhitespaceOnly(search)) {
 				query.append(" WHERE name LIKE ?");
 			}
@@ -372,8 +375,8 @@ public enum ComputerDao implements Dao<Computer> {
 			logger.info(pstmt.toString().split(":\\s")[1]);
 			
 			ResultSet rs = pstmt.executeQuery();
-			
-			if(rs.next()) {
+
+			if(rs.first()) {
 				count = rs.getInt("count");
 			}
 			

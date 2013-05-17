@@ -20,14 +20,13 @@ public class DeleteComputerServlet extends HttpServlet {
 			success = ComputerService.I.deleteComputer(id);
 			}
 		catch (NumberFormatException e){
-			e.printStackTrace();
 		}
 		
 		if(success) {
-			req.getSession().setAttribute("info", "Computer has been deleted");
+			req.getSession().setAttribute("info", "Done ! Computer has been deleted");
 		}
 		else {
-			req.getSession().setAttribute("info", "Delete operation failed");
+			req.getSession().setAttribute("info", "Error : Delete operation failed");
 		}
 		
 		resp.sendRedirect("computers");
