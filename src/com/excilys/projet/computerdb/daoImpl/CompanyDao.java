@@ -82,7 +82,7 @@ public enum CompanyDao implements Dao<Company> {
 					}
 				}
 				catch(SQLException e) {
-					logger.warn("insert company - DAO Statement close failed");
+					logger.warn("insert company - DAO Statement close failed - (ERRCODE:"+e.getErrorCode()+")");
 				}
 			}
 		}
@@ -117,7 +117,7 @@ public enum CompanyDao implements Dao<Company> {
 					}
 				}
 				catch(SQLException e) {
-					logger.warn("update company - DAO Statement close failed");
+					logger.warn("update company - DAO Statement close failed (ERRCODE:"+e.getErrorCode()+")");
 				}
 			}
 		}
@@ -151,7 +151,7 @@ public enum CompanyDao implements Dao<Company> {
 					}
 				}
 				catch(SQLException e) {
-					logger.warn("delete company - DAO Statement close failed");
+					logger.warn("delete company - DAO Statement close failed (ERRCODE:"+e.getErrorCode()+")");
 				}
 			}
 		}
@@ -186,7 +186,7 @@ public enum CompanyDao implements Dao<Company> {
 				}
 			}
 			catch(SQLException e) {
-				logger.warn("get company - DAO Statement close failed");
+				logger.warn("get company - DAO Statement close failed (ERRCODE:"+e.getErrorCode()+")");
 			}
 		}
 		
@@ -227,7 +227,7 @@ public enum CompanyDao implements Dao<Company> {
 				}
 			}
 			catch(SQLException e) {
-				logger.warn("get some companies - DAO Statement close failed");
+				logger.warn("get some companies - DAO Statement close failed (ERRCODE:"+e.getErrorCode()+")");
 			}
 		}
 		
@@ -260,7 +260,7 @@ public enum CompanyDao implements Dao<Company> {
 				}
 			}
 			catch(SQLException e) {
-				logger.warn("get all companies - DAO Statement close failed");
+				logger.warn("get all companies - DAO Statement close failed (ERRCODE:"+e.getErrorCode()+")");
 			}
 		}
 		
@@ -308,7 +308,7 @@ public enum CompanyDao implements Dao<Company> {
 				}
 			}
 			catch(SQLException e) {
-				logger.warn("count companies - DAO Statement close failed");
+				logger.warn("count companies - DAO Statement close failed (ERRCODE:"+e.getErrorCode()+")");
 			}
 		}
 		

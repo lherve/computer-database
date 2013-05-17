@@ -1,6 +1,7 @@
 package com.excilys.projet.computerdb.servlet;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -9,6 +10,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.excilys.projet.computerdb.exception.DataAccessException;
 import com.excilys.projet.computerdb.model.Company;
 import com.excilys.projet.computerdb.service.CompanyService;
 import com.mysql.jdbc.StringUtils;
@@ -18,18 +20,31 @@ public class UpdateCompanyServlet extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
-		req.setAttribute("cies", CompanyService.I.getCompanies());
+		List<Company> cies = null;
 		
-		// gestion des messages d'information (insert/update/delete)
-		
-		String info = (String) req.getSession().getAttribute("info");
-		
-		if(!StringUtils.isEmptyOrWhitespaceOnly(info)) {
-			req.setAttribute("info", info);
-			req.getSession().setAttribute("info", null);
+		try {
+			cies = CompanyService.I.getCompanies();
+
+			req.setAttribute("cies", cies);
+			
+			// gestion des messages d'information (insert/update/delete)
+			
+			String info = (String) req.getSession().getAttribute("info");
+			
+			if(!StringUtils.isEmptyOrWhitespaceOnly(info)) {
+				req.setAttribute("info", info);
+				req.getSession().setAttribute("info", null);
+			}
+			
+			req.getServletContext().getRequestDispatcher("/WEB-INF/companies.jsp").forward(req, resp);
+			
+		} catch (DataAccessException e) {
+			
+			req.setAttribute("exception", e);
+			
+			req.getServletContext().getRequestDispatcher("/WEB-INF/error.jsp").forward(req, resp);
+			
 		}
-		
-		req.getServletContext().getRequestDispatcher("/WEB-INF/companies.jsp").forward(req, resp);
 		
 	}
 	
@@ -89,12 +104,25 @@ public class UpdateCompanyServlet extends HttpServlet {
 			
 		}
 		else {
-			req.setAttribute("err", error);
-			req.setAttribute("cies", CompanyService.I.getCompanies());
+			List<Company> cies = null;
 			
-			req.getServletContext().getRequestDispatcher("/WEB-INF/companies.jsp").forward(req, resp);
+			try {
+				cies = CompanyService.I.getCompanies();
+
+				req.setAttribute("cies", cies);
+
+				req.setAttribute("err", error);
+				
+				req.getServletContext().getRequestDispatcher("/WEB-INF/companies.jsp").forward(req, resp);
+				
+			} catch (DataAccessException e) {
+				
+				req.setAttribute("exception", e);
+				
+				req.getServletContext().getRequestDispatcher("/WEB-INF/error.jsp").forward(req, resp);
+				
+			}
 		}
-		
 	}
 	
 }

@@ -31,6 +31,7 @@ public enum ComputerDao implements Dao<Computer> {
 	private static final String DELETE_COMPUTER = "DELETE FROM computer WHERE id = ?;";
 	private static final String GET_ONE_COMPUTER = "SELECT cpu.id, cpu.name, cpu.introduced, cpu.discontinued, cpu.company_id, cie.name FROM computer cpu LEFT OUTER JOIN company cie ON cpu.company_id = cie.id WHERE cpu.id = ?;";
 	private static final String GET_ALL_COMPUTERS = "SELECT cpu.id, cpu.name, cpu.introduced, cpu.discontinued, cpu.company_id, cie.name FROM computer cpu LEFT OUTER JOIN company cie ON cpu.company_id = cie.id;";
+	private static final String COUNT_COMPUTERS = "SELECT count(id) as count FROM computer";
 	
 	@Override
 	public Computer insert(Computer o) throws SQLException {
@@ -84,7 +85,7 @@ public enum ComputerDao implements Dao<Computer> {
 					}
 				}
 				catch(SQLException e) {
-					logger.warn("insert computer - DAO Statement close failed");
+					logger.warn("insert computer - DAO Statement close failed (ERRCODE:"+e.getErrorCode()+")");
 				}
 			}
 		}
@@ -139,7 +140,7 @@ public enum ComputerDao implements Dao<Computer> {
 					}
 				}
 				catch(SQLException e) {
-					logger.warn("update computer - DAO Statement close failed");
+					logger.warn("update computer - DAO Statement close failed (ERRCODE:"+e.getErrorCode()+")");
 				}
 			}
 		}
@@ -173,7 +174,7 @@ public enum ComputerDao implements Dao<Computer> {
 					}
 				}
 				catch(SQLException e) {
-					logger.warn("delete computer - DAO Statement close failed");
+					logger.warn("delete computer - DAO Statement close failed (ERRCODE:"+e.getErrorCode()+")");
 				}
 			}
 		}
@@ -225,7 +226,7 @@ public enum ComputerDao implements Dao<Computer> {
 				}
 			}
 			catch(SQLException e) {
-				logger.warn("get one computer - DAO Statement close failed");
+				logger.warn("get one computer - DAO Statement close failed (ERRCODE:"+e.getErrorCode()+")");
 			}
 		}
 		
@@ -308,7 +309,7 @@ public enum ComputerDao implements Dao<Computer> {
 				}
 			}
 			catch(SQLException e) {
-				logger.warn("get some computers - DAO Statement close failed");
+				logger.warn("get some computers - DAO Statement close failed (ERRCODE:"+e.getErrorCode()+")");
 			}
 		}
 		
@@ -340,7 +341,7 @@ public enum ComputerDao implements Dao<Computer> {
 				}
 			}
 			catch(SQLException e) {
-				logger.warn("get all computers - DAO Statement close failed");
+				logger.warn("get all computers - DAO Statement close failed (ERRCODE:"+e.getErrorCode()+")");
 			}
 		}
 		
@@ -354,7 +355,7 @@ public enum ComputerDao implements Dao<Computer> {
 		int count = 0;
 		
 		try {
-			StringBuilder query = new StringBuilder("SELECT count(id) as count FROM computer");
+			StringBuilder query = new StringBuilder(COUNT_COMPUTERS);
 			
 			if(!StringUtils.isEmptyOrWhitespaceOnly(search)) {
 				query.append(" WHERE name LIKE ?");
@@ -386,7 +387,7 @@ public enum ComputerDao implements Dao<Computer> {
 				}
 			}
 			catch(SQLException e) {
-				logger.warn("count computers - DAO Statement close failed");
+				logger.warn("count computers - DAO Statement close failed (ERRCODE:"+e.getErrorCode()+")");
 			}
 		}
 		

@@ -1,7 +1,6 @@
 package com.excilys.projet.computerdb.service;
 
 import java.sql.SQLException;
-import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +12,6 @@ import com.excilys.projet.computerdb.daoImpl.ComputerDao;
 import com.excilys.projet.computerdb.model.Company;
 import com.excilys.projet.computerdb.model.Computer;
 import com.excilys.projet.computerdb.model.Page;
-import com.excilys.projet.computerdb.utils.CompaniesList;
 import com.excilys.projet.computerdb.utils.Connector;
 import com.mysql.jdbc.StringUtils;
 
@@ -34,7 +32,7 @@ public enum ComputerService {
 			cpu = ComputerDao.I.get(id);
 		} catch (SQLException e) {
 			logger.warn("Service - get computer:"+e.getMessage());
-			logger.warn("Service - get "+id);
+			logger.warn("Service - get "+ id +" (ERRCODE:"+e.getErrorCode()+")");
 		}
 		
 		Connector.JDBC.closeConnection();
@@ -54,7 +52,7 @@ public enum ComputerService {
 		}
 		catch (SQLException e) {
 			logger.warn("Service - check company:"+e.getMessage());
-			logger.warn("Service - check "+cpu);
+			logger.warn("Service - check "+ cpu +" (ERRCODE:"+e.getErrorCode()+")");
 			commit = false;
 		}
 		
@@ -63,7 +61,7 @@ public enum ComputerService {
 				cpu = ComputerDao.I.update(cpu);
 			} catch (SQLException e) {
 				logger.warn("Service - update computer:"+e.getMessage());
-				logger.warn("Service - update "+cpu);
+				logger.warn("Service - update "+ cpu +" (ERRCODE:"+e.getErrorCode()+")");
 				commit = false;
 			}
 		}
@@ -72,7 +70,7 @@ public enum ComputerService {
 				cpu = ComputerDao.I.insert(cpu);
 			} catch (SQLException e) {
 				logger.warn("Service - insert computer:"+e.getMessage());
-				logger.warn("Service - insert "+cpu);
+				logger.warn("Service - insert "+ cpu +" (ERRCODE:"+e.getErrorCode()+")");
 				commit = false;
 			}
 		}
@@ -81,14 +79,14 @@ public enum ComputerService {
 			try {
 				Connector.JDBC.getConnection().commit();
 			} catch (SQLException e) {
-				logger.warn("Service - update computer commit failed");
+				logger.warn("Service - update computer commit failed (ERRCODE:"+e.getErrorCode()+")");
 			}
 		}
 		else {
 			try {
 				Connector.JDBC.getConnection().rollback();
 			} catch (SQLException e) {
-				logger.warn("Service - update computer rollback failed");
+				logger.warn("Service - update computer rollback failed (ERRCODE:"+e.getErrorCode()+")");
 			}
 		}
 		
@@ -149,7 +147,7 @@ public enum ComputerService {
 			result = ComputerDao.I.delete(new Computer(id, null));
 		} catch (SQLException e) {
 			logger.warn("Service - delete computer:"+e.getMessage());
-			logger.warn("Service - delete "+id);
+			logger.warn("Service - delete "+ id +" (ERRCODE:"+e.getErrorCode()+")");
 			commit = false;
 		}
 		
@@ -157,24 +155,20 @@ public enum ComputerService {
 			try {
 				Connector.JDBC.getConnection().commit();
 			} catch (SQLException e) {
-				logger.warn("Service - delete computer commit failed");
+				logger.warn("Service - delete computer commit failed (ERRCODE:"+e.getErrorCode()+")");
 			}
 		}
 		else {
 			try {
 				Connector.JDBC.getConnection().rollback();
 			} catch (SQLException e) {
-				logger.warn("Service - delete computer rollback failed");
+				logger.warn("Service - delete computer rollback failed (ERRCODE:"+e.getErrorCode()+")");
 			}
 		}
 		
 		Connector.JDBC.closeConnection();
 		
 		return result;
-	}
-
-	public List<Company> getCompanies() {
-		return CompaniesList.getInstance().getList();
 	}
 
 	
@@ -237,7 +231,7 @@ public enum ComputerService {
 			p.setCpus(ComputerDao.I.getFromTo(p.getStart(), p.getEnd(), p.getSort(), p.getOrder(), p.getSearch()));
 		} catch (SQLException e) {
 			logger.warn("Service - load page:"+e.getMessage());
-			logger.warn("Service - load "+p);
+			logger.warn("Service - load "+ p +" (ERRCODE:"+e.getErrorCode()+")");
 		}
 	
 		Connector.JDBC.closeConnection();

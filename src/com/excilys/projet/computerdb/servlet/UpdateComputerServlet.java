@@ -6,6 +6,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -15,8 +16,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 
+import com.excilys.projet.computerdb.exception.DataAccessException;
 import com.excilys.projet.computerdb.model.Company;
 import com.excilys.projet.computerdb.model.Computer;
+import com.excilys.projet.computerdb.service.CompanyService;
 import com.excilys.projet.computerdb.service.ComputerService;
 import com.mysql.jdbc.StringUtils;
 
@@ -31,7 +34,7 @@ public class UpdateComputerServlet extends HttpServlet {
 		
 		boolean idOk = false;
 		
-		if(!StringUtils.isNullOrEmpty(sid)) {
+		if(!StringUtils.isEmptyOrWhitespaceOnly(sid)) {
 			
 			try {
 				id = Integer.parseInt(sid);
@@ -44,19 +47,32 @@ public class UpdateComputerServlet extends HttpServlet {
 						
 						idOk = true;
 						
-						req.setAttribute("cpu", cpu);
+						List<Company> cies = null;
 						
-						DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-						
-						String introduced = cpu.getIntroduced() != null ? df.format(cpu.getIntroduced().getTime()).toString() : null;
-						String discontinued = cpu.getDiscontinued() != null ? df.format(cpu.getDiscontinued().getTime()).toString() : null;
-						
-						req.setAttribute("introduced", introduced);
-						req.setAttribute("discontinued", discontinued);
-						
-						req.setAttribute("cies", ComputerService.I.getCompanies());
+						try {
+							cies = CompanyService.I.getCompanies();
 
-						req.getServletContext().getRequestDispatcher("/WEB-INF/update.jsp").forward(req, resp);
+							req.setAttribute("cies", cies);
+							
+							req.setAttribute("cpu", cpu);
+							
+							DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+							
+							String introduced = cpu.getIntroduced() != null ? df.format(cpu.getIntroduced().getTime()).toString() : null;
+							String discontinued = cpu.getDiscontinued() != null ? df.format(cpu.getDiscontinued().getTime()).toString() : null;
+							
+							req.setAttribute("introduced", introduced);
+							req.setAttribute("discontinued", discontinued);
+							
+							req.getServletContext().getRequestDispatcher("/WEB-INF/update.jsp").forward(req, resp);
+								
+						} catch (DataAccessException e) {
+							
+							req.setAttribute("exception", e);
+							
+							req.getServletContext().getRequestDispatcher("/WEB-INF/error.jsp").forward(req, resp);
+							
+						}
 						
 					}
 					
@@ -181,13 +197,28 @@ public class UpdateComputerServlet extends HttpServlet {
 
 			
 			if(error > 0) {
-				req.setAttribute("err", error);
+
+				List<Company> cies = null;
 				
-				req.setAttribute("cpu", cpu);
-				
-				req.setAttribute("cies", ComputerService.I.getCompanies());
-				
-				req.getServletContext().getRequestDispatcher("/WEB-INF/update.jsp").forward(req, resp);
+				try {
+					cies = CompanyService.I.getCompanies();
+
+					req.setAttribute("cies", cies);
+					
+					req.setAttribute("err", error);
+					
+					req.setAttribute("cpu", cpu);
+					
+					req.getServletContext().getRequestDispatcher("/WEB-INF/update.jsp").forward(req, resp);
+					
+				} catch (DataAccessException e) {
+					
+					req.setAttribute("exception", e);
+					
+					req.getServletContext().getRequestDispatcher("/WEB-INF/error.jsp").forward(req, resp);
+					
+				}
+
 			}
 			else {
 				StringBuilder sb = new StringBuilder("");
