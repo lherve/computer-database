@@ -97,7 +97,7 @@ public class UpdateComputerServlet extends HttpServlet {
 			
 			String name = req.getParameter("name");
 			
-			if(name != null && !name.trim().isEmpty()) {
+			if(!StringUtils.isEmptyOrWhitespaceOnly(name)) {
 				
 				Pattern p = Pattern.compile("^[\\w\\s+-/\"\'()]*$");
 				Matcher m = p.matcher(name);

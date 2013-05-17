@@ -90,9 +90,7 @@
 						        </c:forEach>
 						        
 					    	</select>
-					
-					        <span class="help-inline"></span> 
-					        
+					        <span class="help-inline"><a href="companies"><img alt="edit" src="img/edit-icon.png" /></a></span> 
 					    </div>
 					    
 					</div>

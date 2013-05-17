@@ -27,6 +27,10 @@ public enum CompanyDao implements Dao<Company> {
 	private static final String INSERT_COMPANY = "INSERT INTO company (name) VALUES (?);";
 	private static final String UPDATE_COMPANY = "UPDATE company SET name = ? WHERE id = ?;";
 	private static final String DELETE_COMPANY = "DELETE FROM company WHERE id = ?;";
+	private static final String GET_COMPANY = "SELECT id, name FROM company WHERE id = ?";
+	private static final String GET_SOME_COMPANIES = "SELECT id, name FROM company LIMIT ?,?;";
+	private static final String GET_ALL_COMPANIES = "SELECT id, name FROM company ORDER BY name ASC;";
+	private static final String COUNT_COMPANIES = "SELECT count(id) as count FROM company";
 	
 	private Observable dataUpdateNotifier = new Observable() {
 		@Override
@@ -42,6 +46,7 @@ public enum CompanyDao implements Dao<Company> {
 	}
 	
 	private void notifyUpdate() {
+		logger.info("OBSERVER - Company change notified");
 		dataUpdateNotifier.notifyObservers();
 	}
 	
@@ -153,15 +158,14 @@ public enum CompanyDao implements Dao<Company> {
 		return result;
 	}
 
-	/* A MODIFIER */
 	@Override
-	public Company get(int id) {
+	public Company get(int id) throws SQLException {
 		PreparedStatement pstmt = null;
 		
 		Company cie = null;
 		
 		try {
-			pstmt = Connector.JDBC.getConnection().prepareStatement("SELECT id, name FROM company WHERE id = ?");
+			pstmt = Connector.JDBC.getConnection().prepareStatement(GET_COMPANY);
 			pstmt.setInt(1, id);
 			
 			logger.info(pstmt.toString().split(":\\s")[1]);
@@ -174,8 +178,6 @@ public enum CompanyDao implements Dao<Company> {
 			
 			pstmt.close();
 			
-		} catch (SQLException e) {
-			e.printStackTrace();
 		}
 		finally {
 			try {
@@ -184,22 +186,21 @@ public enum CompanyDao implements Dao<Company> {
 				}
 			}
 			catch(SQLException e) {
-				e.printStackTrace();
+				logger.warn("get company - DAO Statement close failed");
 			}
 		}
 		
 		return cie;
 	}
 
-	/* A MODIFIER */
 	@Override
-	public List<Company> getFromTo(int start, int end, Sort sortedBy, Order order, String search) {
+	public List<Company> getFromTo(int start, int end, Sort sortedBy, Order order, String search) throws SQLException {
 		PreparedStatement pstmt = null;
 		
 		List<Company> cies = new ArrayList<Company>();
 		
 		try {
-			pstmt = Connector.JDBC.getConnection().prepareStatement("SELECT id, name FROM company LIMIT ?,?;");
+			pstmt = Connector.JDBC.getConnection().prepareStatement(GET_SOME_COMPANIES);
 			pstmt.setInt(1, --start);
 			
 			int i = end - start;
@@ -218,8 +219,6 @@ public enum CompanyDao implements Dao<Company> {
 				cies.add(cie);
 			}
 			
-		} catch (SQLException e) {
-			e.printStackTrace();
 		}
 		finally {
 			try {
@@ -228,22 +227,23 @@ public enum CompanyDao implements Dao<Company> {
 				}
 			}
 			catch(SQLException e) {
-				e.printStackTrace();
+				logger.warn("get some companies - DAO Statement close failed");
 			}
 		}
 		
 		return cies;
 	}
 
-	/* A MODIFIER */
 	@Override
-	public List<Company> getAll(Sort sortedBy, Order order) {
+	public List<Company> getAll(Sort sortedBy, Order order) throws SQLException {
 		PreparedStatement pstmt = null;
 		
 		List<Company> cies = new ArrayList<Company>();
 		
 		try {
-			pstmt = Connector.JDBC.getConnection().prepareStatement("SELECT id, name FROM company ORDER BY name ASC;");
+			pstmt = Connector.JDBC.getConnection().prepareStatement(GET_ALL_COMPANIES);
+			
+			logger.info(pstmt.toString().split(":\\s")[1]);
 			
 			ResultSet rs = pstmt.executeQuery(); 
 			
@@ -252,8 +252,6 @@ public enum CompanyDao implements Dao<Company> {
 				cies.add(cie);
 			}
 			
-		} catch (SQLException e) {
-			e.printStackTrace();
 		}
 		finally {
 			try {
@@ -262,34 +260,37 @@ public enum CompanyDao implements Dao<Company> {
 				}
 			}
 			catch(SQLException e) {
-				e.printStackTrace();
+				logger.warn("get all companies - DAO Statement close failed");
 			}
 		}
 		
 		return cies;
 	}
 
-	/* A MODIFIER */
 	@Override
 	public int count(String search) {
-		Statement stmt = null;
+		PreparedStatement pstmt = null;
 
 		int count = 0;
 		
 		try {
-			stmt = Connector.JDBC.getConnection().createStatement();
+			StringBuilder query = new StringBuilder(COUNT_COMPANIES);
 			
-			StringBuilder query = new StringBuilder("SELECT count(id) as count FROM company");
-			
-			if(!StringUtils.isNullOrEmpty(search)) {
-				query.append(" WHERE name LIKE '%").append(search).append("%'");
+			if(!StringUtils.isEmptyOrWhitespaceOnly(search)) {
+				query.append(" WHERE name LIKE ?");
 			}
 			
 			query.append(";");
+
+			pstmt = Connector.JDBC.getConnection().prepareStatement(query.toString());
 			
-			logger.info(query.toString());
+			if(!StringUtils.isEmptyOrWhitespaceOnly(search)) {
+				pstmt.setString(1, search);
+			}
 			
-			ResultSet rs = stmt.executeQuery(query.toString());
+			logger.info(pstmt.toString().split(":\\s")[1]);
+			
+			ResultSet rs = pstmt.executeQuery();
 			
 			if(rs.next()) {
 				count = rs.getInt("count");
@@ -302,12 +303,12 @@ public enum CompanyDao implements Dao<Company> {
 		}
 		finally {
 			try {
-				if(stmt != null) {
-					stmt.close();
+				if(pstmt != null) {
+					pstmt.close();
 				}
 			}
 			catch(SQLException e) {
-				e.printStackTrace();
+				logger.warn("count companies - DAO Statement close failed");
 			}
 		}
 		

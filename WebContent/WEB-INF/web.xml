@@ -8,32 +8,60 @@
         <servlet-name>ListComputersServlet</servlet-name>
         <servlet-class>com.excilys.projet.computerdb.servlet.ListComputersServlet</servlet-class>
     </servlet>
+    
     <servlet>
         <servlet-name>UpdateComputerServlet</servlet-name>
         <servlet-class>com.excilys.projet.computerdb.servlet.UpdateComputerServlet</servlet-class>
     </servlet>
+    
     <servlet>
         <servlet-name>DeleteComputerServlet</servlet-name>
         <servlet-class>com.excilys.projet.computerdb.servlet.DeleteComputerServlet</servlet-class>
     </servlet>
+    
     <servlet>
         <servlet-name>InsertComputerServlet</servlet-name>
         <servlet-class>com.excilys.projet.computerdb.servlet.InsertComputerServlet</servlet-class>
     </servlet>
+    
+    <servlet>
+        <servlet-name>UpdateCompanyServlet</servlet-name>
+        <servlet-class>com.excilys.projet.computerdb.servlet.UpdateCompanyServlet</servlet-class>
+    </servlet>
+    
+    <servlet>
+        <servlet-name>DeleteCompanyServlet</servlet-name>
+        <servlet-class>com.excilys.projet.computerdb.servlet.DeleteCompanyServlet</servlet-class>
+    </servlet>
+    
+    <servlet-mapping>
+        <servlet-name>DeleteCompanyServlet</servlet-name>
+        <url-pattern>/deletecie</url-pattern>
+    </servlet-mapping>
+    
+    <servlet-mapping>
+        <servlet-name>UpdateCompanyServlet</servlet-name>
+        <url-pattern>/companies</url-pattern>
+    </servlet-mapping>
+    
     <servlet-mapping>
         <servlet-name>ListComputersServlet</servlet-name>
         <url-pattern>/computers</url-pattern>
     </servlet-mapping>
+    
     <servlet-mapping>
         <servlet-name>UpdateComputerServlet</servlet-name>
         <url-pattern>/update</url-pattern>
     </servlet-mapping>
+    
     <servlet-mapping>
         <servlet-name>DeleteComputerServlet</servlet-name>
         <url-pattern>/delete</url-pattern>
     </servlet-mapping>
+    
     <servlet-mapping>
         <servlet-name>InsertComputerServlet</servlet-name>
         <url-pattern>/new</url-pattern>
     </servlet-mapping>
+    
 </web-app>

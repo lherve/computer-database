@@ -22,7 +22,11 @@ public enum ComputerService {
 	I;
 
 	private final static Logger logger = LoggerFactory.getLogger(ComputerService.class);
+
 	
+	/* 
+	 * Méthode utilisée par UpdateComputer pour récupérer les informations du computer à éditer
+	 */
 	public Computer getComputer(int id) {
 		Computer cpu = null;
 		
@@ -38,6 +42,10 @@ public enum ComputerService {
 		return cpu;
 	}
 
+	
+	/* 
+	 * Méthode utilisée par UpdateComputer pour l'insertion et la mise-à-jour du computer
+	 */
 	public Computer updateComputer(Computer cpu) {
 		boolean commit = true;
 		
@@ -89,7 +97,9 @@ public enum ComputerService {
 		return cpu;
 	}
 	
-	/* Méthode utilisée lors de l'ajout ou la mise-à-jour de computers 
+	
+	/* 
+	 * Méthode utilisée lors de l'ajout ou la mise-à-jour de computers 
 	 * pour valider la company associée
 	 */
 	private Company checkCompany(Computer o) throws SQLException {
@@ -126,6 +136,10 @@ public enum ComputerService {
 		return c;
 	}
 	
+	
+	/* 
+	 * Méthode utilisée par DeleteComputer pour la suppression du computer
+	 */
 	public boolean deleteComputer(int id) {
 		boolean result = false;
 		
@@ -143,14 +157,14 @@ public enum ComputerService {
 			try {
 				Connector.JDBC.getConnection().commit();
 			} catch (SQLException e) {
-				logger.warn("Service - update computer commit failed");
+				logger.warn("Service - delete computer commit failed");
 			}
 		}
 		else {
 			try {
 				Connector.JDBC.getConnection().rollback();
 			} catch (SQLException e) {
-				logger.warn("Service - update computer rollback failed");
+				logger.warn("Service - delete computer rollback failed");
 			}
 		}
 		
@@ -160,29 +174,13 @@ public enum ComputerService {
 	}
 
 	public List<Company> getCompanies() {
-//		List<Company> companies = CompanyDao.I.getAll(Sort.NAME, Order.ASC);
-//		
-//		Connector.JDBC.closeConnection();
-		
 		return CompaniesList.getInstance().getList();
 	}
 
-	public int count(String search) {
-		int i = -1;
-		
-		try {
-			i =  ComputerDao.I.count(search);
-		}
-		catch (SQLException e) {
-			logger.warn("Service - count computers:"+e.getMessage());
-			logger.warn("Service - count with "+search);
-		}
-		
-		Connector.JDBC.closeConnection();
-		
-		return i;
-	}
 	
+	/*
+	 * Méthode utilisée par ListComputers pour obtenir des computers à afficher
+	 */
 	public Page loadPage(int number, int sort, String search) {
 		
 		int count = 0;
