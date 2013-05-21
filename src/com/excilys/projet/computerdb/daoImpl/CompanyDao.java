@@ -37,7 +37,6 @@ public enum CompanyDao implements Dao<Company> {
 		public void notifyObservers() {
 			super.setChanged();
 			super.notifyObservers();
-			super.clearChanged();
 		}
 	};
 	

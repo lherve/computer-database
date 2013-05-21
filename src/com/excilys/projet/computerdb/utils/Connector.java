@@ -33,24 +33,25 @@ public enum Connector {
 			System.exit(-1);
 		}
 		
-		this.session = new ThreadLocal<Connection>();
+		this.session = new ThreadLocal<Connection>() {
+			@Override
+			protected Connection initialValue() {
+				Connection con;
+				try {
+					con = DriverManager.getConnection(url, USERNAME, PASSWORD);
+					con.setAutoCommit(false);
+				} catch (SQLException e) {
+					logger.error("Connector " + this + " - Impossible d'établir la connexion");
+					con = null;
+				}
+				this.set(con);
+				return this.get();
+			}
+		};
 	}
 	
 	public Connection getConnection() {
-		Connection con;
-		
-		if((con = this.session.get()) == null) {
-			try {
-				con = DriverManager.getConnection(url, USERNAME, PASSWORD);
-				con.setAutoCommit(false);
-				this.session.set(con);
-			} catch (SQLException e) {
-				logger.error("Connector " + this + " - Impossible d'établir la connexion");
-				con = null;
-			}
-		}
-		
-		return con;
+		return this.session.get();
 	}
 	
 	public void closeConnection() {
@@ -61,7 +62,9 @@ public enum Connector {
 		} catch (SQLException e) {
 			logger.error("Connector " + this + " - Erreur lors de la fermeture de la connexion");
 		}
-		this.session.remove();
+		finally {
+			this.session.remove();
+		}
 	}
 	
 }
