@@ -5,25 +5,35 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.excilys.projet.computerdb.daoImpl.CompanyDao;
 import com.excilys.projet.computerdb.exception.DataAccessException;
 import com.excilys.projet.computerdb.model.Company;
+import com.excilys.projet.computerdb.utils.ApplicationContextHolder;
 import com.excilys.projet.computerdb.utils.CompaniesList;
 import com.excilys.projet.computerdb.utils.Connector;
 
-public enum CompanyService {
+@Service
+public class CompanyService {
 
-	I;
+	@Autowired
+	private CompanyDao companyDao;
+	
+	@Autowired
+	private CompaniesList companiesList;
 	
 	private final static Logger logger = LoggerFactory.getLogger(CompanyService.class);
 	
 	public List<Company> getCompanies() throws DataAccessException {
+		List<Company> list;
 		try {
-			return CompaniesList.getInstance().getList();
+			list = companiesList.getList();
 		} catch (DataAccessException e) {
 			throw e;
 		}
+		return list;
 	}
 	
 	public Company updateCompany(Company cie) {
@@ -34,7 +44,7 @@ public enum CompanyService {
 			if(cie.getId() >= 0) {
 				
 				try {
-					cie = CompanyDao.I.update(cie);
+					cie = companyDao.update(cie);
 				} catch (SQLException e) {
 					logger.warn("Service - update company:"+e.getMessage());
 					logger.warn("Service - update "+ cie +" (ERRCODE:"+e.getErrorCode()+")");
@@ -44,7 +54,7 @@ public enum CompanyService {
 			}
 			else {
 				try {
-					cie = CompanyDao.I.insert(cie);
+					cie = companyDao.insert(cie);
 				} catch (SQLException e) {
 					logger.warn("Service - insert company:"+e.getMessage());
 					logger.warn("Service - insert "+ cie +" (ERRCODE:"+e.getErrorCode()+")");
@@ -55,7 +65,7 @@ public enum CompanyService {
 			if(commit) {
 				try {
 					Connector.JDBC.getConnection().commit();
-					CompanyDao.I.notifyUpdate();
+					companyDao.notifyUpdate();
 				} catch (SQLException e) {
 					logger.warn("Service - update company commit failed (ERRCODE:"+e.getErrorCode()+")");
 				}
@@ -82,17 +92,17 @@ public enum CompanyService {
 		boolean commit = true;
 		
 		try {
-			result = CompanyDao.I.delete(new Company(id, null));
+			result = companyDao.delete(new Company(id, null));
 		} catch (SQLException e) {
 			logger.warn("Service - delete company:"+e.getMessage());
 			logger.warn("Service - delete "+ id +" (ERRCODE:"+e.getErrorCode()+")");
 			commit = false;
 		}
 		
-		if(commit) {
+		if(commit && result) {
 			try {
 				Connector.JDBC.getConnection().commit();
-				CompanyDao.I.notifyUpdate();
+				companyDao.notifyUpdate();
 			} catch (SQLException e) {
 				logger.warn("Service - delete company commit failed (ERRCODE:"+e.getErrorCode()+")");
 			}

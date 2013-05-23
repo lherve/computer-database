@@ -12,6 +12,7 @@ import com.excilys.projet.computerdb.exception.DataAccessException;
 import com.excilys.projet.computerdb.model.Company;
 import com.excilys.projet.computerdb.model.Computer;
 import com.excilys.projet.computerdb.service.CompanyService;
+import com.excilys.projet.computerdb.utils.ApplicationContextHolder;
 
 public class InsertComputerServlet extends HttpServlet {
 
@@ -25,7 +26,7 @@ public class InsertComputerServlet extends HttpServlet {
 		List<Company> cies = null;
 		
 		try {
-			cies = CompanyService.I.getCompanies();
+			cies = ApplicationContextHolder.getContext().getBean("companyService", CompanyService.class).getCompanies();
 
 			req.setAttribute("cies", cies);
 

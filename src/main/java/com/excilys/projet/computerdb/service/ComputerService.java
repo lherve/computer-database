@@ -4,6 +4,8 @@ import java.sql.SQLException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.excilys.projet.computerdb.dao.Dao.Order;
 import com.excilys.projet.computerdb.dao.Dao.Sort;
@@ -15,10 +17,15 @@ import com.excilys.projet.computerdb.model.Page;
 import com.excilys.projet.computerdb.utils.CompaniesList;
 import com.excilys.projet.computerdb.utils.Connector;
 
-public enum ComputerService {
+@Service
+public class ComputerService {
 
-	I;
-
+	@Autowired
+	private ComputerDao computerDao;
+	
+	@Autowired
+	private CompaniesList companiesList;
+	
 	private final static Logger logger = LoggerFactory.getLogger(ComputerService.class);
 
 	
@@ -29,7 +36,7 @@ public enum ComputerService {
 		Computer cpu = null;
 		
 		try {
-			cpu = ComputerDao.I.get(id);
+			cpu = computerDao.get(id);
 		} catch (SQLException e) {
 			logger.warn("Service - get computer:"+e.getMessage());
 			logger.warn("Service - get "+ id +" (ERRCODE:"+e.getErrorCode()+")");
@@ -54,7 +61,7 @@ public enum ComputerService {
 		
 		if(cpu.getId() > 0) {
 			try {
-				cpu = ComputerDao.I.update(cpu);
+				cpu = computerDao.update(cpu);
 			} catch (SQLException e) {
 				logger.warn("Service - update computer:"+e.getMessage());
 				logger.warn("Service - update "+ cpu +" (ERRCODE:"+e.getErrorCode()+")");
@@ -63,7 +70,7 @@ public enum ComputerService {
 		}
 		else {
 			try {
-				cpu = ComputerDao.I.insert(cpu);
+				cpu = computerDao.insert(cpu);
 			} catch (SQLException e) {
 				logger.warn("Service - insert computer:"+e.getMessage());
 				logger.warn("Service - insert "+ cpu +" (ERRCODE:"+e.getErrorCode()+")");
@@ -99,17 +106,15 @@ public enum ComputerService {
 	private Company checkCompany(Computer o) {
 		if(o.getCompany() != null) {
 			Company c = null;
-			
 			try {
-				for(Company e : CompaniesList.getInstance().getList()) {
+				for(Company e : companiesList.getList()) {
 					if(e.getId() == o.getCompany().getId()) {
 						c = e;
 						break;
 					}
 				}
 			} catch (DataAccessException e) {
-			}
-			
+			} 
 			o.setCompany(c);
 		}
 		
@@ -126,7 +131,7 @@ public enum ComputerService {
 		boolean commit = true;
 		
 		try {
-			result = ComputerDao.I.delete(new Computer(id, null));
+			result = computerDao.delete(new Computer(id, null));
 		} catch (SQLException e) {
 			logger.warn("Service - delete computer:"+e.getMessage());
 			logger.warn("Service - delete "+ id +" (ERRCODE:"+e.getErrorCode()+")");
@@ -165,7 +170,7 @@ public enum ComputerService {
 		
 		try {
 			try {
-				count = ComputerDao.I.count(search);
+				count = computerDao.count(search);
 			} catch (SQLException e) {
 				logger.warn("Service - load page:"+e.getMessage());
 				logger.warn("Service - count total (ERRCODE:"+e.getErrorCode()+")");
@@ -203,22 +208,8 @@ public enum ComputerService {
 			Sort[] sorts = {Sort.NAME, Sort.INTRODUCED, Sort.DISCONTINUED, Sort.COMPANY};
 			p.setSort(sorts[sort-1]);
 			
-//			switch(sort) {
-//			case 2:
-//				p.setSort(Sort.INTRODUCED);
-//				break;
-//			case 3:
-//				p.setSort(Sort.DISCONTINUED);
-//				break;
-//			case 4:
-//				p.setSort(Sort.COMPANY);
-//				break;
-//			default:
-//				p.setSort(Sort.NAME);
-//			}
-			
 			try {
-				p.setCpus(ComputerDao.I.getFromTo(p.getStart(), p.getEnd(), p.getSort(), p.getOrder(), p.getSearch()));
+				p.setCpus(computerDao.getFromTo(p.getStart(), p.getEnd(), p.getSort(), p.getOrder(), p.getSearch()));
 			} catch (SQLException e) {
 				logger.warn("Service - load page:"+e.getMessage());
 				logger.warn("Service - load "+ p +" (ERRCODE:"+e.getErrorCode()+")");

@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.excilys.projet.computerdb.exception.DataAccessException;
 import com.excilys.projet.computerdb.model.Page;
 import com.excilys.projet.computerdb.service.ComputerService;
+import com.excilys.projet.computerdb.utils.ApplicationContextHolder;
 
 import com.mysql.jdbc.StringUtils;
 
@@ -52,7 +53,7 @@ public class ListComputersServlet extends HttpServlet {
 		}
 
 		try {
-			Page page = ComputerService.I.loadPage(n, s, search);
+			Page page = ApplicationContextHolder.getContext().getBean("computerService", ComputerService.class).loadPage(n, s, search);
 
 			req.setAttribute("page", page);
 	

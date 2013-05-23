@@ -12,15 +12,16 @@ import java.util.Observable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.springframework.stereotype.Repository;
+
 import com.excilys.projet.computerdb.dao.Dao;
 import com.excilys.projet.computerdb.model.Company;
 import com.excilys.projet.computerdb.utils.Connector;
 
 import com.mysql.jdbc.StringUtils;
 
-public enum CompanyDao implements Dao<Company> {
-	
-	I;
+@Repository
+public class CompanyDao implements Dao<Company> {
 	
 	private static final Logger logger = LoggerFactory.getLogger(CompanyDao.class);
 	
@@ -128,9 +129,8 @@ public enum CompanyDao implements Dao<Company> {
 			
 			try {
 					pstmt = Connector.JDBC.getConnection().prepareStatement(DELETE_COMPANY);
-					
+
 					pstmt.setInt(1, o.getId());
-					
 					logger.info(pstmt.toString().split(":\\s")[1]);
 					
 					if(pstmt.executeUpdate() > 0) {
@@ -230,7 +230,7 @@ public enum CompanyDao implements Dao<Company> {
 	@Override
 	public List<Company> getAll(Sort sortedBy, Order order) throws SQLException {
 		PreparedStatement pstmt = null;
-		
+
 		List<Company> cies = new ArrayList<Company>();
 		
 		try {

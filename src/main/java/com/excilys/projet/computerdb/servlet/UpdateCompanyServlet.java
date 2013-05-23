@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.excilys.projet.computerdb.exception.DataAccessException;
 import com.excilys.projet.computerdb.model.Company;
 import com.excilys.projet.computerdb.service.CompanyService;
+import com.excilys.projet.computerdb.utils.ApplicationContextHolder;
 import com.mysql.jdbc.StringUtils;
 
 public class UpdateCompanyServlet extends HttpServlet {
@@ -23,7 +24,7 @@ public class UpdateCompanyServlet extends HttpServlet {
 		List<Company> cies = null;
 		
 		try {
-			cies = CompanyService.I.getCompanies();
+			cies = ApplicationContextHolder.getContext().getBean("companyService", CompanyService.class).getCompanies();
 
 			req.setAttribute("cies", cies);
 			
@@ -77,7 +78,7 @@ public class UpdateCompanyServlet extends HttpServlet {
 		
 		if(error == 0) {
 			
-			Company cie = CompanyService.I.updateCompany(new Company(id, name));
+			Company cie = ApplicationContextHolder.getContext().getBean("companyService", CompanyService.class).updateCompany(new Company(id, name));
 			
 			StringBuilder info = new StringBuilder();
 			
@@ -104,7 +105,7 @@ public class UpdateCompanyServlet extends HttpServlet {
 			List<Company> cies = null;
 			
 			try {
-				cies = CompanyService.I.getCompanies();
+				cies = ApplicationContextHolder.getContext().getBean("companyService", CompanyService.class).getCompanies();
 
 				req.setAttribute("cies", cies);
 

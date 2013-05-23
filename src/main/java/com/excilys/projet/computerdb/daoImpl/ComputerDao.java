@@ -20,9 +20,10 @@ import com.mysql.jdbc.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public enum ComputerDao implements Dao<Computer> {
+import org.springframework.stereotype.Repository;
 
-	I;
+@Repository
+public class ComputerDao implements Dao<Computer> {
 	
 	private static final Logger logger = LoggerFactory.getLogger(ComputerDao.class);
 	

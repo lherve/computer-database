@@ -21,6 +21,7 @@ import com.excilys.projet.computerdb.model.Company;
 import com.excilys.projet.computerdb.model.Computer;
 import com.excilys.projet.computerdb.service.CompanyService;
 import com.excilys.projet.computerdb.service.ComputerService;
+import com.excilys.projet.computerdb.utils.ApplicationContextHolder;
 import com.mysql.jdbc.StringUtils;
 
 public class UpdateComputerServlet extends HttpServlet {
@@ -42,7 +43,7 @@ public class UpdateComputerServlet extends HttpServlet {
 				if(id > 0) {
 					
 					try {
-						Computer cpu = ComputerService.I.getComputer(id);
+						Computer cpu = ApplicationContextHolder.getContext().getBean("computerService", ComputerService.class).getComputer(id);
 						
 						if(cpu != null) {
 							
@@ -50,7 +51,7 @@ public class UpdateComputerServlet extends HttpServlet {
 							
 							List<Company> cies = null;
 							
-							cies = CompanyService.I.getCompanies();
+							cies = ApplicationContextHolder.getContext().getBean("companyService", CompanyService.class).getCompanies();
 
 							req.setAttribute("cies", cies);
 							
@@ -195,7 +196,7 @@ public class UpdateComputerServlet extends HttpServlet {
 				List<Company> cies = null;
 				
 				try {
-					cies = CompanyService.I.getCompanies();
+					cies = ApplicationContextHolder.getContext().getBean("companyService", CompanyService.class).getCompanies();
 
 					req.setAttribute("cies", cies);
 					
@@ -214,7 +215,7 @@ public class UpdateComputerServlet extends HttpServlet {
 			else {
 				StringBuilder sb = new StringBuilder("");
 
-				if((ComputerService.I.updateComputer(cpu)).getId() == 0) {
+				if((ApplicationContextHolder.getContext().getBean("computerService", ComputerService.class).updateComputer(cpu)).getId() == 0) {
 					sb.append("Update operation failed");
 				}
 				else {

@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.excilys.projet.computerdb.service.ComputerService;
+import com.excilys.projet.computerdb.utils.ApplicationContextHolder;
 
 public class DeleteComputerServlet extends HttpServlet {
 
@@ -17,7 +18,7 @@ public class DeleteComputerServlet extends HttpServlet {
 		
 		try {
 			int id = Integer.parseInt(req.getParameter("id"));
-			success = ComputerService.I.deleteComputer(id);
+			success = ApplicationContextHolder.getContext().getBean("computerService", ComputerService.class).deleteComputer(id);
 			}
 		catch (NumberFormatException e){
 		}
