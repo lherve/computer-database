@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import com.excilys.projet.computerdb.daoImpl.CompanyDao;
 import com.excilys.projet.computerdb.exception.DBException;
 import com.excilys.projet.computerdb.model.Company;
-import com.excilys.projet.computerdb.utils.ApplicationContextHolder;
 import com.excilys.projet.computerdb.utils.CompaniesList;
 import com.excilys.projet.computerdb.utils.Connector;
 

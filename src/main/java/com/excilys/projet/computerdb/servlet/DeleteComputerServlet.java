@@ -7,18 +7,22 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.context.ApplicationContext;
+import org.springframework.web.context.support.WebApplicationContextUtils;
+
 import com.excilys.projet.computerdb.service.ComputerService;
-import com.excilys.projet.computerdb.utils.ApplicationContextHolder;
 
 public class DeleteComputerServlet extends HttpServlet {
 
+	private ApplicationContext applicationContext;
+	
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		boolean success = false;
 		
 		try {
 			int id = Integer.parseInt(req.getParameter("id"));
-			success = ApplicationContextHolder.getContext().getBean("computerService", ComputerService.class).deleteComputer(id);
+			success = applicationContext.getBean("computerService", ComputerService.class).deleteComputer(id);
 			}
 		catch (NumberFormatException e){
 		}
@@ -33,4 +37,11 @@ public class DeleteComputerServlet extends HttpServlet {
 		resp.sendRedirect("computers");
 	}
 
+	@Override
+	public void init() throws ServletException {
+		if(applicationContext == null) {
+			applicationContext = WebApplicationContextUtils.getWebApplicationContext(getServletContext());
+		}
+	}
+	
 }

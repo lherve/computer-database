@@ -6,9 +6,18 @@
 	
 	<display-name>computer-database</display-name>
 	
+  	<context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>classpath:spring-context.xml</param-value>
+    </context-param>
+	
 	<welcome-file-list>
 		<welcome-file>computers</welcome-file>
 	</welcome-file-list>
+	
+	<listener>
+		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+	</listener>
 	
 	<servlet>
 		<servlet-name>ListComputersServlet</servlet-name>

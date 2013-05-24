@@ -15,17 +15,21 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.context.ApplicationContext;
+import org.springframework.web.context.support.WebApplicationContextUtils;
+
 
 import com.excilys.projet.computerdb.exception.DBException;
 import com.excilys.projet.computerdb.model.Company;
 import com.excilys.projet.computerdb.model.Computer;
 import com.excilys.projet.computerdb.service.CompanyService;
 import com.excilys.projet.computerdb.service.ComputerService;
-import com.excilys.projet.computerdb.utils.ApplicationContextHolder;
 import com.mysql.jdbc.StringUtils;
 
 public class UpdateComputerServlet extends HttpServlet {
 
+	private ApplicationContext applicationContext;
+	
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
@@ -43,7 +47,7 @@ public class UpdateComputerServlet extends HttpServlet {
 				if(id > 0) {
 					
 					try {
-						Computer cpu = ApplicationContextHolder.getContext().getBean("computerService", ComputerService.class).getComputer(id);
+						Computer cpu = applicationContext.getBean("computerService", ComputerService.class).getComputer(id);
 						
 						if(cpu != null) {
 							
@@ -51,7 +55,7 @@ public class UpdateComputerServlet extends HttpServlet {
 							
 							List<Company> cies = null;
 							
-							cies = ApplicationContextHolder.getContext().getBean("companyService", CompanyService.class).getCompanies();
+							cies = applicationContext.getBean("companyService", CompanyService.class).getCompanies();
 
 							req.setAttribute("cies", cies);
 							
@@ -196,7 +200,7 @@ public class UpdateComputerServlet extends HttpServlet {
 				List<Company> cies = null;
 				
 				try {
-					cies = ApplicationContextHolder.getContext().getBean("companyService", CompanyService.class).getCompanies();
+					cies = applicationContext.getBean("companyService", CompanyService.class).getCompanies();
 
 					req.setAttribute("cies", cies);
 					
@@ -215,7 +219,7 @@ public class UpdateComputerServlet extends HttpServlet {
 			else {
 				StringBuilder sb = new StringBuilder("");
 
-				if((ApplicationContextHolder.getContext().getBean("computerService", ComputerService.class).updateComputer(cpu)).getId() == 0) {
+				if((applicationContext.getBean("computerService", ComputerService.class).updateComputer(cpu)).getId() == 0) {
 					sb.append("Update operation failed");
 				}
 				else {
@@ -234,6 +238,13 @@ public class UpdateComputerServlet extends HttpServlet {
 			}
 		}
 		
+	}
+	
+	@Override
+	public void init() throws ServletException {
+		if(applicationContext == null) {
+			applicationContext = WebApplicationContextUtils.getWebApplicationContext(getServletContext());
+		}
 	}
 	
 }

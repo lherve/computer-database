@@ -1,11 +1,8 @@
 package com.excilys.projet.computerdb.daoImpl;
 
 import java.sql.Date;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -13,8 +10,6 @@ import java.util.List;
 import com.excilys.projet.computerdb.dao.Dao;
 import com.excilys.projet.computerdb.model.Company;
 import com.excilys.projet.computerdb.model.Computer;
-import com.excilys.projet.computerdb.utils.Connector;
-
 import com.mysql.jdbc.StringUtils;
 
 import org.slf4j.Logger;

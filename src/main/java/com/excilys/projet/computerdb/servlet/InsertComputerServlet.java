@@ -8,14 +8,18 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.context.ApplicationContext;
+import org.springframework.web.context.support.WebApplicationContextUtils;
+
 import com.excilys.projet.computerdb.exception.DBException;
 import com.excilys.projet.computerdb.model.Company;
 import com.excilys.projet.computerdb.model.Computer;
 import com.excilys.projet.computerdb.service.CompanyService;
-import com.excilys.projet.computerdb.utils.ApplicationContextHolder;
 
 public class InsertComputerServlet extends HttpServlet {
 
+	private ApplicationContext applicationContext;
+	
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		
@@ -26,7 +30,7 @@ public class InsertComputerServlet extends HttpServlet {
 		List<Company> cies = null;
 		
 		try {
-			cies = ApplicationContextHolder.getContext().getBean("companyService", CompanyService.class).getCompanies();
+			cies = applicationContext.getBean("companyService", CompanyService.class).getCompanies();
 
 			req.setAttribute("cies", cies);
 
@@ -41,5 +45,13 @@ public class InsertComputerServlet extends HttpServlet {
 		}
 		
 	}
+	
+	@Override
+	public void init() throws ServletException {
+		if(applicationContext == null) {
+			applicationContext = WebApplicationContextUtils.getWebApplicationContext(getServletContext());
+		}
+	}
+	
 	
 }
