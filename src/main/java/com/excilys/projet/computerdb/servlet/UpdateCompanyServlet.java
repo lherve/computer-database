@@ -85,13 +85,13 @@ public class UpdateCompanyServlet extends HttpServlet {
 			
 			StringBuilder info = new StringBuilder();
 			
-			if(cie == null || cie.getId() <= 0) {
+			if(cie == null || cie.getId() < 0) {
 				info.append("Error : Update operation failed");
 			}
 			else {
 				info.append("Done ! Company ").append(cie.getName()).append(" has been ");
 
-				if(id > 0) {
+				if(cie.getId() > 0) {
 					info.append("updated");
 				}
 				else {

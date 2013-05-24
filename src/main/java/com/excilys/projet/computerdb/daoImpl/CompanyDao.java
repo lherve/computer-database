@@ -60,6 +60,9 @@ public class CompanyDao implements Dao<Company> {
 			if(jdbcTemplate.update(INSERT_COMPANY, o.getName()) <= 0) {
 				o.setId(-1);
 			}
+			else {
+				o.setId(0);
+			}
 		}
 		return o;
 	}
