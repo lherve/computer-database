@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.excilys.projet.computerdb.daoImpl.CompanyDao;
 import com.excilys.projet.computerdb.exception.DBException;
@@ -16,6 +17,7 @@ import com.excilys.projet.computerdb.utils.CompaniesList;
 import com.excilys.projet.computerdb.utils.Connector;
 
 @Service
+@Transactional(readOnly=true)
 public class CompanyService {
 
 	@Autowired
@@ -36,6 +38,7 @@ public class CompanyService {
 		return list;
 	}
 	
+	@Transactional(readOnly=false)
 	public Company updateCompany(Company cie) {
 		if(cie != null) {
 			boolean commit = true;
@@ -85,6 +88,7 @@ public class CompanyService {
 		return cie;
 	}
 	
+	@Transactional(readOnly=false)
 	public boolean deleteCompany(int id) {
 		boolean result = false;
 		

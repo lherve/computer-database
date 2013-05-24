@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.excilys.projet.computerdb.dao.Dao.Order;
 import com.excilys.projet.computerdb.dao.Dao.Sort;
@@ -19,6 +20,7 @@ import com.excilys.projet.computerdb.utils.CompaniesList;
 import com.excilys.projet.computerdb.utils.Connector;
 
 @Service
+@Transactional(readOnly=true)
 public class ComputerService {
 
 	@Autowired
@@ -55,6 +57,7 @@ public class ComputerService {
 	/* 
 	 * Méthode utilisée par UpdateComputer pour l'insertion et la mise-à-jour du computer
 	 */
+	@Transactional(readOnly=false)
 	public Computer updateComputer(Computer cpu) {
 		boolean commit = true;
 		
@@ -126,6 +129,7 @@ public class ComputerService {
 	/* 
 	 * Méthode utilisée par DeleteComputer pour la suppression du computer
 	 */
+	@Transactional(readOnly=false)
 	public boolean deleteComputer(int id) {
 		boolean result = false;
 		
