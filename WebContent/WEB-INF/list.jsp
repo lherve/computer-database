@@ -89,18 +89,26 @@
 					</table>
 					
 					<div id="pagination" class="pagination">
-			            <ul>
+						<ul>
 							<li class="prev ${page.previous.number eq page.number ? 'disabled' : '' }">
-							    <a href="?search=${param.search}&page=${page.previous.number}&s=${s }">&larr; Previous</a>
+								<c:choose>
+									<c:when test="${page.previous.number eq page.number}"><a></c:when>
+									<c:otherwise><a href="?search=${param.search}&page=${page.previous.number}&s=${s }"></c:otherwise>
+								</c:choose>
+								&larr; Previous</a>
 							</li>
-			                <li class="current">
-			                    <a>Displaying <c:out value="${page.start}" /> to <c:out value="${page.end}"/> of <c:out value="${page.total}" /></a>
-			                </li>
+							<li class="current">
+								<a>Displaying <c:out value="${page.start}" /> to <c:out value="${page.end}"/> of <c:out value="${page.total}" /></a>
+							</li>
 							<li class="next ${page.next.number eq page.number ? 'disabled' : page.size > page.total ? 'disabled' : '' }">
-							    <a href="?search=${param.search}&page=${page.next.number}&s=${s }">Next &rarr;</a>
+								<c:choose>
+									<c:when test="${page.next.number eq page.number}"><a></c:when>
+									<c:otherwise><a href="?search=${param.search}&page=${page.next.number}&s=${s }"></c:otherwise>
+								</c:choose>
+								Next &rarr;</a>
 							</li>
-			            </ul>
-		        </div>
+						</ul>
+		        	</div>
         
 	        	</c:otherwise>
 			</c:choose>

@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.excilys.projet.computerdb.exception.DataAccessException;
+import com.excilys.projet.computerdb.exception.DBException;
 import com.excilys.projet.computerdb.model.Company;
 import com.excilys.projet.computerdb.service.CompanyService;
 import com.excilys.projet.computerdb.utils.ApplicationContextHolder;
@@ -39,7 +39,7 @@ public class UpdateCompanyServlet extends HttpServlet {
 			
 			req.getServletContext().getRequestDispatcher("/WEB-INF/companies.jsp").forward(req, resp);
 			
-		} catch (DataAccessException e) {
+		} catch (DBException e) {
 			req.setAttribute("exception", e);
 			req.getServletContext().getRequestDispatcher("/WEB-INF/error.jsp").forward(req, resp);
 		}
@@ -77,12 +77,11 @@ public class UpdateCompanyServlet extends HttpServlet {
 		}
 		
 		if(error == 0) {
-			
 			Company cie = ApplicationContextHolder.getContext().getBean("companyService", CompanyService.class).updateCompany(new Company(id, name));
 			
 			StringBuilder info = new StringBuilder();
 			
-			if(cie == null) {
+			if(cie == null || cie.getId() <= 0) {
 				info.append("Error : Update operation failed");
 			}
 			else {
@@ -113,7 +112,7 @@ public class UpdateCompanyServlet extends HttpServlet {
 				
 				req.getServletContext().getRequestDispatcher("/WEB-INF/companies.jsp").forward(req, resp);
 				
-			} catch (DataAccessException e) {
+			} catch (DBException e) {
 				req.setAttribute("exception", e);
 				req.getServletContext().getRequestDispatcher("/WEB-INF/error.jsp").forward(req, resp);
 			}

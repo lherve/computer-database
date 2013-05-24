@@ -7,7 +7,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.excilys.projet.computerdb.exception.DataAccessException;
+import com.excilys.projet.computerdb.exception.DBException;
 import com.excilys.projet.computerdb.model.Page;
 import com.excilys.projet.computerdb.service.ComputerService;
 import com.excilys.projet.computerdb.utils.ApplicationContextHolder;
@@ -70,7 +70,7 @@ public class ListComputersServlet extends HttpServlet {
 	
 			req.getServletContext().getRequestDispatcher("/WEB-INF/list.jsp").forward(req, resp);
 			
-		} catch (DataAccessException e) {
+		} catch (DBException e) {
 			req.setAttribute("exception", e);
 			req.getServletContext().getRequestDispatcher("/WEB-INF/error.jsp").forward(req, resp);
 		}

@@ -5,12 +5,13 @@ import java.sql.SQLException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
 import com.excilys.projet.computerdb.dao.Dao.Order;
 import com.excilys.projet.computerdb.dao.Dao.Sort;
 import com.excilys.projet.computerdb.daoImpl.ComputerDao;
-import com.excilys.projet.computerdb.exception.DataAccessException;
+import com.excilys.projet.computerdb.exception.DBException;
 import com.excilys.projet.computerdb.model.Company;
 import com.excilys.projet.computerdb.model.Computer;
 import com.excilys.projet.computerdb.model.Page;
@@ -32,16 +33,16 @@ public class ComputerService {
 	/* 
 	 * Méthode utilisée par UpdateComputer pour récupérer les informations du computer à éditer
 	 */
-	public Computer getComputer(int id) throws DataAccessException {
+	public Computer getComputer(int id) throws DBException {
 		Computer cpu = null;
 		
 		try {
 			cpu = computerDao.get(id);
-		} catch (SQLException e) {
+		} catch (DataAccessException e) {
 			logger.warn("Service - get computer:"+e.getMessage());
-			logger.warn("Service - get "+ id +" (ERRCODE:"+e.getErrorCode()+")");
+			logger.warn("Service - get "+ id);
 			
-			throw new DataAccessException("Problème lors du chargement d'un computer : accès aux données impossible.");
+			throw new DBException("Problème lors du chargement d'un computer : accès aux données impossible.");
 		}
 		finally {
 			Connector.JDBC.closeConnection();
@@ -62,18 +63,18 @@ public class ComputerService {
 		if(cpu.getId() > 0) {
 			try {
 				cpu = computerDao.update(cpu);
-			} catch (SQLException e) {
+			} catch (DataAccessException e) {
 				logger.warn("Service - update computer:"+e.getMessage());
-				logger.warn("Service - update "+ cpu +" (ERRCODE:"+e.getErrorCode()+")");
+				logger.warn("Service - update "+ cpu);
 				commit = false;
 			}
 		}
 		else {
 			try {
 				cpu = computerDao.insert(cpu);
-			} catch (SQLException e) {
+			} catch (DataAccessException e) {
 				logger.warn("Service - insert computer:"+e.getMessage());
-				logger.warn("Service - insert "+ cpu +" (ERRCODE:"+e.getErrorCode()+")");
+				logger.warn("Service - insert "+ cpu);
 				commit = false;
 			}
 		}
@@ -113,7 +114,7 @@ public class ComputerService {
 						break;
 					}
 				}
-			} catch (DataAccessException e) {
+			} catch (DBException e) {
 			} 
 			o.setCompany(c);
 		}
@@ -132,9 +133,9 @@ public class ComputerService {
 		
 		try {
 			result = computerDao.delete(new Computer(id, null));
-		} catch (SQLException e) {
+		} catch (DataAccessException e) {
 			logger.warn("Service - delete computer:"+e.getMessage());
-			logger.warn("Service - delete "+ id +" (ERRCODE:"+e.getErrorCode()+")");
+			logger.warn("Service - delete "+ id);
 			commit = false;
 		}
 		
@@ -162,7 +163,7 @@ public class ComputerService {
 	/*
 	 * Méthode utilisée par ListComputers pour obtenir des computers à afficher
 	 */
-	public Page loadPage(int number, int sort, String search) throws DataAccessException {
+	public Page loadPage(int number, int sort, String search) throws DBException {
 		
 		Page p = null;
 		
@@ -171,14 +172,18 @@ public class ComputerService {
 		try {
 			try {
 				count = computerDao.count(search);
-			} catch (SQLException e) {
+			} catch (DataAccessException e) {
 				logger.warn("Service - load page:"+e.getMessage());
-				logger.warn("Service - count total (ERRCODE:"+e.getErrorCode()+")");
+				logger.warn("Service - count total");
 				
-				throw new DataAccessException("Problème lors du compte des computers : accès aux données impossible.");
+				throw new DBException("Problème lors du compte des computers : accès aux données impossible.");
 			}
 			
 			int maxPage = count / Page.SIZE;
+			
+			if(count % Page.SIZE == 0) {
+				maxPage--;
+			}
 			
 			if(number > maxPage) {
 				number = maxPage;
@@ -210,11 +215,11 @@ public class ComputerService {
 			
 			try {
 				p.setCpus(computerDao.getFromTo(p.getStart(), p.getEnd(), p.getSort(), p.getOrder(), p.getSearch()));
-			} catch (SQLException e) {
+			} catch (DataAccessException e) {
 				logger.warn("Service - load page:"+e.getMessage());
-				logger.warn("Service - load "+ p +" (ERRCODE:"+e.getErrorCode()+")");
+				logger.warn("Service - load "+ p);
 				
-				throw new DataAccessException("Problème lors du chargement des computers : accès aux données impossible.");
+				throw new DBException("Problème lors du chargement des computers : accès aux données impossible.");
 			}
 		}
 		finally {

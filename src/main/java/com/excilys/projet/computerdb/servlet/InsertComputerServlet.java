@@ -8,7 +8,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.excilys.projet.computerdb.exception.DataAccessException;
+import com.excilys.projet.computerdb.exception.DBException;
 import com.excilys.projet.computerdb.model.Company;
 import com.excilys.projet.computerdb.model.Computer;
 import com.excilys.projet.computerdb.service.CompanyService;
@@ -32,7 +32,7 @@ public class InsertComputerServlet extends HttpServlet {
 
 			req.getServletContext().getRequestDispatcher("/WEB-INF/update.jsp").forward(req, resp);
 			
-		} catch (DataAccessException e) {
+		} catch (DBException e) {
 			
 			req.setAttribute("exception", e);
 			

@@ -6,10 +6,11 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
 import com.excilys.projet.computerdb.daoImpl.CompanyDao;
-import com.excilys.projet.computerdb.exception.DataAccessException;
+import com.excilys.projet.computerdb.exception.DBException;
 import com.excilys.projet.computerdb.model.Company;
 import com.excilys.projet.computerdb.utils.ApplicationContextHolder;
 import com.excilys.projet.computerdb.utils.CompaniesList;
@@ -26,11 +27,11 @@ public class CompanyService {
 	
 	private final static Logger logger = LoggerFactory.getLogger(CompanyService.class);
 	
-	public List<Company> getCompanies() throws DataAccessException {
+	public List<Company> getCompanies() throws DBException {
 		List<Company> list;
 		try {
 			list = companiesList.getList();
-		} catch (DataAccessException e) {
+		} catch (DBException e) {
 			throw e;
 		}
 		return list;
@@ -38,16 +39,15 @@ public class CompanyService {
 	
 	public Company updateCompany(Company cie) {
 		if(cie != null) {
-			
 			boolean commit = true;
 			
 			if(cie.getId() >= 0) {
 				
 				try {
 					cie = companyDao.update(cie);
-				} catch (SQLException e) {
+				} catch (DataAccessException e) {
 					logger.warn("Service - update company:"+e.getMessage());
-					logger.warn("Service - update "+ cie +" (ERRCODE:"+e.getErrorCode()+")");
+					logger.warn("Service - update "+ cie);
 					commit = false;
 				}
 				
@@ -55,9 +55,9 @@ public class CompanyService {
 			else {
 				try {
 					cie = companyDao.insert(cie);
-				} catch (SQLException e) {
+				} catch (DataAccessException e) {
 					logger.warn("Service - insert company:"+e.getMessage());
-					logger.warn("Service - insert "+ cie +" (ERRCODE:"+e.getErrorCode()+")");
+					logger.warn("Service - insert "+ cie);
 					commit = false;
 				}
 			}
@@ -82,7 +82,7 @@ public class CompanyService {
 		}
 		
 		Connector.JDBC.closeConnection();
-		
+
 		return cie;
 	}
 	
@@ -93,9 +93,9 @@ public class CompanyService {
 		
 		try {
 			result = companyDao.delete(new Company(id, null));
-		} catch (SQLException e) {
+		} catch (DataAccessException e) {
 			logger.warn("Service - delete company:"+e.getMessage());
-			logger.warn("Service - delete "+ id +" (ERRCODE:"+e.getErrorCode()+")");
+			logger.warn("Service - delete "+ id);
 			commit = false;
 		}
 		

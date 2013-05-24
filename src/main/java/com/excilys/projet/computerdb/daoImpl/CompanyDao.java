@@ -1,9 +1,7 @@
 package com.excilys.projet.computerdb.daoImpl;
 
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,11 +10,14 @@ import java.util.Observable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import com.excilys.projet.computerdb.dao.Dao;
 import com.excilys.projet.computerdb.model.Company;
-import com.excilys.projet.computerdb.utils.Connector;
 
 import com.mysql.jdbc.StringUtils;
 
@@ -32,6 +33,9 @@ public class CompanyDao implements Dao<Company> {
 	private static final String GET_SOME_COMPANIES = "SELECT id, name FROM company LIMIT ?,?;";
 	private static final String GET_ALL_COMPANIES = "SELECT id, name FROM company ORDER BY name ASC;";
 	private static final String COUNT_COMPANIES = "SELECT count(id) as count FROM company";
+	
+	@Autowired
+	private JdbcTemplate jdbcTemplate;
 	
 	private Observable dataUpdateNotifier = new Observable() {
 		@Override
@@ -51,258 +55,100 @@ public class CompanyDao implements Dao<Company> {
 	}
 	
 	@Override
-	public Company insert(Company o) throws SQLException {
+	public Company insert(Company o) throws DataAccessException {
 		if(o != null) {
-			
-			PreparedStatement pstmt = null;
-			
-			try {
-				pstmt = Connector.JDBC.getConnection().prepareStatement(INSERT_COMPANY, Statement.RETURN_GENERATED_KEYS);
-				
-				pstmt.setString(1, o.getName());
-				
-				logger.info(pstmt.toString().split(":\\s")[1]);
-
-				if(pstmt.executeUpdate() > 0) {
-					ResultSet rs = pstmt.getGeneratedKeys();
-					
-					if(rs.next()) {
-						o.setId(rs.getInt(1));
-					}
-					
-					rs.close();
-				}
-			}
-			finally {
-				try {
-					if(pstmt != null) {
-						pstmt.close();
-					}
-				}
-				catch(SQLException e) {
-					logger.warn("insert company - DAO Statement close failed - (ERRCODE:"+e.getErrorCode()+")");
-				}
+			if(jdbcTemplate.update(INSERT_COMPANY, o.getName()) <= 0) {
+				o.setId(-1);
 			}
 		}
 		return o;
 	}
 
 	@Override
-	public Company update(Company o) throws SQLException {
+	public Company update(Company o) throws DataAccessException {
 		if(o != null) {
-			
-			PreparedStatement pstmt = null;
-			
-			try {
-				pstmt = Connector.JDBC.getConnection().prepareStatement(UPDATE_COMPANY);
-				
-				pstmt.setString(1, o.getName());
-				pstmt.setInt(2, o.getId());
-				
-				logger.info(pstmt.toString().split(":\\s")[1]);
-				
-				if(pstmt.executeUpdate() <= 0){
-					o.setId(0);
-				}
-			}
-			finally {
-				try {
-					if(pstmt != null) {
-						pstmt.close();
-					}
-				}
-				catch(SQLException e) {
-					logger.warn("update company - DAO Statement close failed (ERRCODE:"+e.getErrorCode()+")");
-				}
+			if(jdbcTemplate.update(UPDATE_COMPANY, o.getName(), o.getId()) <= 0){
+				o.setId(-1);
 			}
 		}
 		return o;
 	}
 
 	@Override
-	public boolean delete(Company o) throws SQLException {
+	public boolean delete(Company o) throws DataAccessException {
 		boolean result = false;
 		
 		if(o != null && o.getId() > 0) {
-			
-			PreparedStatement pstmt = null;
-			
-			try {
-					pstmt = Connector.JDBC.getConnection().prepareStatement(DELETE_COMPANY);
-
-					pstmt.setInt(1, o.getId());
-					logger.info(pstmt.toString().split(":\\s")[1]);
-					
-					if(pstmt.executeUpdate() > 0) {
-						result = true;
-					}
-			}
-			finally {
-				try {
-					if(pstmt != null) {
-						pstmt.close();
-					}
-				}
-				catch(SQLException e) {
-					logger.warn("delete company - DAO Statement close failed (ERRCODE:"+e.getErrorCode()+")");
-				}
+			if(jdbcTemplate.update(DELETE_COMPANY, o.getId()) > 0) {
+				result = true;
 			}
 		}
 		return result;
 	}
 
 	@Override
-	public Company get(int id) throws SQLException {
-		PreparedStatement pstmt = null;
-		
+	public Company get(int id) throws DataAccessException {
 		Company cie = null;
 		
-		try {
-			pstmt = Connector.JDBC.getConnection().prepareStatement(GET_COMPANY);
-			pstmt.setInt(1, id);
-			
-			logger.info(pstmt.toString().split(":\\s")[1]);
-			
-			ResultSet rs = pstmt.executeQuery(); 
-			
-			if(rs.next()) {
-				cie = new Company(rs.getInt("id"), rs.getString("name"));
-			}
-			
-			pstmt.close();
-			
-		}
-		finally {
-			try {
-				if(pstmt != null) {
-					pstmt.close();
-				}
-			}
-			catch(SQLException e) {
-				logger.warn("get company - DAO Statement close failed (ERRCODE:"+e.getErrorCode()+")");
-			}
+		List<Company> cies = jdbcTemplate.query(GET_COMPANY, new Object[] {id}, new CompanyRowMapper());
+		
+		if(cies.size() > 0) {
+			cie = cies.get(0);
 		}
 		
 		return cie;
 	}
 
 	@Override
-	public List<Company> getFromTo(int start, int end, Sort sortedBy, Order order, String search) throws SQLException {
-		PreparedStatement pstmt = null;
-		
+	public List<Company> getFromTo(int start, int end, Sort sortedBy, Order order, String search) throws DataAccessException {
 		List<Company> cies = new ArrayList<Company>();
 		
-		try {
-			pstmt = Connector.JDBC.getConnection().prepareStatement(GET_SOME_COMPANIES);
-			pstmt.setInt(1, --start);
-			
-			int i = end - start;
-			if(i < 0) {
-				i = 10;
-			}
-				
-			pstmt.setInt(2, i);
-			
-			logger.info(pstmt.toString().split(":\\s")[1]);
-			
-			ResultSet rs = pstmt.executeQuery(); 
-			
-			while(rs.next()) {
-				Company cie = new Company(rs.getInt("id"), rs.getString("name"));
-				cies.add(cie);
-			}
-			
+		int i = end - (--start);
+		if(i < 0) {
+			i = 10;
 		}
-		finally {
-			try {
-				if(pstmt != null) {
-					pstmt.close();
-				}
-			}
-			catch(SQLException e) {
-				logger.warn("get some companies - DAO Statement close failed (ERRCODE:"+e.getErrorCode()+")");
-			}
-		}
+		
+		cies = jdbcTemplate.query(GET_SOME_COMPANIES, new Object[] {start, i},new CompanyRowMapper());
 		
 		return cies;
 	}
 
 	@Override
 	public List<Company> getAll(Sort sortedBy, Order order) throws SQLException {
-		PreparedStatement pstmt = null;
-
 		List<Company> cies = new ArrayList<Company>();
-		
-		try {
-			pstmt = Connector.JDBC.getConnection().prepareStatement(GET_ALL_COMPANIES);
 			
-			logger.info(pstmt.toString().split(":\\s")[1]);
-			
-			ResultSet rs = pstmt.executeQuery(); 
-			
-			while(rs.next()) {
-				Company cie = new Company(rs.getInt("id"), rs.getString("name"));
-				cies.add(cie);
-			}
-			
-		}
-		finally {
-			try {
-				if(pstmt != null) {
-					pstmt.close();
-				}
-			}
-			catch(SQLException e) {
-				logger.warn("get all companies - DAO Statement close failed (ERRCODE:"+e.getErrorCode()+")");
-			}
-		}
+		cies = jdbcTemplate.query(GET_ALL_COMPANIES, new Object[] {}, new CompanyRowMapper());
 		
 		return cies;
 	}
 
 	@Override
-	public int count(String search) throws SQLException {
-		PreparedStatement pstmt = null;
-
-		int count = 0;
+	public int count(String search) throws DataAccessException {
+		int count = -1;
 		
-		try {
-			StringBuilder query = new StringBuilder(COUNT_COMPANIES);
-			
-			if(!StringUtils.isEmptyOrWhitespaceOnly(search)) {
-				query.append(" WHERE name LIKE ?");
-			}
-			
-			query.append(";");
-
-			pstmt = Connector.JDBC.getConnection().prepareStatement(query.toString());
-			
-			if(!StringUtils.isEmptyOrWhitespaceOnly(search)) {
-				pstmt.setString(1, search);
-			}
-			
-			logger.info(pstmt.toString().split(":\\s")[1]);
-			
-			ResultSet rs = pstmt.executeQuery();
-			
-			if(rs.next()) {
-				count = rs.getInt("count");
-			}
-			
-			rs.close();
+		StringBuilder query = new StringBuilder(COUNT_COMPANIES);
+		
+		Object[] o = new Object[] {};
+		
+		if(!StringUtils.isEmptyOrWhitespaceOnly(search)) {
+			query.append(" WHERE name LIKE ?");
+			o = new Object[] {search};
 		}
-		finally {
-			try {
-				if(pstmt != null) {
-					pstmt.close();
-				}
-			}
-			catch(SQLException e) {
-				logger.warn("count companies - DAO Statement close failed (ERRCODE:"+e.getErrorCode()+")");
-			}
-		}
+		
+		query.append(";");
+		
+		count = jdbcTemplate.queryForObject(query.toString(), o, Integer.class);
 		
 		return count;
+	}
+	
+	private class CompanyRowMapper implements RowMapper<Company> {
+
+		@Override
+		public Company mapRow(ResultSet rs, int line) throws SQLException {
+			return new Company(rs.getInt("id"), rs.getString("name"));
+		}
+		
 	}
 	
 }

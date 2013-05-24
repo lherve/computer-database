@@ -20,6 +20,10 @@ import com.mysql.jdbc.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -34,152 +38,96 @@ public class ComputerDao implements Dao<Computer> {
 	private static final String GET_ALL_COMPUTERS = "SELECT cpu.id, cpu.name, cpu.introduced, cpu.discontinued, cpu.company_id, cie.name FROM computer cpu LEFT OUTER JOIN company cie ON cpu.company_id = cie.id;";
 	private static final String COUNT_COMPUTERS = "SELECT count(id) as count FROM computer";
 	
+	@Autowired
+	private JdbcTemplate jdbcTemplate;
+	
 	@Override
-	public Computer insert(Computer o) throws SQLException {
+	public Computer insert(Computer o) throws DataAccessException {
 		if(o != null) {
 			
-			PreparedStatement pstmt = null;
-
-			try {
-				pstmt = Connector.JDBC.getConnection().prepareStatement(INSERT_COMPUTER, Statement.RETURN_GENERATED_KEYS);
-				
-				pstmt.setString(1, o.getName());
-				
-				if(o.getIntroduced() != null) {
-					pstmt.setDate(2, new Date(o.getIntroduced().getTimeInMillis()));
-				}
-				else {
-					pstmt.setDate(2, null);
-				}
-				
-				if(o.getDiscontinued() != null) {
-					pstmt.setDate(3, new Date(o.getDiscontinued().getTimeInMillis()));
-				}
-				else {
-					pstmt.setDate(3, null);
-				}
-				
-				if(o.getCompany() != null) {
-					pstmt.setInt(4, o.getCompany().getId());
-				}
-				else {
-					pstmt.setString(4, null);
-				}
-				
-				logger.info(pstmt.toString().split(":\\s")[1]);
-				
-				if(pstmt.executeUpdate() > 0) {
-					ResultSet rs = pstmt.getGeneratedKeys();
-					
-					if(rs.next()) {
-						o.setId(rs.getInt(1));
-					}
-					
-					rs.close();
-				}
-				
+			List<Object> list = new ArrayList<Object>();
+			
+			list.add(o.getName());
+			
+			if(o.getIntroduced() != null) {
+				list.add(new Date(o.getIntroduced().getTimeInMillis()));
 			}
-			finally {
-				try {
-					if(pstmt != null) {
-						pstmt.close();
-					}
-				}
-				catch(SQLException e) {
-					logger.warn("insert computer - DAO Statement close failed (ERRCODE:"+e.getErrorCode()+")");
-				}
+			else {
+				list.add(null);
 			}
+			
+			if(o.getDiscontinued() != null) {
+				list.add(new Date(o.getDiscontinued().getTimeInMillis()));
+			}
+			else {
+				list.add(null);
+			}
+			
+			if(o.getCompany() != null) {
+				list.add(o.getCompany().getId());
+			}
+			else {
+				list.add(null);
+			}
+			
+			if(jdbcTemplate.update(INSERT_COMPUTER, list.toArray()) <= 0) {
+				o.setId(-1);
+			}
+				
 		}
 		return o;
 	}
 
 	@Override
-	public Computer update(Computer o) throws SQLException {
+	public Computer update(Computer o) throws DataAccessException {
 		if(o != null) {
 			
-			PreparedStatement pstmt = null;
+			List<Object> list = new ArrayList<Object>();
 			
-			try {
-				pstmt = Connector.JDBC.getConnection().prepareStatement(UPDATE_COMPUTER);
-				
-				pstmt.setString(1, o.getName());
-				
-				if(o.getIntroduced() != null) {
-					pstmt.setDate(2, new Date(o.getIntroduced().getTimeInMillis()));
-				}
-				else {
-					pstmt.setDate(2, null);
-				}
-				
-				if(o.getDiscontinued() != null) {
-					pstmt.setDate(3, new Date(o.getDiscontinued().getTimeInMillis()));
-				}
-				else {
-					pstmt.setDate(3, null);
-				}
-				
-				if(o.getCompany() != null) {
-					pstmt.setInt(4, o.getCompany().getId());
-				}
-				else {
-					pstmt.setString(4, null);
-				}
-				
-				pstmt.setInt(5, o.getId());
-				
-				logger.info(pstmt.toString().split(":\\s")[1]);
-				
-				if(pstmt.executeUpdate() <= 0){
-					o.setId(0);
-				}
-				
+			list.add(o.getName());
+			
+			if(o.getIntroduced() != null) {
+				list.add(new Date(o.getIntroduced().getTimeInMillis()));
 			}
-			finally {
-				try {
-					if(pstmt != null) {
-						pstmt.close();
-					}
-				}
-				catch(SQLException e) {
-					logger.warn("update computer - DAO Statement close failed (ERRCODE:"+e.getErrorCode()+")");
-				}
+			else {
+				list.add(null);
 			}
+			
+			if(o.getDiscontinued() != null) {
+				list.add(new Date(o.getDiscontinued().getTimeInMillis()));
+			}
+			else {
+				list.add(null);
+			}
+			
+			if(o.getCompany() != null) {
+				list.add(o.getCompany().getId());
+			}
+			else {
+				list.add(null);
+			}
+			
+			list.add(o.getId());
+			
+			if(jdbcTemplate.update(UPDATE_COMPUTER, list.toArray()) <= 0){
+				o.setId(-1);
+			}
+			
 		}
 		return o;
 	}
 
 	@Override
-	public boolean delete(Computer o) throws SQLException {
+	public boolean delete(Computer o) throws DataAccessException {
 		boolean result = false;
 		
 		if(o != null && o.getId() > 0) {
-			
-			PreparedStatement pstmt = null;
-			
-			try {
-				pstmt = Connector.JDBC.getConnection().prepareStatement(DELETE_COMPUTER);
 				
-				pstmt.setInt(1, o.getId());
-				
-				logger.info(pstmt.toString().split(":\\s")[1]);
-				
-				if(pstmt.executeUpdate() > 0) {
-					result = true;
-				}
+			if(jdbcTemplate.update(DELETE_COMPUTER, new Object[] {o.getId()}) > 0) {
+				result = true;
+			}
 					
-			}
-			finally {
-				try {
-					if(pstmt != null) {
-						pstmt.close();
-					}
-				}
-				catch(SQLException e) {
-					logger.warn("delete computer - DAO Statement close failed (ERRCODE:"+e.getErrorCode()+")");
-				}
-			}
 		}
-		
 		return result;
 	}
 
@@ -187,249 +135,126 @@ public class ComputerDao implements Dao<Computer> {
 	 * Retourne null si aucun computer trouvé avec l'id renseigné
 	 */
 	@Override
-	public Computer get(int id) throws SQLException {
-		PreparedStatement pstmt = null;
-		
+	public Computer get(int id) throws DataAccessException {
 		Computer cpu = null;
 		
-		try {
-			pstmt = Connector.JDBC.getConnection().prepareStatement(GET_ONE_COMPUTER);
+		List<Computer> cpus = jdbcTemplate.query(GET_ONE_COMPUTER, new Object[] {id}, new ComputerRowMapper());
 			
-			pstmt.setInt(1, id);
-			
-			logger.info(pstmt.toString().split(":\\s")[1]);
-			
-			ResultSet rs = pstmt.executeQuery(); 
-			
-			if(rs.next()) {
-				cpu = new Computer(rs.getInt("cpu.id"), rs.getString("cpu.name"));
-				
-				Date dt;
-				
-				if((dt = rs.getDate("cpu.introduced")) != null) {
-					cpu.setIntroduced(Calendar.getInstance());
-					cpu.getIntroduced().setTime(dt);
-				}
-				
-				if((dt = rs.getDate("cpu.discontinued")) != null) {
-					cpu.setDiscontinued(Calendar.getInstance());
-					cpu.getDiscontinued().setTime(dt);
-				}
-				
-				int company_id = rs.getInt("cpu.company_id");
-				
-				if(company_id > 0) {
-					cpu.setCompany(new Company(company_id, rs.getString("cie.name")));
-				}
-			}
-		}
-		finally {
-			try {
-				if(pstmt != null) {
-					pstmt.close();
-				}
-			}
-			catch(SQLException e) {
-				logger.warn("get one computer - DAO Statement close failed (ERRCODE:"+e.getErrorCode()+")");
-			}
+		if(cpus.size() > 0) {
+			cpu = cpus.get(0);
 		}
 		
 		return cpu;
 	}
 
 	@Override
-	public List<Computer> getFromTo(int start, int end, Sort sortedBy, Order order, String search) throws SQLException {
-		PreparedStatement pstmt = null;
+	public List<Computer> getFromTo(int start, int end, Sort sortedBy, Order order, String search) throws DataAccessException {
+		StringBuilder query = new StringBuilder("SELECT cpu.id, cpu.name, cpu.introduced, cpu.discontinued, cpu.company_id, cie.name FROM computer cpu LEFT OUTER JOIN company cie ON cpu.company_id = cie.id ");
 		
-		List<Computer> cpus = new ArrayList<Computer>();
-		
-		try {
-			StringBuilder query = new StringBuilder("SELECT cpu.id, cpu.name, cpu.introduced, cpu.discontinued, cpu.company_id, cie.name FROM computer cpu LEFT OUTER JOIN company cie ON cpu.company_id = cie.id ");
-			
-			if(!StringUtils.isEmptyOrWhitespaceOnly(search)) {
-				query.append("WHERE cpu.name LIKE ? ");
-			}
-			
-			query.append("ORDER BY ");
-			
-			switch(sortedBy) {
-			case ID:
-				query.append("cpu.id");
-				break;
-			case NAME:
-				query.append("cpu.name");
-				break;
-			case INTRODUCED:
-				query.append("isnull(cpu.introduced) asc, cpu.introduced");
-				break;
-			case DISCONTINUED:
-				query.append("isnull(cpu.discontinued) asc, cpu.discontinued");
-				break;
-			case COMPANY:
-				query.append("isnull(cie.name) asc, cie.name");
-				break;
-			}
-			
-			if(order.equals(Dao.Order.ASC)) {
-				query.append(" ASC");
-			}
-			else
-			{
-				query.append(" DESC");
-			}
-			
-			query.append(" LIMIT ?,?;");
-
-			pstmt = Connector.JDBC.getConnection().prepareStatement(query.toString());
-
-			int k = 1;
-			
-			if(!StringUtils.isEmptyOrWhitespaceOnly(search)) {
-				pstmt.setString(k++, "%"+search+"%");
-			}
-			
-			pstmt.setInt(k++, --start);
-			
-			int i = end - start;
-			if(i < 0) {
-				i = 10;
-			}
-			
-			pstmt.setInt(k++, i);
-
-			logger.info(pstmt.toString().split(":\\s")[1]);
-			
-			ResultSet rs = pstmt.executeQuery(); 
-
-			cpus = fillComputers(rs);
-			
-			rs.close();
-			
-		}
-		finally {
-			try {
-				if(pstmt != null) {
-					pstmt.close();
-				}
-			}
-			catch(SQLException e) {
-				logger.warn("get some computers - DAO Statement close failed (ERRCODE:"+e.getErrorCode()+")");
-			}
+		if(!StringUtils.isEmptyOrWhitespaceOnly(search)) {
+			query.append("WHERE cpu.name LIKE ? ");
 		}
 		
-		return cpus;
+		query.append("ORDER BY ");
+		
+		switch(sortedBy) {
+		case ID:
+			query.append("cpu.id");
+			break;
+		case NAME:
+			query.append("cpu.name");
+			break;
+		case INTRODUCED:
+			query.append("isnull(cpu.introduced) asc, cpu.introduced");
+			break;
+		case DISCONTINUED:
+			query.append("isnull(cpu.discontinued) asc, cpu.discontinued");
+			break;
+		case COMPANY:
+			query.append("isnull(cie.name) asc, cie.name");
+			break;
+		}
+		
+		if(order.equals(Dao.Order.ASC)) {
+			query.append(" ASC");
+		}
+		else
+		{
+			query.append(" DESC");
+		}
+		
+		query.append(" LIMIT ?,?;");
+
+		List<Object> list = new ArrayList<Object>();
+		
+		if(!StringUtils.isEmptyOrWhitespaceOnly(search)) {
+			list.add("%"+search+"%");
+		}
+		
+		list.add(--start);
+		
+		int i = end - start;
+		if(i < 0) {
+			i = 10;
+		}
+		
+		list.add(i);
+
+		return jdbcTemplate.query(query.toString(), list.toArray(), new ComputerRowMapper());
 	}
 
 	@Override
-	public List<Computer> getAll(Sort sortedBy, Order order) throws SQLException {
-		Statement pstmt = null;
-		
-		List<Computer> cpus = new ArrayList<Computer>();
-		
-		try {
-			pstmt = Connector.JDBC.getConnection().createStatement();
-
-			logger.info(GET_ALL_COMPUTERS);
-			
-			ResultSet rs = pstmt.executeQuery(GET_ALL_COMPUTERS); 
-			
-			cpus = fillComputers(rs);
-			
-			rs.close();
-			
-		}
-		finally {
-			try {
-				if(pstmt != null) {
-					pstmt.close();
-				}
-			}
-			catch(SQLException e) {
-				logger.warn("get all computers - DAO Statement close failed (ERRCODE:"+e.getErrorCode()+")");
-			}
-		}
-		
-		return cpus;
+	public List<Computer> getAll(Sort sortedBy, Order order) throws DataAccessException {
+		return jdbcTemplate.query(GET_ALL_COMPUTERS, new Object[] {}, new ComputerRowMapper());
 	}
 
 	@Override
-	public int count(String search) throws SQLException {
-		PreparedStatement pstmt = null;
-
+	public int count(String search) throws DataAccessException {
 		int count = -1;
 		
-		try {
-			StringBuilder query = new StringBuilder(COUNT_COMPUTERS);
+		StringBuilder query = new StringBuilder(COUNT_COMPUTERS);
 
-			if(!StringUtils.isEmptyOrWhitespaceOnly(search)) {
-				query.append(" WHERE name LIKE ?");
-			}
-			
-			query.append(";");
-			
-			pstmt = Connector.JDBC.getConnection().prepareStatement(query.toString());
-			
-			if(!StringUtils.isEmptyOrWhitespaceOnly(search)) {
-				pstmt.setString(1, "%"+search+"%");
-			}
-			
-			logger.info(pstmt.toString().split(":\\s")[1]);
-			
-			ResultSet rs = pstmt.executeQuery();
-
-			if(rs.first()) {
-				count = rs.getInt("count");
-			}
-			
-			rs.close();
-			
+		Object[] o = new Object[] {};
+		
+		if(!StringUtils.isEmptyOrWhitespaceOnly(search)) {
+			query.append(" WHERE name LIKE ?");
+			o = new Object[] {search};
 		}
-		finally {
-			try {
-				if(pstmt != null) {
-					pstmt.close();
-				}
-			}
-			catch(SQLException e) {
-				logger.warn("count computers - DAO Statement close failed (ERRCODE:"+e.getErrorCode()+")");
-			}
-		}
+		
+		query.append(";");
+		
+		count = jdbcTemplate.queryForObject(query.toString(), o, Integer.class);
 		
 		return count;
 	}
 	
-	private List<Computer> fillComputers(ResultSet rs) {
-		List<Computer> cpus = new ArrayList<Computer>();
-		
-		try {
-			while(rs.next()) {
-				Computer cpu = new Computer(rs.getInt("cpu.id"), rs.getString("cpu.name"));
-				
-				Date dt;
-				
-				if((dt = rs.getDate("cpu.introduced")) != null) {
-					cpu.setIntroduced(Calendar.getInstance());
-					cpu.getIntroduced().setTime(dt);
-				}
-				
-				if((dt = rs.getDate("cpu.discontinued")) != null) {
-					cpu.setDiscontinued(Calendar.getInstance());
-					cpu.getDiscontinued().setTime(dt);
-				}
-				
-				int company_id = rs.getInt("cpu.company_id");
-				
-				if(company_id > 0) {
-					cpu.setCompany(new Company(company_id, rs.getString("cie.name")));
-				}
-				
-				cpus.add(cpu);
+	private class ComputerRowMapper implements RowMapper<Computer> {
+
+		@Override
+		public Computer mapRow(ResultSet rs, int line) throws SQLException {
+			Computer c = new Computer(rs.getInt("cpu.id"), rs.getString("cpu.name"));
+			
+			Date dt;
+			
+			if((dt = rs.getDate("cpu.introduced")) != null) {
+				c.setIntroduced(Calendar.getInstance());
+				c.getIntroduced().setTime(dt);
 			}
-		} catch (SQLException e) {
-			logger.warn("fill computers from result set: "+e.getMessage());
+			
+			if((dt = rs.getDate("cpu.discontinued")) != null) {
+				c.setDiscontinued(Calendar.getInstance());
+				c.getDiscontinued().setTime(dt);
+			}
+			
+			int company_id = rs.getInt("cpu.company_id");
+			
+			if(company_id > 0) {
+				c.setCompany(new Company(company_id, rs.getString("cie.name")));
+			}
+			
+			return c;
 		}
 		
-		return cpus;
 	}
 	
 }

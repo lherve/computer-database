@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 import com.excilys.projet.computerdb.dao.Dao.Order;
 import com.excilys.projet.computerdb.dao.Dao.Sort;
 import com.excilys.projet.computerdb.daoImpl.CompanyDao;
-import com.excilys.projet.computerdb.exception.DataAccessException;
+import com.excilys.projet.computerdb.exception.DBException;
 import com.excilys.projet.computerdb.model.Company;
 
 @Component
@@ -23,13 +23,13 @@ public class CompaniesList implements Observer {
 	
 	private List<Company> list;
 
-	public List<Company> getList() throws DataAccessException {
+	public List<Company> getList() throws DBException {
 		if(this.list == null) {
 			loadCompanies();
 		}
 		
 		if(this.list == null) {
-			throw new DataAccessException("Problème lors du chargement de la liste des companies : accès aux données impossible.");
+			throw new DBException("Problème lors du chargement de la liste des companies : accès aux données impossible.");
 		}
 		
 		return this.list;
