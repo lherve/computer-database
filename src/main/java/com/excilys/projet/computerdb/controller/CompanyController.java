@@ -2,7 +2,7 @@ package com.excilys.projet.computerdb.controller;
 
 import com.excilys.projet.computerdb.exception.DBException;
 import com.excilys.projet.computerdb.model.Company;
-import com.excilys.projet.computerdb.service.CompanyService;
+import com.excilys.projet.computerdb.serviceImpl.CompanyServiceImpl;
 
 import com.mysql.jdbc.StringUtils;
 
@@ -23,7 +23,7 @@ import org.springframework.web.servlet.ModelAndView;
 public class CompanyController {
     
     @Autowired
-    private CompanyService companyService;
+    private CompanyServiceImpl companyService;
     
     @RequestMapping(method = RequestMethod.GET)
     public ModelAndView showCompanies() {

@@ -4,8 +4,8 @@ import com.excilys.projet.computerdb.exception.DBException;
 import com.excilys.projet.computerdb.model.Company;
 import com.excilys.projet.computerdb.model.Computer;
 import com.excilys.projet.computerdb.model.Page;
-import com.excilys.projet.computerdb.service.CompanyService;
-import com.excilys.projet.computerdb.service.ComputerService;
+import com.excilys.projet.computerdb.serviceImpl.CompanyServiceImpl;
+import com.excilys.projet.computerdb.serviceImpl.ComputerServiceImpl;
 
 import com.mysql.jdbc.StringUtils;
 
@@ -34,10 +34,10 @@ import org.springframework.web.servlet.ModelAndView;
 public class ComputerController {
     
     @Autowired
-    private ComputerService computerService;
+    private ComputerServiceImpl computerService;
     
     @Autowired
-    private CompanyService companyService;
+    private CompanyServiceImpl companyService;
     
     @RequestMapping(method = RequestMethod.GET)
     public ModelAndView listComputers(@RequestParam(required = false) String search, 

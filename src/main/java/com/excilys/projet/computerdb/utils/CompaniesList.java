@@ -49,8 +49,6 @@ public class CompaniesList implements Observer {
                 logger.warn("Companies list - Impossible de charger la liste des companies");
                 this.list = null;
             }
-
-            Connector.JDBC.closeConnection();
 	}
 	
 	@Override
