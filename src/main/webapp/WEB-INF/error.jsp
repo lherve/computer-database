@@ -5,8 +5,8 @@
 	<head>
 		<title>Computers database - error</title>
 		
-		<link rel="stylesheet" type="text/css" media="screen" href="css/bootstrap.min.css">
-		<link rel="stylesheet" type="text/css" media="screen" href="css/main.css">
+		<link rel="stylesheet" type="text/css" media="screen" href="../css/bootstrap.min.css">
+		<link rel="stylesheet" type="text/css" media="screen" href="../css/main.css">
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 		
 	</head>
@@ -15,7 +15,7 @@
 		
 		<header class="topbar">
 			<h1 class="fill">
-				<a href="computers">Play 2.0 sample application &mdash; Computer database</a>
+				<a href="/computer-database/">Play 2.0 sample application &mdash; Computer database</a>
 			</h1>
 		</header>
 		

@@ -38,11 +38,11 @@ public class CompanyDao implements Dao<Company> {
 	private JdbcTemplate jdbcTemplate;
 	
 	private Observable dataUpdateNotifier = new Observable() {
-		@Override
-		public void notifyObservers() {
-			super.setChanged();
-			super.notifyObservers();
-		}
+            @Override
+            public void notifyObservers() {
+                super.setChanged();
+                super.notifyObservers();
+            }
 	};
 	
 	public Observable getDataUpdateNotifier() {

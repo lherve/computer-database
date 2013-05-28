@@ -10,6 +10,7 @@ import java.util.List;
 import com.excilys.projet.computerdb.dao.Dao;
 import com.excilys.projet.computerdb.model.Company;
 import com.excilys.projet.computerdb.model.Computer;
+import com.excilys.projet.computerdb.model.Page;
 import com.mysql.jdbc.StringUtils;
 
 import org.slf4j.Logger;
@@ -185,12 +186,12 @@ public class ComputerDao implements Dao<Computer> {
 		if(!StringUtils.isEmptyOrWhitespaceOnly(search)) {
 			list.add("%"+search+"%");
 		}
-		
-		list.add(--start);
+                
+		list.add(start == 0 ? 0 : --start);
 		
 		int i = end - start;
 		if(i < 0) {
-			i = 10;
+                    i = Page.SIZE;
 		}
 		
 		list.add(i);
@@ -206,21 +207,21 @@ public class ComputerDao implements Dao<Computer> {
 	@Override
 	public int count(String search) throws DataAccessException {
 		int count = -1;
-		
-		StringBuilder query = new StringBuilder(COUNT_COMPUTERS);
+
+                StringBuilder query = new StringBuilder(COUNT_COMPUTERS);
 
 		Object[] o = new Object[] {};
 		
 		if(!StringUtils.isEmptyOrWhitespaceOnly(search)) {
 			query.append(" WHERE name LIKE ?");
-			o = new Object[] {search};
+			o = new Object[] {"%"+search+"%"};
 		}
 		
 		query.append(";");
 		
 		count = jdbcTemplate.queryForObject(query.toString(), o, Integer.class);
-		
-		return count;
+
+                return count;
 	}
 	
 	private class ComputerRowMapper implements RowMapper<Computer> {

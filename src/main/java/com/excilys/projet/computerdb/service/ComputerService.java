@@ -182,10 +182,10 @@ public class ComputerService {
 				
 				throw new DBException("Problème lors du compte des computers : accès aux données impossible.");
 			}
+
+                        int maxPage = count / Page.SIZE;
 			
-			int maxPage = count / Page.SIZE;
-			
-			if(count % Page.SIZE == 0) {
+			if(count > 0 && count % Page.SIZE == 0) {
 				maxPage--;
 			}
 			

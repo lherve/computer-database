@@ -24,38 +24,38 @@ public class CompaniesList implements Observer {
 	private List<Company> list;
 
 	public List<Company> getList() throws DBException {
-		if(this.list == null) {
-			loadCompanies();
-		}
-		
-		if(this.list == null) {
-			throw new DBException("Problème lors du chargement de la liste des companies : accès aux données impossible.");
-		}
-		
-		return this.list;
+            if(this.list == null) {
+                    loadCompanies();
+            }
+
+            if(this.list == null) {
+                    throw new DBException("Problème lors du chargement de la liste des companies : accès aux données impossible.");
+            }
+
+            return this.list;
 	}
 	
 	private CompanyDao companyDao;
 	
 	private void loadCompanies() {
-		if(companyDao == null) {
-			companyDao = ApplicationContextHolder.getContext().getBean("companyDao", CompanyDao.class);
-			companyDao.getDataUpdateNotifier().addObserver(this);
-		}
-		
-		try {
-			this.list = companyDao.getAll(Sort.NAME, Order.ASC);
-		} catch (SQLException e) {
-			logger.warn("Companies list - Impossible de charger la liste des companies");
-			this.list = null;
-		}
-		
-		Connector.JDBC.closeConnection();
+            if(companyDao == null) {
+                companyDao = ApplicationContextHolder.getContext().getBean("companyDao", CompanyDao.class);
+                companyDao.getDataUpdateNotifier().addObserver(this);
+            }
+
+            try {
+                this.list = companyDao.getAll(Sort.NAME, Order.ASC);
+            } catch (SQLException e) {
+                logger.warn("Companies list - Impossible de charger la liste des companies");
+                this.list = null;
+            }
+
+            Connector.JDBC.closeConnection();
 	}
 	
 	@Override
 	public void update(Observable o, Object arg) {
-		loadCompanies();
+            loadCompanies();
 	}
 	
 }

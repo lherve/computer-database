@@ -7,8 +7,8 @@
 	
 		<title>Computers database</title>
 		
-		<link rel="stylesheet" type="text/css" media="screen" href="css/bootstrap.min.css">
-		<link rel="stylesheet" type="text/css" media="screen" href="css/main.css">
+		<link rel="stylesheet" type="text/css" media="screen" href="/computer-database/css/bootstrap.min.css">
+		<link rel="stylesheet" type="text/css" media="screen" href="/computer-database/css/main.css">
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 		
 	</head>
@@ -17,7 +17,7 @@
 	
 		<header class="topbar">
 			<h1 class="fill">
-				<a href="computers">Play 2.0 sample application &mdash; Computer database</a>
+				<a href="/computer-database/">Play 2.0 sample application &mdash; Computer database</a>
 			</h1>
 		</header>
 
@@ -33,8 +33,8 @@
 			
 			<div id="actions">
 			
-				<form action="" method="GET">
-					<input type="search" id="searchbox" name="search" value="${page.search }" placeholder="Filter by computer name...">
+			<form action="computer" method="GET">
+				<input type="search" id="searchbox" name="search" value="${page.search }" placeholder="Filter by computer name...">
 	            	<input type="submit" id="searchsubmit" value="Filter by name" class="btn primary">
 	            	
 	            	<c:if test="${not empty param.s }">
@@ -42,7 +42,7 @@
 	            	</c:if>
 				</form>
 				
-				<a class="btn success" id="add" href="new">Add a new computer</a>
+				<a class="btn success" id="add" href="computer/new">Add a new computer</a>
 				
 			</div>
 			
@@ -59,31 +59,31 @@
 					<table class="computers zebra-striped">
 					
 						<thead>
-							<tr>
-								<th class="col2 header ${s eq '1' ? 'headerSortUp' : s eq '-1' ? 'headerSortDown' : empty s ? 'headerSortUp' : ''}">
-							        <a href="?search=${page.search}&s=${s eq '1' ? '-1' : '1' }">Computer name</a>
-							    </th>
-							    <th class="col3 header ${s eq '2' ? 'headerSortUp' : s eq '-2' ? 'headerSortDown' : '' }">
-							        <a href="?search=${page.search}&s=${s eq '2' ? '-2' : '2' }">Introduced</a>
-							    </th>
-							    <th class="col4 header ${s eq '3' ? 'headerSortUp' : s eq '-3' ? 'headerSortDown' : '' }">
-							        <a href="?search=${page.search}&s=${s eq '3' ? '-3' : '3' }">Discontinued</a>
-							    </th>
-							    <th class="col5 header ${s eq '4' ? 'headerSortUp' : s eq '-4' ? 'headerSortDown' : '' }">
-							        <a href="?search=${page.search}&s=${s eq '4' ? '-4' : '4' }">Company</a>
-							    </th>
-							</tr>
+                                                    <tr>
+                                                        <th class="col2 header ${s eq '1' ? 'headerSortUp' : s eq '-1' ? 'headerSortDown' : empty s ? 'headerSortUp' : ''}">
+                                                            <a href="?search=${page.search}&s=${s eq '1' ? '-1' : '1' }">Computer name</a>
+                                                        </th>
+                                                        <th class="col3 header ${s eq '2' ? 'headerSortUp' : s eq '-2' ? 'headerSortDown' : '' }">
+                                                            <a href="?search=${page.search}&s=${s eq '2' ? '-2' : '2' }">Introduced</a>
+                                                        </th>
+                                                        <th class="col4 header ${s eq '3' ? 'headerSortUp' : s eq '-3' ? 'headerSortDown' : '' }">
+                                                            <a href="?search=${page.search}&s=${s eq '3' ? '-3' : '3' }">Discontinued</a>
+                                                        </th>
+                                                        <th class="col5 header ${s eq '4' ? 'headerSortUp' : s eq '-4' ? 'headerSortDown' : '' }">
+                                                            <a href="?search=${page.search}&s=${s eq '4' ? '-4' : '4' }">Company</a>
+                                                        </th>
+                                                    </tr>
 						</thead>
 						
 						<tbody>
-							<c:forEach var="cpu" items="${page.cpus}">
-								<tr>
-									<td><a href="update?id=${cpu.id }"><c:out value="${cpu.name}" /></a></td>
-									<td><c:out value="${cpu.introducedToString}" /></td>
-									<td><c:out value="${cpu.discontinuedToString}" /></td>
-									<td><c:out value="${cpu.company.name}" /></td>
-								</tr>
-							</c:forEach>
+                                                    <c:forEach var="cpu" items="${page.cpus}">
+                                                        <tr>
+                                                            <td><a href="computer/${cpu.id }"><c:out value="${cpu.name}" /></a></td>
+                                                            <td><c:out value="${cpu.introducedToString}" /></td>
+                                                            <td><c:out value="${cpu.discontinuedToString}" /></td>
+                                                            <td><c:out value="${cpu.company.name}" /></td>
+                                                        </tr>
+                                                    </c:forEach>
 						</tbody>
 						
 					</table>

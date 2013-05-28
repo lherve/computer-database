@@ -7,8 +7,8 @@
 		
 		<title>Computers database</title>
 		
-        <link rel="stylesheet" type="text/css" media="screen" href="css/bootstrap.min.css"> 
-        <link rel="stylesheet" type="text/css" media="screen" href="css/main.css"> 
+        <link rel="stylesheet" type="text/css" media="screen" href="/computer-database/css/bootstrap.min.css"> 
+        <link rel="stylesheet" type="text/css" media="screen" href="/computer-database/css/main.css"> 
     
     </head>
     
@@ -16,7 +16,7 @@
     
     	<header class="topbar">
             <h1 class="fill">
-                <a href="computers">2.0 sample application &mdash; Computer database</a>
+                <a href="/computer-database/">Play 2.0 sample application &mdash; Computer database</a>
             </h1>
         </header>
         
@@ -24,7 +24,7 @@
         
 	        <h1>${cpu.id < 0 ? 'Add a' : 'Edit' } computer</h1>
 	
-			<form action="update" method="POST" >
+			<form action="${cpu.id}" method="POST" >
 	        
 		        <fieldset>
 		
@@ -90,19 +90,17 @@
 						        </c:forEach>
 						        
 					    	</select>
-					        <span class="help-inline"><a href="companies"><img alt="edit" src="img/edit-icon.png" /></a></span> 
+					        <span class="help-inline"><a href="../company"><img alt="edit" src="/computer-database/img/edit-icon.png" /></a></span> 
 					    </div>
 					    
 					</div>
 
 		        </fieldset>
 		        
-				<input type="hidden" value="${cpu.id}" name="id" />	        
-        
 		        <div class="actions">
 		        
 		            <input type="submit" value="Save this computer" class="btn primary"> or 
-		            <a href="computers" class="btn">Cancel</a> 
+		            <a href="/computer-database/" class="btn">Cancel</a> 
 		            
 		        </div>
 		
@@ -110,7 +108,7 @@
 
 			<c:if test="${cpu.id > 0 }">
 	
-				<form action="delete" method="POST" class="topRight">
+				<form action="${cpu.id}/delete" method="POST" class="topRight">
 				    
 				    <input type="hidden" value="${cpu.id }" name="id"/>
 				    
