@@ -1,34 +1,32 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-
 	<modelVersion>4.0.0</modelVersion>
+	
 	<groupId>computer-database</groupId>
-	<artifactId>computer-database</artifactId>
-	<version>1.0-SNAPSHOT</version>
-	<packaging>war</packaging>
-
+	<artifactId>computerdb</artifactId>
+	<version>1.0.0</version>
+	<packaging>pom</packaging>
+	
+	<name>Computer database</name>
+	
+	<modules>
+		<module>web</module>
+		<module>model</module>
+		<module>service</module>
+		<module>serviceImpl</module>
+		<module>dao</module>
+		<module>daoImpl</module>
+	</modules>
+	
 	<properties>
 		<spring.version>3.2.2.RELEASE</spring.version>
-		<junit.version>4.11</junit.version>
 		<jdk.version>1.7</jdk.version>
 		<slf4j.version>1.7.5</slf4j.version>
-	 <netbeans.hint.deploy.server>Tomcat</netbeans.hint.deploy.server>
 	</properties>
-
+	
+	<dependencyManagement>
 	<dependencies>
-
-		<dependency>
-			<groupId>mysql</groupId>
-			<artifactId>mysql-connector-java</artifactId>
-			<version>5.1.25</version>
-		</dependency>
-		
-		<dependency>
-			<groupId>com.jolbox</groupId>
-			<artifactId>bonecp</artifactId>
-			<version>0.8.0-rc1</version>
-		</dependency>
-
+	
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-core</artifactId>
@@ -54,12 +52,17 @@
 		</dependency>
 
 		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>${junit.version}</version>
-			<scope>test</scope>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>5.1.25</version>
 		</dependency>
-
+		
+		<dependency>
+			<groupId>com.jolbox</groupId>
+			<artifactId>bonecp</artifactId>
+			<version>0.8.0-rc1</version>
+		</dependency>
+		
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>jstl</artifactId>
@@ -80,17 +83,14 @@
 		
 		<dependency>
 			<groupId>javax.servlet</groupId>
-			<artifactId>servlet-api</artifactId>
-			<version>2.5</version>
-			<scope>provided</scope>
+			<artifactId>javax.servlet-api</artifactId>
+			<version>3.0.1</version>
 		</dependency>
 
 	</dependencies>
-
-	<build>
+	</dependencyManagement>
 	
-		<finalName>${project.artifactId}-${project.version}</finalName>
-
+	<build>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -110,10 +110,6 @@
 				</configuration>
 			</plugin>
 		</plugins>
-		
 	</build>
-
+	
 </project>
-
-
-
