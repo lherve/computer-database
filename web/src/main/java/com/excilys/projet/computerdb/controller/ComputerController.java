@@ -1,6 +1,5 @@
 package com.excilys.projet.computerdb.controller;
 
-import com.excilys.projet.computerdb.exception.DBException;
 import com.excilys.projet.computerdb.model.Company;
 import com.excilys.projet.computerdb.model.Computer;
 import com.excilys.projet.computerdb.model.Page;
@@ -13,7 +12,6 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -21,10 +19,9 @@ import java.util.regex.Pattern;
 
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
 
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -44,7 +41,8 @@ public class ComputerController {
     private CompanyService companyService;
     
     @RequestMapping(method = RequestMethod.GET)
-    public ModelAndView listComputers(@RequestParam(required = false) String search, 
+    public void listComputers(ModelMap model,
+    							@RequestParam(required = false) String search, 
                                 @RequestParam(value = "page", required = false) String spage,
                                 @RequestParam(value = "s", required = false) String sort,
                                 @RequestParam(required = false) String info) {
@@ -78,68 +76,51 @@ public class ComputerController {
         }
         
         
-        ModelAndView mv = new ModelAndView();
-        
-        try {
-            Page page = computerService.loadPage(pageNumber, s, search);
+        Page page = computerService.loadPage(pageNumber, s, search);
 
-            mv.addObject("page", page);
-            mv.addObject("s", s);
+        model.addAttribute("page", page);
+        model.addAttribute("s", s);
 
-            if(!StringUtils.isEmptyOrWhitespaceOnly(info)) {
-            	mv.addObject("info", info);
-            }
-
-            //mv.setViewName("computer");
-
-        } catch (DBException e) {
-            mv.addObject("exception", e);
-            mv.setViewName("error");
+        if(!StringUtils.isEmptyOrWhitespaceOnly(info)) {
+        	model.addAttribute("info", info);
         }
         
-        return mv;
     }
     
     @RequestMapping(method = RequestMethod.GET, value = "/{id}")
-    public ModelAndView showComputer(@PathVariable int id) throws DBException {
+    public String showComputer(ModelMap model, @PathVariable int id) {
         
-	boolean idOk = false;
-	
-        ModelAndView mv = new ModelAndView();
-        
-            try {
+		String viewname = "redirect:/x/computer";
+		
+        try {
 
-                if(id > 0) {
+            if(id > 0) {
 
-                        Computer cpu = computerService.getComputer(id);
+                Computer cpu = computerService.getComputer(id);
 
-                        if(idOk = (cpu != null)) {
+                if(cpu != null) {
 
-                            List<Company> cies = companyService.getCompanies();
+                    List<Company> cies = companyService.getCompanies();
 
-                            mv.addObject("cpu", cpu);
-                            mv.addObject("cies", cies);
+                    model.addAttribute("cpu", cpu);
+                    model.addAttribute("cies", cies);
 
-                            DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+                    DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 
-                            mv.addObject("introduced", (cpu.getIntroduced() != null) ? df.format(cpu.getIntroduced().getTime()).toString() : null);
-                            mv.addObject("discontinued", (cpu.getDiscontinued() != null) ? df.format(cpu.getDiscontinued().getTime()).toString() : null);
+                    model.addAttribute("introduced", (cpu.getIntroduced() != null) ? df.format(cpu.getIntroduced()).toString() : null);
+                    model.addAttribute("discontinued", (cpu.getDiscontinued() != null) ? df.format(cpu.getDiscontinued()).toString() : null);
 
-                            mv.setViewName("update");
-
-                        }
-
+                    viewname = "update";
+                    
                 }
 
             }
-            catch (NumberFormatException e){
-            }
 
-        if(!idOk) {
-            mv.setViewName("redirect:/x/computer");
+        }
+        catch (NumberFormatException e){
         }
         
-        return mv;
+        return viewname;
     }
     
     @RequestMapping(method = RequestMethod.POST, value = "/{id}")
@@ -147,7 +128,7 @@ public class ComputerController {
                                 @RequestParam String name,
                                 @RequestParam(value = "introduced", required = false) String sintroduced,
                                 @RequestParam(value = "discontinued", required = false) String sdiscontinued,
-                                @RequestParam(value = "company", required = false) String scompany) throws DBException {
+                                @RequestParam(value = "company", required = false) String scompany) {
         
         ModelAndView mv = new ModelAndView();
 
@@ -301,7 +282,7 @@ public class ComputerController {
     }
     
     @RequestMapping(value = "/new")
-    public ModelAndView showNew() throws DBException {
+    public ModelAndView showNew() {
         
         ModelAndView mv = new ModelAndView();
         
@@ -314,20 +295,9 @@ public class ComputerController {
     }
     
     
-    @ExceptionHandler({DBException.class, DataAccessException.class})
-    public ModelAndView handleDBException(DBException e) {
-    	ModelAndView mv = new ModelAndView();
-    	mv.addObject("exception", e);
-    	mv.setViewName("error");
-    	return mv;
-    }
-    
     @ExceptionHandler({TypeMismatchException.class})
-    public ModelAndView handleWrongParameterType(TypeMismatchException e) {
-    	ModelAndView mv = new ModelAndView();
-    	mv.addObject("exception", new Exception("Impossible de trouver l'ordinateur associé. L'identifiant renseigné n'est pas valide."));
-    	mv.setViewName("error");
-    	return mv;
+    public ModelAndView handleWrongParameterType() {
+    	return new ModelAndView("error", "exception", new Exception("Impossible de trouver l'ordinateur associé. L'identifiant renseigné n'est pas valide."));
     }
     
 }

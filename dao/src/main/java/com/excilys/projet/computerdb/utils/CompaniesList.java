@@ -27,7 +27,7 @@ public class CompaniesList implements Observer {
 
         if(this.list == null) {
             throw new DBException("Problème lors du chargement de la liste des companies : accès aux données impossible.");
-        }
+    	}	
 
         return this.list;
 	}

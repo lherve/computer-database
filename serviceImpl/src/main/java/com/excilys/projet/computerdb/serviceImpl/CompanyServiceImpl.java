@@ -29,13 +29,7 @@ public class CompanyServiceImpl implements CompanyService {
 	
 	@Override
 	public List<Company> getCompanies() throws DBException {
-		List<Company> list;
-		try {
-			list = companiesList.getList();
-		} catch (DBException e) {
-            throw e;
-		}
-		return list;
+		return companiesList.getList();
 	}
 	
 	@Transactional(readOnly=false)

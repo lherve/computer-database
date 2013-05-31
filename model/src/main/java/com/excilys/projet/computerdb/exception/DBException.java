@@ -1,6 +1,6 @@
 package com.excilys.projet.computerdb.exception;
 
-public class DBException extends Exception {
+public class DBException extends RuntimeException {
 
 	private static final long serialVersionUID = 8381769194516571949L;
 

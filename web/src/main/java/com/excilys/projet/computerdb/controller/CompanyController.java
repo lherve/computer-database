@@ -1,6 +1,5 @@
 package com.excilys.projet.computerdb.controller;
 
-import com.excilys.projet.computerdb.exception.DBException;
 import com.excilys.projet.computerdb.model.Company;
 import com.excilys.projet.computerdb.service.CompanyService;
 
@@ -12,6 +11,7 @@ import java.util.regex.Pattern;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -26,25 +26,15 @@ public class CompanyController {
     private CompanyService companyService;
     
     @RequestMapping(method = RequestMethod.GET)
-    public ModelAndView showCompanies(@RequestParam(required = false) String info) {
+    public void showCompanies(ModelMap model,
+    								@RequestParam(required = false) String info) {
         
-        ModelAndView mv = new ModelAndView();
+        model.addAttribute("cies", companyService.getCompanies());
         
-        try {
-            mv.addObject("cies", companyService.getCompanies());
-            
-            if(!StringUtils.isEmptyOrWhitespaceOnly(info)) {
-            	mv.addObject("info", info);
-            }
-            
-            mv.setViewName("company");
-
-        } catch (DBException e) {
-            mv.addObject("exception", e);
-            mv.setViewName("error");
+        if(!StringUtils.isEmptyOrWhitespaceOnly(info)) {
+        	model.addAttribute("info", info);
         }
         
-        return mv;
     }
     
     @RequestMapping(method = RequestMethod.POST)
@@ -105,17 +95,11 @@ public class CompanyController {
 
             }
             else {
+                mv.addObject("cies", companyService.getCompanies());
+                mv.addObject("err", error);
                 
-                try {
-                    mv.addObject("cies", companyService.getCompanies());
-                    mv.addObject("err", error);
-                    
-                    mv.setViewName("company");
+                mv.setViewName("company");
 
-                } catch (DBException e) {
-                    mv.addObject("exception", e);
-                mv.setViewName("error");
-                }
             }
             
         }
@@ -146,5 +130,5 @@ public class CompanyController {
         
         return mv;
     }
-    
+
 }

@@ -38,4 +38,17 @@
 	</listener>
 
 
+	<!-- Errors -->
+
+	<error-page>
+		<exception-type>com.excilys.projet.computerdb.exception.DBException</exception-type>
+		<location>/WEB-INF/error.jsp</location>
+	</error-page>
+	
+	<error-page>
+		<error-code>404</error-code>
+		<location>/x/computer</location>
+	</error-page>
+			
+	
 </web-app>
