@@ -5,8 +5,8 @@
 	<head>
 		<title>Computers database - error</title>
 		
-		<link rel="stylesheet" type="text/css" media="screen" href="../css/bootstrap.min.css">
-		<link rel="stylesheet" type="text/css" media="screen" href="../css/main.css">
+		<link rel="stylesheet" type="text/css" media="screen" href="/computer-database/css/bootstrap.min.css">
+		<link rel="stylesheet" type="text/css" media="screen" href="/computer-database/css/main.css">
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 		
 	</head>

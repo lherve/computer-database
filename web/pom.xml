@@ -30,4 +30,5 @@
 		</dependency>
 
 	</dependencies>
+	<name>computer-database</name>
 </project>

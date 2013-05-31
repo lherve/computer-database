@@ -125,7 +125,7 @@ public class CompanyDao implements Dao<Company> {
 	}
 
 	@Override
-	public List<Company> getAll(Sort sortedBy, Order order) {
+	public List<Company> getAll(Sort sortedBy, Order order) throws DataAccessException {
 		List<Company> cies = new ArrayList<Company>();
 			
 		cies = jdbcTemplate.query(GET_ALL_COMPANIES, new Object[] {}, new CompanyRowMapper());

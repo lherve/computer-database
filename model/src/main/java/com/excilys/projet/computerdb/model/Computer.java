@@ -2,6 +2,7 @@ package com.excilys.projet.computerdb.model;
 
 import java.text.DateFormat;
 import java.util.Calendar;
+import java.util.Date;
 
 public class Computer {
 
@@ -9,8 +10,8 @@ public class Computer {
 	
 	private int id;
 	private String name;
-	private Calendar introduced;
-	private Calendar discontinued;
+	private Date introduced;
+	private Date discontinued;
 	private Company company;
 	
 	/* Constructors */
@@ -20,7 +21,7 @@ public class Computer {
 		this.name = name;
 	}
 
-	public Computer(int id, String name, Calendar introduced, Calendar discontinued, Company company) {
+	public Computer(int id, String name, Date introduced, Date discontinued, Company company) {
 		this.id = id;
 		this.name = name;
 		this.introduced = introduced;
@@ -47,27 +48,27 @@ public class Computer {
 		this.name = name;
 	}
 
-	public Calendar getIntroduced() {
+	public Date getIntroduced() {
 		return introduced;
 	}
 	
 	public String getIntroducedToString() {
-		return introduced != null ? DateFormat.getDateInstance(DateFormat.MEDIUM).format(introduced.getTime()) : "-";
+		return introduced != null ? DateFormat.getDateInstance(DateFormat.MEDIUM).format(introduced) : "-";
 	}
 
-	public void setIntroduced(Calendar introduced) {
+	public void setIntroduced(Date introduced) {
 		this.introduced = introduced;
 	}
 
-	public Calendar getDiscontinued() {
+	public Date getDiscontinued() {
 		return discontinued;
 	}
 	
 	public String getDiscontinuedToString() {
-		return discontinued != null ? DateFormat.getDateInstance(DateFormat.MEDIUM).format(discontinued.getTime()) : "-";
+		return discontinued != null ? DateFormat.getDateInstance(DateFormat.MEDIUM).format(discontinued) : "-";
 	}
 
-	public void setDiscontinued(Calendar discontinued) {
+	public void setDiscontinued(Date discontinued) {
 		this.discontinued = discontinued;
 	}
 

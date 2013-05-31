@@ -19,10 +19,14 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.springframework.beans.TypeMismatchException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import org.springframework.stereotype.Controller;
 
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -42,7 +46,8 @@ public class ComputerController {
     @RequestMapping(method = RequestMethod.GET)
     public ModelAndView listComputers(@RequestParam(required = false) String search, 
                                 @RequestParam(value = "page", required = false) String spage,
-                                @RequestParam(value = "s", required = false) String sort) {
+                                @RequestParam(value = "s", required = false) String sort,
+                                @RequestParam(required = false) String info) {
         
         int pageNumber = 0;
 		
@@ -81,16 +86,11 @@ public class ComputerController {
             mv.addObject("page", page);
             mv.addObject("s", s);
 
-            // gestion des messages d'information (insert/update/delete)
-            
-//            String info = (String) req.getSession().getAttribute("info");
-//
-//            if(!StringUtils.isEmptyOrWhitespaceOnly(info)) {
-//                    req.setAttribute("info", info);
-//                    req.getSession().setAttribute("info", null);
-//            }
+            if(!StringUtils.isEmptyOrWhitespaceOnly(info)) {
+            	mv.addObject("info", info);
+            }
 
-            mv.setViewName("list");
+            //mv.setViewName("computer");
 
         } catch (DBException e) {
             mv.addObject("exception", e);
@@ -100,21 +100,17 @@ public class ComputerController {
         return mv;
     }
     
-    @RequestMapping(method = RequestMethod.GET, value = "/{sid}")
-    public ModelAndView showComputer(@PathVariable String sid) {
+    @RequestMapping(method = RequestMethod.GET, value = "/{id}")
+    public ModelAndView showComputer(@PathVariable int id) throws DBException {
         
 	boolean idOk = false;
 	
         ModelAndView mv = new ModelAndView();
         
-	if(!StringUtils.isEmptyOrWhitespaceOnly(sid)) {
-	
             try {
-                int id = Integer.parseInt(sid);
 
                 if(id > 0) {
 
-                    try {
                         Computer cpu = computerService.getComputer(id);
 
                         if(idOk = (cpu != null)) {
@@ -132,19 +128,12 @@ public class ComputerController {
                             mv.setViewName("update");
 
                         }
-                    }
-                    catch (DBException e) {
-                        mv.addObject("exception", e);
-                        mv.setViewName("error");
-                    }
 
                 }
 
             }
             catch (NumberFormatException e){
             }
-
-        }
 
         if(!idOk) {
             mv.setViewName("redirect:/x/computer");
@@ -153,29 +142,20 @@ public class ComputerController {
         return mv;
     }
     
-    @RequestMapping(method = RequestMethod.POST, value = "/{sid}")
-    public ModelAndView doUpdate(@PathVariable String sid,
+    @RequestMapping(method = RequestMethod.POST, value = "/{id}")
+    public ModelAndView doUpdate(@PathVariable int id,
                                 @RequestParam String name,
                                 @RequestParam(value = "introduced", required = false) String sintroduced,
                                 @RequestParam(value = "discontinued", required = false) String sdiscontinued,
-                                @RequestParam(value = "company", required = false) String scompany) {
+                                @RequestParam(value = "company", required = false) String scompany) throws DBException {
         
         ModelAndView mv = new ModelAndView();
-        int id = 0;
-
-        try {
-            id = Integer.parseInt(sid);
-        }
-        catch(NumberFormatException e) {
-        }
 
         if(id == 0) {
             mv.setViewName("redirect:/x/home");
         }
         else {
             
-            // Check each parameter
-
             int error = 0;
 
             if(!StringUtils.isEmptyOrWhitespaceOnly(name)) {
@@ -195,16 +175,16 @@ public class ComputerController {
             Computer cpu = new Computer(id, name);
 
 
-            Calendar introduced = null;
+            Date introduced = null;
 
             if(!StringUtils.isNullOrEmpty(sintroduced)) {
 
                 DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 
                 try {
-                    introduced = Calendar.getInstance();
+                    introduced = new Date();
                     df.setLenient(false);
-                    introduced.setTime(df.parse(sintroduced));
+                    introduced.setTime(df.parse(sintroduced).getTime());
 
                     if(introduced.after(new Date())) {
                         error += 10;
@@ -219,16 +199,16 @@ public class ComputerController {
             cpu.setIntroduced(introduced);
 
 
-            Calendar discontinued = null;
+            Date discontinued = null;
 
             if(!StringUtils.isNullOrEmpty(sdiscontinued)) {
 
                 DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 
                 try {
-                    discontinued = Calendar.getInstance();
+                    discontinued =new Date();
                     df.setLenient(false);
-                    discontinued.setTime(df.parse(sdiscontinued));
+                    discontinued.setTime(df.parse(sdiscontinued).getTime());
 
                     if(discontinued.before(cpu.getIntroduced())) {
                         error += 100;
@@ -261,21 +241,15 @@ public class ComputerController {
             
             if(error > 0) {
 
-                try {
-                    mv.addObject("cies", companyService.getCompanies());
-                    mv.addObject("err", error);
-                    
-                    mv.addObject("cpu", cpu);
-                    mv.addObject("introduced", sintroduced);
-                    mv.addObject("discontinued", sdiscontinued);
-                    mv.addObject("company", scompany);
-                    
-                    mv.setViewName("update");
-
-                } catch (DBException e) {
-                    mv.addObject("exception", e);
-                    mv.setViewName("error");
-                }
+                mv.addObject("cies", companyService.getCompanies());
+                mv.addObject("err", error);
+                
+                mv.addObject("cpu", cpu);
+                mv.addObject("introduced", sintroduced);
+                mv.addObject("discontinued", sdiscontinued);
+                mv.addObject("company", scompany);
+                
+                mv.setViewName("update");
 
             }
             else {
@@ -295,7 +269,7 @@ public class ComputerController {
                     }
                 }
 
-//                req.getSession().setAttribute("info", sb.toString());
+                mv.addObject("info", sb.toString());
                 
                 mv.setViewName("redirect:/x/computer?search="+cpu.getName());
             }
@@ -305,24 +279,21 @@ public class ComputerController {
         return mv;
     }
     
-    @RequestMapping(value = "/{sid}/delete")
-    public ModelAndView doDelete(@PathVariable String sid) {
+    @RequestMapping(value = "/{id}/delete")
+    public ModelAndView doDelete(@PathVariable int id) {
         
         ModelAndView mv = new ModelAndView();
         
-        //boolean success = false;
+        boolean success = false;
 		
-        try {
-            int id = Integer.parseInt(sid);
-            /*success =*/ computerService.deleteComputer(id);
-        } catch (NumberFormatException e){}
+        success = computerService.deleteComputer(id);
 
-//        if(success) {
-//                req.getSession().setAttribute("info", "Done ! Computer has been deleted");
-//        }
-//        else {
-//                req.getSession().setAttribute("info", "Error : Delete operation failed");
-//        }
+        if(success) {
+            mv.addObject("info", "Done ! Computer has been deleted");
+        }
+        else {
+        	mv.addObject("info", "Error : Delete operation failed");
+        }
 
         mv.setViewName("redirect:/x/computer");
         
@@ -330,23 +301,33 @@ public class ComputerController {
     }
     
     @RequestMapping(value = "/new")
-    public ModelAndView showNew() {
+    public ModelAndView showNew() throws DBException {
         
         ModelAndView mv = new ModelAndView();
         
-        try {
-            mv.addObject("cies", companyService.getCompanies());
-            mv.addObject("cpu", new Computer(-1, ""));
-        
-            mv.setViewName("update");
+        mv.addObject("cies", companyService.getCompanies());
+        mv.addObject("cpu", new Computer(-1, ""));
+    
+        mv.setViewName("update");
             
-        } catch (DBException e) {
-            mv.addObject("exception", e);
-            mv.setViewName("error");
-            
-        }
-        
         return mv;
+    }
+    
+    
+    @ExceptionHandler({DBException.class, DataAccessException.class})
+    public ModelAndView handleDBException(DBException e) {
+    	ModelAndView mv = new ModelAndView();
+    	mv.addObject("exception", e);
+    	mv.setViewName("error");
+    	return mv;
+    }
+    
+    @ExceptionHandler({TypeMismatchException.class})
+    public ModelAndView handleWrongParameterType(TypeMismatchException e) {
+    	ModelAndView mv = new ModelAndView();
+    	mv.addObject("exception", new Exception("Impossible de trouver l'ordinateur associé. L'identifiant renseigné n'est pas valide."));
+    	mv.setViewName("error");
+    	return mv;
     }
     
 }

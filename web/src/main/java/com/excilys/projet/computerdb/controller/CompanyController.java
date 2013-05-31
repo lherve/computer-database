@@ -26,23 +26,18 @@ public class CompanyController {
     private CompanyService companyService;
     
     @RequestMapping(method = RequestMethod.GET)
-    public ModelAndView showCompanies() {
+    public ModelAndView showCompanies(@RequestParam(required = false) String info) {
         
         ModelAndView mv = new ModelAndView();
         
         try {
             mv.addObject("cies", companyService.getCompanies());
             
-            // gestion des messages d'information (insert/update/delete)
+            if(!StringUtils.isEmptyOrWhitespaceOnly(info)) {
+            	mv.addObject("info", info);
+            }
             
-//            String info = (String) req.getSession().getAttribute("info");
-//            
-//            if(!StringUtils.isEmptyOrWhitespaceOnly(info)) {
-//                    req.setAttribute("info", info);
-//                    req.getSession().setAttribute("info", null);
-//            }
-
-            mv.setViewName("companies");
+            mv.setViewName("company");
 
         } catch (DBException e) {
             mv.addObject("exception", e);
@@ -86,26 +81,25 @@ public class CompanyController {
             
             if(error == 0) {
                 
-                /*Company cie = */
-            	companyService.updateCompany(new Company(id, name));
+                Company cie = companyService.updateCompany(new Company(id, name));
 
-//                StringBuilder info = new StringBuilder();
-//
-//                if(cie == null || cie.getId() < 0) {
-//                    info.append("Error : Update operation failed");
-//                }
-//                else {
-//                    info.append("Done ! Company ").append(cie.getName()).append(" has been ");
-//
-//                    if(cie.getId() > 0) {
-//                        info.append("updated");
-//                    }
-//                    else {
-//                        info.append("created");
-//                    }
-//                }
+                StringBuilder info = new StringBuilder();
 
-//                req.getSession().setAttribute("info", info.toString());
+                if(cie == null || cie.getId() < 0) {
+                    info.append("Error : Update operation failed");
+                }
+                else {
+                    info.append("Done ! Company ").append(cie.getName()).append(" has been ");
+
+                    if(cie.getId() > 0) {
+                        info.append("updated");
+                    }
+                    else {
+                        info.append("created");
+                    }
+                }
+
+                mv.addObject("info", info.toString());
 
                 mv.setViewName("redirect:/x/company");
 
@@ -116,7 +110,7 @@ public class CompanyController {
                     mv.addObject("cies", companyService.getCompanies());
                     mv.addObject("err", error);
                     
-                    mv.setViewName("companies");
+                    mv.setViewName("company");
 
                 } catch (DBException e) {
                     mv.addObject("exception", e);
@@ -131,22 +125,22 @@ public class CompanyController {
     
     @RequestMapping(value = "/delete")
     public ModelAndView doDelete(@RequestParam(value = "id") String sid) {
+
+    	ModelAndView mv = new ModelAndView();
         
-        ModelAndView mv = new ModelAndView();
-        
-        //boolean success = false;
+        boolean success = false;
 
         try {
             int id = Integer.parseInt(sid);
-            /*success =*/ companyService.deleteCompany(id);
+            success = companyService.deleteCompany(id);
         } catch (NumberFormatException e){}
 
-//        if(success) {
-//                req.getSession().setAttribute("info", "Done ! Company has been deleted");
-//        }
-//        else {
-//                req.getSession().setAttribute("info", "Error : Delete operation failed");
-//        }
+        if(success) {
+            mv.addObject("info", "Done ! Company has been deleted");
+        }
+        else {
+        	mv.addObject("info", "Error : Delete operation failed");
+        }
 
         mv.setViewName("redirect:/x/company");
         

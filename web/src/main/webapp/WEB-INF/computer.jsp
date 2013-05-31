@@ -59,31 +59,31 @@
 					<table class="computers zebra-striped">
 					
 						<thead>
-                                                    <tr>
-                                                        <th class="col2 header ${s eq '1' ? 'headerSortUp' : s eq '-1' ? 'headerSortDown' : empty s ? 'headerSortUp' : ''}">
-                                                            <a href="?search=${page.search}&s=${s eq '1' ? '-1' : '1' }">Computer name</a>
-                                                        </th>
-                                                        <th class="col3 header ${s eq '2' ? 'headerSortUp' : s eq '-2' ? 'headerSortDown' : '' }">
-                                                            <a href="?search=${page.search}&s=${s eq '2' ? '-2' : '2' }">Introduced</a>
-                                                        </th>
-                                                        <th class="col4 header ${s eq '3' ? 'headerSortUp' : s eq '-3' ? 'headerSortDown' : '' }">
-                                                            <a href="?search=${page.search}&s=${s eq '3' ? '-3' : '3' }">Discontinued</a>
-                                                        </th>
-                                                        <th class="col5 header ${s eq '4' ? 'headerSortUp' : s eq '-4' ? 'headerSortDown' : '' }">
-                                                            <a href="?search=${page.search}&s=${s eq '4' ? '-4' : '4' }">Company</a>
-                                                        </th>
-                                                    </tr>
+							<tr>
+							    <th class="col2 header ${s eq '1' ? 'headerSortUp' : s eq '-1' ? 'headerSortDown' : empty s ? 'headerSortUp' : ''}">
+							     <a href="?search=${page.search}&s=${s eq '1' ? '-1' : '1' }">Computer name</a>
+							 </th>
+							 <th class="col3 header ${s eq '2' ? 'headerSortUp' : s eq '-2' ? 'headerSortDown' : '' }">
+							     <a href="?search=${page.search}&s=${s eq '2' ? '-2' : '2' }">Introduced</a>
+							 </th>
+							 <th class="col4 header ${s eq '3' ? 'headerSortUp' : s eq '-3' ? 'headerSortDown' : '' }">
+							     <a href="?search=${page.search}&s=${s eq '3' ? '-3' : '3' }">Discontinued</a>
+							 </th>
+							 <th class="col5 header ${s eq '4' ? 'headerSortUp' : s eq '-4' ? 'headerSortDown' : '' }">
+							     <a href="?search=${page.search}&s=${s eq '4' ? '-4' : '4' }">Company</a>
+							    </th>
+							</tr>
 						</thead>
 						
 						<tbody>
-                                                    <c:forEach var="cpu" items="${page.cpus}">
-                                                        <tr>
-                                                            <td><a href="computer/${cpu.id }"><c:out value="${cpu.name}" /></a></td>
-                                                            <td><c:out value="${cpu.introducedToString}" /></td>
-                                                            <td><c:out value="${cpu.discontinuedToString}" /></td>
-                                                            <td><c:out value="${cpu.company.name}" /></td>
-                                                        </tr>
-                                                    </c:forEach>
+                              <c:forEach var="cpu" items="${page.cpus}">
+                                  <tr>
+                                      <td><a href="computer/${cpu.id }"><c:out value="${cpu.name}" /></a></td>
+                                      <td><c:out value="${cpu.introducedToString}" /></td>
+                                      <td><c:out value="${cpu.discontinuedToString}" /></td>
+                                      <td><c:out value="${cpu.company.name}" /></td>
+                                  </tr>
+                              </c:forEach>
 						</tbody>
 						
 					</table>

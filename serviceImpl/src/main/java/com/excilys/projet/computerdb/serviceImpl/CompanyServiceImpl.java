@@ -31,9 +31,9 @@ public class CompanyServiceImpl implements CompanyService {
 	public List<Company> getCompanies() throws DBException {
 		List<Company> list;
 		try {
-                    list = companiesList.getList();
+			list = companiesList.getList();
 		} catch (DBException e) {
-                    throw e;
+            throw e;
 		}
 		return list;
 	}

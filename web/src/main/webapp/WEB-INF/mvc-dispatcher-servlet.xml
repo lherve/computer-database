@@ -20,14 +20,19 @@
 
 	<!-- Spring MVC beans -->
 
-	<bean
-		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
-		<property name="prefix">
-			<value>/WEB-INF/</value>
-		</property>
-		<property name="suffix">
-			<value>.jsp</value>
-		</property>
+	<bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/WEB-INF/" />
+		<property name="suffix" value=".jsp" />
 	</bean>
+	
+	
+	<!-- Auto view mapping beans -->
+	
+	<bean id="viewNameTranslator" class="org.springframework.web.servlet.view.DefaultRequestToViewNameTranslator"/>
+
+<!-- 	<bean class="org.springframework.web.servlet.mvc.support.ControllerClassNameHandlerMapping"/> -->
+
+	<mvc:view-controller path="/home" view-name="redirect:/x/computer"/>
+
 
 </beans>

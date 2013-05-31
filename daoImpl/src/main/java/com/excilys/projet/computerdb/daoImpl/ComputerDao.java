@@ -44,14 +44,14 @@ public class ComputerDao implements Dao<Computer> {
 			list.add(o.getName());
 			
 			if(o.getIntroduced() != null) {
-				list.add(new Date(o.getIntroduced().getTimeInMillis()));
+				list.add(o.getIntroduced());
 			}
 			else {
 				list.add(null);
 			}
 			
 			if(o.getDiscontinued() != null) {
-				list.add(new Date(o.getDiscontinued().getTimeInMillis()));
+				list.add(o.getDiscontinued());
 			}
 			else {
 				list.add(null);
@@ -81,14 +81,14 @@ public class ComputerDao implements Dao<Computer> {
 			list.add(o.getName());
 			
 			if(o.getIntroduced() != null) {
-				list.add(new Date(o.getIntroduced().getTimeInMillis()));
+				list.add(o.getIntroduced());
 			}
 			else {
 				list.add(null);
 			}
 			
 			if(o.getDiscontinued() != null) {
-				list.add(new Date(o.getDiscontinued().getTimeInMillis()));
+				list.add(o.getDiscontinued());
 			}
 			else {
 				list.add(null);
@@ -231,13 +231,11 @@ public class ComputerDao implements Dao<Computer> {
 			Date dt;
 			
 			if((dt = rs.getDate("cpu.introduced")) != null) {
-				c.setIntroduced(Calendar.getInstance());
-				c.getIntroduced().setTime(dt);
+				c.setIntroduced(dt);
 			}
 			
 			if((dt = rs.getDate("cpu.discontinued")) != null) {
-				c.setDiscontinued(Calendar.getInstance());
-				c.getDiscontinued().setTime(dt);
+				c.setDiscontinued(dt);
 			}
 			
 			int company_id = rs.getInt("cpu.company_id");
