@@ -1,34 +1,32 @@
 package com.excilys.projet.computerdb.controller;
 
+import com.excilys.projet.computerdb.exception.DBException;
 import com.excilys.projet.computerdb.model.Company;
 import com.excilys.projet.computerdb.model.Computer;
 import com.excilys.projet.computerdb.model.Page;
 import com.excilys.projet.computerdb.service.CompanyService;
 import com.excilys.projet.computerdb.service.ComputerService;
+import com.excilys.projet.computerdb.utils.CompanyConverter;
 
-import com.mysql.jdbc.StringUtils;
-
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-
-import java.util.Date;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindingResult;
 
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/computer")
@@ -49,7 +47,7 @@ public class ComputerController {
         
         int pageNumber = 0;
 		
-        if(!StringUtils.isEmptyOrWhitespaceOnly(spage)) {
+        if(spage != null && !spage.trim().isEmpty()) {
             try {
                 pageNumber = Integer.parseInt(spage);
             }
@@ -64,7 +62,7 @@ public class ComputerController {
         
         int s = 1;
 		
-        if(!StringUtils.isEmptyOrWhitespaceOnly(sort)) {
+        if(sort != null && !sort.trim().isEmpty()) {
             try {
                 s = Integer.parseInt(sort);
                 if(s > 4 || s < -4 || s == 0) {
@@ -81,10 +79,9 @@ public class ComputerController {
         model.addAttribute("page", page);
         model.addAttribute("s", s);
 
-        if(!StringUtils.isEmptyOrWhitespaceOnly(info)) {
+        if(info != null && !info.trim().isEmpty()) {
         	model.addAttribute("info", info);
         }
-        
     }
     
     @RequestMapping(method = RequestMethod.GET, value = "/{id}")
@@ -92,176 +89,67 @@ public class ComputerController {
         
 		String viewname = "redirect:/x/computer";
 		
-        try {
+        if(id > 0) {
 
-            if(id > 0) {
+            Computer cpu = computerService.getComputer(id);
 
-                Computer cpu = computerService.getComputer(id);
+            if(cpu != null) {
 
-                if(cpu != null) {
+                List<Company> cies = companyService.getCompanies();
 
-                    List<Company> cies = companyService.getCompanies();
+                model.addAttribute("computer", cpu);
+                model.addAttribute("companies", cies);
 
-                    model.addAttribute("cpu", cpu);
-                    model.addAttribute("cies", cies);
-
-                    DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-
-                    model.addAttribute("introduced", (cpu.getIntroduced() != null) ? df.format(cpu.getIntroduced()).toString() : null);
-                    model.addAttribute("discontinued", (cpu.getDiscontinued() != null) ? df.format(cpu.getDiscontinued()).toString() : null);
-
-                    viewname = "update";
-                    
-                }
-
+                viewname = "update";
+                
             }
 
         }
-        catch (NumberFormatException e){
-        }
-        
+
         return viewname;
     }
-    
+
     @RequestMapping(method = RequestMethod.POST, value = "/{id}")
-    public ModelAndView doUpdate(@PathVariable int id,
-                                @RequestParam String name,
-                                @RequestParam(value = "introduced", required = false) String sintroduced,
-                                @RequestParam(value = "discontinued", required = false) String sdiscontinued,
-                                @RequestParam(value = "company", required = false) String scompany) {
-        
-        ModelAndView mv = new ModelAndView();
+    public String doUpdate(@ModelAttribute("computer") Computer computer,
+    						BindingResult result, ModelMap model,
+							RedirectAttributes redirectAttributes) {
+    	
+		String viewname;
+		
+		if(result.hasErrors()) {
+			model.addAttribute("result", result);
+			model.addAttribute("companies", companyService.getCompanies());
+			viewname = "update";
+		}
+		else {
+			
+			StringBuilder sb = new StringBuilder("");
 
-        if(id == 0) {
-            mv.setViewName("redirect:/x/home");
-        }
-        else {
-            
-            int error = 0;
-
-            if(!StringUtils.isEmptyOrWhitespaceOnly(name)) {
-
-                Pattern p = Pattern.compile("^[\\w\\s+-/\"\'()]*$");
-                Matcher m = p.matcher(name);
-
-                if(!m.find()) {
-                    error++;
-                }
-
+            if((computerService.updateComputer(computer)).getId() == 0) {
+                sb.append("Update operation failed");
             }
             else {
-                error++;
-            }
-            
-            Computer cpu = new Computer(id, name);
+                sb.append("Computer ").append(computer.getName()).append(" has been ");
 
-
-            Date introduced = null;
-
-            if(!StringUtils.isNullOrEmpty(sintroduced)) {
-
-                DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-
-                try {
-                    introduced = new Date();
-                    df.setLenient(false);
-                    introduced.setTime(df.parse(sintroduced).getTime());
-
-                    if(introduced.after(new Date())) {
-                        error += 10;
-                    }
-
-                } catch (ParseException e) {
-                    error += 10;
-                }
-
-            }
-            
-            cpu.setIntroduced(introduced);
-
-
-            Date discontinued = null;
-
-            if(!StringUtils.isNullOrEmpty(sdiscontinued)) {
-
-                DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-
-                try {
-                    discontinued =new Date();
-                    df.setLenient(false);
-                    discontinued.setTime(df.parse(sdiscontinued).getTime());
-
-                    if(discontinued.before(cpu.getIntroduced())) {
-                        error += 100;
-                    }
-                    
-                } catch (ParseException e) {
-                    error += 100;
-                }
-
-            }
-
-            cpu.setDiscontinued(discontinued);
-
-            
-            Company cie = null;
-
-            if(!StringUtils.isEmptyOrWhitespaceOnly(scompany)) {
-
-                try {
-                    int company = Integer.parseInt(scompany);
-                    cie = new Company(company, null);
-                }
-                catch(NumberFormatException e) {
-                }
-
-            }
-            
-            cpu.setCompany(cie);
-
-            
-            if(error > 0) {
-
-                mv.addObject("cies", companyService.getCompanies());
-                mv.addObject("err", error);
-                
-                mv.addObject("cpu", cpu);
-                mv.addObject("introduced", sintroduced);
-                mv.addObject("discontinued", sdiscontinued);
-                mv.addObject("company", scompany);
-                
-                mv.setViewName("update");
-
-            }
-            else {
-                StringBuilder sb = new StringBuilder("");
-
-                if((computerService.updateComputer(cpu)).getId() == 0) {
-                    sb.append("Update operation failed");
+                if(computer.getId() > 0) {
+                    sb.append("updated");
                 }
                 else {
-                    sb.append("Computer ").append(cpu.getName()).append(" has been ");
-
-                    if(cpu.getId() > 0) {
-                        sb.append("updated");
-                    }
-                    else {
-                        sb.append("created");
-                    }
+                    sb.append("created");
                 }
-
-                mv.addObject("info", sb.toString());
-                
-                mv.setViewName("redirect:/x/computer?search="+cpu.getName());
             }
+
+            redirectAttributes.addFlashAttribute("info", sb.toString());
             
-        }
-        
-        return mv;
+            viewname = "redirect:/x/computer?search="+computer.getName();
+			
+		}
+		
+		return viewname;
     }
     
     @RequestMapping(value = "/{id}/delete")
-    public ModelAndView doDelete(@PathVariable int id) {
+    public ModelAndView doDelete(@PathVariable int id, RedirectAttributes redirectAttributes) {
         
         ModelAndView mv = new ModelAndView();
         
@@ -270,10 +158,10 @@ public class ComputerController {
         success = computerService.deleteComputer(id);
 
         if(success) {
-            mv.addObject("info", "Done ! Computer has been deleted");
+        	redirectAttributes.addFlashAttribute("info", "Done ! Computer has been deleted");
         }
         else {
-        	mv.addObject("info", "Error : Delete operation failed");
+        	redirectAttributes.addFlashAttribute("info", "Error : Delete operation failed");
         }
 
         mv.setViewName("redirect:/x/computer");
@@ -286,14 +174,18 @@ public class ComputerController {
         
         ModelAndView mv = new ModelAndView();
         
-        mv.addObject("cies", companyService.getCompanies());
-        mv.addObject("cpu", new Computer(-1, ""));
+        mv.addObject("companies", companyService.getCompanies());
+        mv.addObject("computer", new Computer(-1, ""));
     
         mv.setViewName("update");
             
         return mv;
     }
     
+    @InitBinder
+    public void initBinderCompany(WebDataBinder binder) {
+    	binder.registerCustomEditor(Company.class, new CompanyConverter(companyService));
+    }
     
     @ExceptionHandler({TypeMismatchException.class})
     public ModelAndView handleWrongParameterType() {

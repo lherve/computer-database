@@ -4,7 +4,6 @@ import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Observable;
 
@@ -14,7 +13,6 @@ import com.excilys.projet.computerdb.model.Computer;
 import com.excilys.projet.computerdb.model.Page;
 import com.excilys.projet.computerdb.model.Page.Order;
 import com.excilys.projet.computerdb.model.Page.Sort;
-import com.mysql.jdbc.StringUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -145,7 +143,7 @@ public class ComputerDao implements Dao<Computer> {
 	public List<Computer> getFromTo(int start, int end, Sort sortedBy, Order order, String search) throws DataAccessException {
 		StringBuilder query = new StringBuilder("SELECT cpu.id, cpu.name, cpu.introduced, cpu.discontinued, cpu.company_id, cie.name FROM computer cpu LEFT OUTER JOIN company cie ON cpu.company_id = cie.id ");
 		
-		if(!StringUtils.isEmptyOrWhitespaceOnly(search)) {
+		if(search != null && search.length() > 0) {
 			query.append("WHERE cpu.name LIKE ? ");
 		}
 		
@@ -181,7 +179,7 @@ public class ComputerDao implements Dao<Computer> {
 
 		List<Object> list = new ArrayList<Object>();
 		
-		if(!StringUtils.isEmptyOrWhitespaceOnly(search)) {
+		if(search != null && search.length() > 0) {
 			list.add("%"+search+"%");
 		}
                 
@@ -210,7 +208,7 @@ public class ComputerDao implements Dao<Computer> {
 
 		Object[] o = new Object[] {};
 		
-		if(!StringUtils.isEmptyOrWhitespaceOnly(search)) {
+		if(search != null && search.length() > 0) {
 			query.append(" WHERE name LIKE ?");
 			o = new Object[] {"%"+search+"%"};
 		}

@@ -42,7 +42,7 @@
 
 	<error-page>
 		<exception-type>com.excilys.projet.computerdb.exception.DBException</exception-type>
-		<location>/WEB-INF/error.jsp</location>
+		<location>/WEB-INF/jsp/error.jsp</location>
 	</error-page>
 	
 	<error-page>

@@ -21,8 +21,6 @@ import com.excilys.projet.computerdb.model.Company;
 import com.excilys.projet.computerdb.model.Page.Order;
 import com.excilys.projet.computerdb.model.Page.Sort;
 
-import com.mysql.jdbc.StringUtils;
-
 @Repository
 public class CompanyDao implements Dao<Company> {
 	
@@ -141,7 +139,7 @@ public class CompanyDao implements Dao<Company> {
 		
 		Object[] o = new Object[] {};
 		
-		if(!StringUtils.isEmptyOrWhitespaceOnly(search)) {
+		if(search != null && search.length() > 0) {
 			query.append(" WHERE name LIKE ?");
 			o = new Object[] {"%"+search+"%"};
 		}

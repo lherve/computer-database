@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 <!DOCTYPE html>
 <html>
 
@@ -22,49 +23,47 @@
         
         <section id="main">
         
-	        <h1>${cpu.id < 0 ? 'Add a' : 'Edit' } computer</h1>
+	        <h1>${computer.id < 0 ? 'Add a' : 'Edit' } computer</h1>
 	
-			<form action="${cpu.id}" method="POST" >
-	        
-		        <fieldset>
-		
-					<div class="clearfix ${err mod 10 >= 1 ? 'error' : ''}">
+			<form:form action="${computer.id }" commandName="computer" method="POST">
+			
+				<fieldset>
+				
+					<div class="clearfix <c:if test="${!empty result.getFieldError('name')}"> error</c:if>">
 					
 					    <label for="name">Computer name</label>
 					    
 					    <div class="input">
 					        
-					   		<input type="text" id="name" name="name" value="${cpu.name }" >
+					   		<form:input type="text" id="name" path="name" />
 					
 					        <span class="help-inline">Required</span>
 					        
 					    </div>
 					    
 					</div>
-
-
-					<div class="clearfix ${err mod 100 >= 10 ? 'error' : ''}">
+					
+					<div class="clearfix <c:if test="${!empty result.getFieldError('introduced')}"> error</c:if>">
 					
 					    <label for="introduced">Introduced date</label>
 					    
 					    <div class="input">
 					        
-					    	<input type="text" id="introduced" name="introduced" value="${introduced }" >
+					    	<form:input type="text" id="introduced" path="introduced" />
 					
 					        <span class="help-inline">Date (&#x27;yyyy-MM-dd&#x27;)</span> 
 					        
 					    </div>
 					    
 					</div>
-
-
-					<div class="clearfix ${ err mod 1000 >= 100 ? 'error' : ''}">
+					
+					<div class="clearfix <c:if test="${!empty result.getFieldError('discontinued')}"> error</c:if>">
 					
 					    <label for="discontinued">Discontinued date</label>
 					    
 					    <div class="input">
 					        
-						    <input type="text" id="discontinued" name="discontinued" value="${discontinued }" >
+						    <form:input type="text" id="discontinued" path="discontinued" />
 						
 						    <span class="help-inline">Date (&#x27;yyyy-MM-dd&#x27;)</span> 
 					        
@@ -72,45 +71,42 @@
 					    
 					</div>
 
-
 					<div class="clearfix ">
 					
 					    <label for="company">Company</label>
 					    
 					    <div class="input">
 					        
-						    <select id="company" name="company">
-						        
-						        <option class="blank" value="">-- Choose a company --</option>
-					        
-						        <c:forEach var="cie" items="${cies}">
-						        
-						        	<option value="${cie.id }" ${empty cpu.company ? '' : cie.id eq cpu.company.id ? 'selected="selected"' : ''}>${cie.name }</option>
-						        
-						        </c:forEach>
-						        
-					    	</select>
+					    	<form:select id="company" path="company">
+
+								<form:option class="blank" value="">-- Choose a company --</form:option>
+							
+								<form:options items="${companies}" itemValue="id" itemLabel="name"/>
+
+							</form:select> <span class="help-inline"></span>
+					    	
 					        <span class="help-inline"><a href="../company"><img alt="edit" src="/computer-database/img/edit-icon.png" /></a></span> 
+					        
 					    </div>
 					    
 					</div>
+				
+				</fieldset>
+			
+				<div class="actions">
 
-		        </fieldset>
-		        
-		        <div class="actions">
-		        
 		            <input type="submit" value="Save this computer" class="btn primary"> or 
 		            <a href="/computer-database/" class="btn">Cancel</a> 
-		            
-		        </div>
-		
-			</form>
 
-			<c:if test="${cpu.id > 0 }">
+		        </div>
+			
+			</form:form>
 	
-				<form action="${cpu.id}/delete" method="POST" class="topRight">
+			<c:if test="${computer.id > 0 }">
+	
+				<form action="${computer.id}/delete" method="POST" class="topRight">
 				    
-				    <input type="hidden" value="${cpu.id }" name="id"/>
+				    <input type="hidden" value="${computer.id }" name="id"/>
 				    
 			        <input type="submit" value="Delete this computer" class="btn danger">
 				    

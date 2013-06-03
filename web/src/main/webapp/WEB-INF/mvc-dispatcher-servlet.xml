@@ -21,7 +21,7 @@
 	<!-- Spring MVC beans -->
 
 	<bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
-		<property name="prefix" value="/WEB-INF/" />
+		<property name="prefix" value="/WEB-INF/jsp/" />
 		<property name="suffix" value=".jsp" />
 	</bean>
 	
@@ -30,9 +30,17 @@
 	
 	<bean id="viewNameTranslator" class="org.springframework.web.servlet.view.DefaultRequestToViewNameTranslator"/>
 
-<!-- 	<bean class="org.springframework.web.servlet.mvc.support.ControllerClassNameHandlerMapping"/> -->
-
 	<mvc:view-controller path="/home" view-name="redirect:/x/computer"/>
 
+
+	<!-- Exceptions handlers -->
+
+	<bean class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+		<property name="exceptionMappings">
+		<props>
+			<prop key="java.lang.Exception">error</prop>
+		</props>
+		</property>
+	</bean>
 
 </beans>

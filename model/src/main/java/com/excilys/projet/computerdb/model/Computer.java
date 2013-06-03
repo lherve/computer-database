@@ -1,8 +1,9 @@
 package com.excilys.projet.computerdb.model;
 
 import java.text.DateFormat;
-import java.util.Calendar;
 import java.util.Date;
+
+import org.springframework.format.annotation.DateTimeFormat;
 
 public class Computer {
 
@@ -10,11 +11,16 @@ public class Computer {
 	
 	private int id;
 	private String name;
+	@DateTimeFormat(pattern="yyyy-MM-dd")
 	private Date introduced;
+	@DateTimeFormat(pattern="yyyy-MM-dd")
 	private Date discontinued;
 	private Company company;
 	
 	/* Constructors */
+	
+	public Computer() {
+	}
 	
 	public Computer(int id, String name) {
 		this.id = id;

@@ -3,8 +3,6 @@ package com.excilys.projet.computerdb.controller;
 import com.excilys.projet.computerdb.model.Company;
 import com.excilys.projet.computerdb.service.CompanyService;
 
-import com.mysql.jdbc.StringUtils;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -17,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/company")
@@ -27,11 +26,11 @@ public class CompanyController {
     
     @RequestMapping(method = RequestMethod.GET)
     public void showCompanies(ModelMap model,
-    								@RequestParam(required = false) String info) {
+							@RequestParam(required = false) String info) {
         
         model.addAttribute("cies", companyService.getCompanies());
         
-        if(!StringUtils.isEmptyOrWhitespaceOnly(info)) {
+        if(info != null && !info.trim().isEmpty()) {
         	model.addAttribute("info", info);
         }
         
@@ -39,7 +38,8 @@ public class CompanyController {
     
     @RequestMapping(method = RequestMethod.POST)
     public ModelAndView doUpdate(@RequestParam(value = "id") String sid,
-                                @RequestParam String name) {
+                                @RequestParam String name,
+                                RedirectAttributes redirectAttributes) {
         ModelAndView mv = new ModelAndView();
         int id = 0;
 
@@ -53,10 +53,9 @@ public class CompanyController {
             mv.setViewName("redirect:/x/home");
         }
         else {
-        
             int error = 0;
 
-            if(StringUtils.isEmptyOrWhitespaceOnly(name)) {
+            if(name == null || name.trim().isEmpty()) {
                 error+=10;
             }
             else {
@@ -89,7 +88,7 @@ public class CompanyController {
                     }
                 }
 
-                mv.addObject("info", info.toString());
+                redirectAttributes.addFlashAttribute("info", info.toString());
 
                 mv.setViewName("redirect:/x/company");
 
@@ -108,7 +107,7 @@ public class CompanyController {
     }
     
     @RequestMapping(value = "/delete")
-    public ModelAndView doDelete(@RequestParam(value = "id") String sid) {
+    public ModelAndView doDelete(@RequestParam(value = "id") String sid, RedirectAttributes redirectAttributes) {
 
     	ModelAndView mv = new ModelAndView();
         
@@ -120,10 +119,10 @@ public class CompanyController {
         } catch (NumberFormatException e){}
 
         if(success) {
-            mv.addObject("info", "Done ! Company has been deleted");
+        	redirectAttributes.addFlashAttribute("info", "Done ! Company has been deleted");
         }
         else {
-        	mv.addObject("info", "Error : Delete operation failed");
+        	redirectAttributes.addFlashAttribute("info", "Error : Delete operation failed");
         }
 
         mv.setViewName("redirect:/x/company");
