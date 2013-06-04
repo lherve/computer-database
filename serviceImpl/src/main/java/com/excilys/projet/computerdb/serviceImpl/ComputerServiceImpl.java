@@ -56,13 +56,15 @@ public class ComputerServiceImpl implements ComputerService {
      */
     @Transactional(readOnly=false)
 	@Override
-    public Computer updateComputer(Computer cpu) {
-        checkCompany(cpu);
+    public boolean updateComputer(Computer cpu) {
+        boolean result = false;
+    	
+    	checkCompany(cpu);
 
         if(cpu.getId() > 0) {
             
             try {
-                cpu = computerDao.update(cpu);
+                result = computerDao.update(cpu);
             } catch (DataAccessException e) {
                 logger.warn("Service - update computer:"+e.getMessage());
                 logger.warn("Service - update "+ cpu);
@@ -72,7 +74,7 @@ public class ComputerServiceImpl implements ComputerService {
         else {
             
             try {
-                cpu = computerDao.insert(cpu);
+            	result = computerDao.insert(cpu);
             } catch (DataAccessException e) {
                 logger.warn("Service - insert computer:"+e.getMessage());
                 logger.warn("Service - insert "+ cpu);
@@ -80,7 +82,7 @@ public class ComputerServiceImpl implements ComputerService {
             
         }
 
-        return cpu;
+        return result;
     }
 
 

@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 <!DOCTYPE html>
 <html>
 
@@ -29,58 +30,55 @@
 		            ${info }
 		        </div>
 			</c:if>
-	
-			<form action="company" method="POST" >
-	        
-		        <fieldset>
+			
+			<form:form action="company" commandName="company" method="POST">
+			
+				<fieldset>
+				
+					<div class="clearfix ">
 
-                            <div class="clearfix ">
+						<label for="id">Actual name</label>
+						
+						<div class="input">
+												
+							<form:select id="id" path="id">
+													
+								<form:option class="blank" value="-1">++ Add a new company</form:option>
+								
+								<form:options items="${companies}" itemValue="id" itemLabel="name" />
+								
+							</form:select>
+						
+						</div>
+						
+					</div>
+					
+					<div class="clearfix <c:if test="${!empty result.getFieldError('name')}"> error</c:if>">
 
-                                <label for="id">Actual name</label>
-
-                                <div class="input">
-
-                                        <select id="id" name="id">
-
-                                            <option class="blank" value="-1">++ Add a new company</option>
-
-                                            <c:forEach var="cie" items="${cies}">
-
-                                                    <option value="${cie.id }" ${not empty param.id ? param.id eq cie.id ? 'selected="selected"' : '' : '' }>${cie.name }</option>
-
-                                            </c:forEach>
-
-                                    </select>
-
-                                </div>
-
-                            </div>
-
-                            <div class="clearfix ${ err >= 10 ? 'error' : ''}">
-
-                                <label for="name">New name</label>
-
-                                <div class="input">
-
-                                        <input type="text" id="name" name="name" value="${param.name }">
-
-                                        <span class="help-inline"></span> 
-
-                                </div>
-
-                            </div>
-
-		        </fieldset>
-		        
-		        <div class="actions">
+						<label for="name">New name</label>
+						
+						<div class="input">
+						
+							<form:input type="text" id="name" path="name"/>
+							
+							<span class="help-inline"></span> 
+						
+						</div>
+					
+					</div>
+				
+				
+				</fieldset>
+			
+				<div class="actions">
 		        
 		            <input type="submit" value="Save this company" class="btn primary"/>
 		            <input type="submit" value="Delete" class="btn danger" formaction="company/delete"/> or 
 		            <a href="computer/new" class="btn">Cancel</a>
 		            
 		        </div>
-		
-			</form>
+		        
+			</form:form>	
 
         </section>
         

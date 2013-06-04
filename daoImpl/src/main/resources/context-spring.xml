@@ -18,22 +18,26 @@
 	<!-- BoneCP configuration -->
 	
 	<bean id="dataSource" class="com.jolbox.bonecp.BoneCPDataSource" destroy-method="close">
-	   <property name="driverClass" value="com.mysql.jdbc.Driver" />
-	   <property name="jdbcUrl" value="jdbc:mysql://localhost:3306/computer_database" />
-	   <property name="username" value="root"/>
-	   <property name="password" value="passe"/>
-	   <property name="idleConnectionTestPeriodInMinutes" value="60"/>
-	   <property name="idleMaxAgeInMinutes" value="240"/>
-	   <property name="maxConnectionsPerPartition" value="10"/>
-	   <property name="minConnectionsPerPartition" value="2"/>
-	   <property name="partitionCount" value="1"/>
-	   <property name="acquireIncrement" value="2"/>
-	   <property name="statementsCacheSize" value="100"/>
+	   <property name="driverClass" value="${driverClass}" />
+	   <property name="jdbcUrl" value="${jdbcUrl}" />
+	   <property name="username" value="${usere}"/>
+	   <property name="password" value="${password}"/>
+	   <property name="idleConnectionTestPeriodInMinutes" value="${idleConnectionTestPeriodInMinutes}"/>
+	   <property name="idleMaxAgeInMinutes" value="${idleMaxAgeInMinutes}"/>
+	   <property name="maxConnectionsPerPartition" value="${maxConnectionsPerPartition}"/>
+	   <property name="minConnectionsPerPartition" value="${minConnectionsPerPartition}"/>
+	   <property name="partitionCount" value="${partitionCount}"/>
+	   <property name="acquireIncrement" value="${acquireIncrement}"/>
+	   <property name="statementsCacheSize" value="${statementsCacheSize}"/>
 	</bean>
 	
 	<bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
 		<constructor-arg ref="dataSource" />
 	</bean>
 	
+	
+	<!-- Properties files -->
+	
+	<context:property-placeholder location="classpath:computerdb.properties" />
 
 </beans>

@@ -56,30 +56,29 @@ public class CompanyDao implements Dao<Company> {
 	}
 	
 	@Override
-	public Company insert(Company o) throws DataAccessException {
+	public boolean insert(Company o) throws DataAccessException {
+		boolean result = false;
+		
 		if(o != null) {
-			if(jdbcTemplate.update(INSERT_COMPANY, o.getName()) <= 0) {
-				o.setId(-1);
-			}
-			else {
-				o.setId(0);
+			if(jdbcTemplate.update(INSERT_COMPANY, o.getName()) > 0) {
+				result = true;
 				notifyUpdate();
 			}
 		}
-		return o;
+		return result;
 	}
 
 	@Override
-	public Company update(Company o) throws DataAccessException {
+	public boolean update(Company o) throws DataAccessException {
+		boolean result = false;
+		
 		if(o != null) {
-			if(jdbcTemplate.update(UPDATE_COMPANY, o.getName(), o.getId()) <= 0){
-				o.setId(-1);
-			}
-			else {
+			if(jdbcTemplate.update(UPDATE_COMPANY, o.getName(), o.getId()) > 0){
+				result = true;
 				notifyUpdate();
 			}
 		}
-		return o;
+		return result;
 	}
 
 	@Override

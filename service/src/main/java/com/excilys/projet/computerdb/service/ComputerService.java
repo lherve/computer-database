@@ -27,6 +27,6 @@ public interface ComputerService {
      * Méthode utilisée par UpdateComputer pour l'insertion et la mise-à-jour du computer
      */
     @Transactional(readOnly = false)
-    Computer updateComputer(Computer cpu);
+    boolean updateComputer(Computer cpu);
     
 }

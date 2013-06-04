@@ -8,7 +8,6 @@ import com.excilys.projet.computerdb.service.CompanyService;
 import com.excilys.projet.computerdb.service.ComputerService;
 import com.excilys.projet.computerdb.utils.CompanyConverter;
 
-import java.util.List;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -28,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+@SuppressWarnings("unused")
 @Controller
 @RequestMapping("/computer")
 public class ComputerController {
@@ -95,10 +95,8 @@ public class ComputerController {
 
             if(cpu != null) {
 
-                List<Company> cies = companyService.getCompanies();
-
                 model.addAttribute("computer", cpu);
-                model.addAttribute("companies", cies);
+                model.addAttribute("companies", companyService.getCompanies());
 
                 viewname = "update";
                 
@@ -125,7 +123,7 @@ public class ComputerController {
 			
 			StringBuilder sb = new StringBuilder("");
 
-            if((computerService.updateComputer(computer)).getId() == 0) {
+            if(!computerService.updateComputer(computer)) {
                 sb.append("Update operation failed");
             }
             else {

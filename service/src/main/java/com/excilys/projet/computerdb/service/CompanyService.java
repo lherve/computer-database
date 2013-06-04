@@ -13,6 +13,6 @@ public interface CompanyService {
     List<Company> getCompanies() throws DBException;
 
     @Transactional(readOnly = false)
-    Company updateCompany(Company cie);
+    boolean updateCompany(Company cie);
     
 }

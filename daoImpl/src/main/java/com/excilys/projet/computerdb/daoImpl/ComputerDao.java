@@ -34,7 +34,9 @@ public class ComputerDao implements Dao<Computer> {
 	private JdbcTemplate jdbcTemplate;
 	
 	@Override
-	public Computer insert(Computer o) throws DataAccessException {
+	public boolean insert(Computer o) throws DataAccessException {
+		boolean result = false;
+		
 		if(o != null) {
 			
 			List<Object> list = new ArrayList<Object>();
@@ -62,16 +64,18 @@ public class ComputerDao implements Dao<Computer> {
 				list.add(null);
 			}
 			
-			if(jdbcTemplate.update(INSERT_COMPUTER, list.toArray()) <= 0) {
-				o.setId(-1);
+			if(jdbcTemplate.update(INSERT_COMPUTER, list.toArray()) > 0) {
+				result = true;
 			}
-				
+			
 		}
-		return o;
+		return result;
 	}
 
 	@Override
-	public Computer update(Computer o) throws DataAccessException {
+	public boolean update(Computer o) throws DataAccessException {
+		boolean result = false;
+		
 		if(o != null) {
 			
 			List<Object> list = new ArrayList<Object>();
@@ -101,12 +105,12 @@ public class ComputerDao implements Dao<Computer> {
 			
 			list.add(o.getId());
 			
-			if(jdbcTemplate.update(UPDATE_COMPUTER, list.toArray()) <= 0){
-				o.setId(-1);
+			if(jdbcTemplate.update(UPDATE_COMPUTER, list.toArray()) > 0) {
+				result = true;
 			}
 			
 		}
-		return o;
+		return result;
 	}
 
 	@Override

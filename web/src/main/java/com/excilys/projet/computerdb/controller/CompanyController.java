@@ -3,14 +3,13 @@ package com.excilys.projet.computerdb.controller;
 import com.excilys.projet.computerdb.model.Company;
 import com.excilys.projet.computerdb.service.CompanyService;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindingResult;
 
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -28,7 +27,8 @@ public class CompanyController {
     public void showCompanies(ModelMap model,
 							@RequestParam(required = false) String info) {
         
-        model.addAttribute("cies", companyService.getCompanies());
+        model.addAttribute("companies", companyService.getCompanies());
+        model.addAttribute("company", new Company());
         
         if(info != null && !info.trim().isEmpty()) {
         	model.addAttribute("info", info);
@@ -37,73 +37,42 @@ public class CompanyController {
     }
     
     @RequestMapping(method = RequestMethod.POST)
-    public ModelAndView doUpdate(@RequestParam(value = "id") String sid,
-                                @RequestParam String name,
-                                RedirectAttributes redirectAttributes) {
-        ModelAndView mv = new ModelAndView();
-        int id = 0;
+    public String doUpdate(@ModelAttribute("company") Company company,
+								BindingResult result, ModelMap model,
+								RedirectAttributes redirectAttributes) {
+        
+    	String viewname;
+    	
+    	if(result.hasErrors()) {
+    		model.addAttribute("result", result);
+            model.addAttribute("companies", companyService.getCompanies());
+            viewname = "company";
+    	}
+    	else {
+    		
+    		StringBuilder info = new StringBuilder();
 
-        try {
-            id = Integer.parseInt(sid);
-        }
-        catch(NumberFormatException e) {
-        }
-
-        if(id == 0) {
-            mv.setViewName("redirect:/x/home");
-        }
-        else {
-            int error = 0;
-
-            if(name == null || name.trim().isEmpty()) {
-                error+=10;
+            if(!companyService.updateCompany(company)) {
+                info.append("Error : Update operation failed");
             }
             else {
-                Pattern p = Pattern.compile("^[\\w\\s+-/\"\'()]*$");
-                Matcher m = p.matcher(name);
+                info.append("Done ! Company ").append(company.getName()).append(" has been ");
 
-                if(!m.find()) {
-                    error+=10;
-                }
-            }
-
-            
-            if(error == 0) {
-                
-                Company cie = companyService.updateCompany(new Company(id, name));
-
-                StringBuilder info = new StringBuilder();
-
-                if(cie == null || cie.getId() < 0) {
-                    info.append("Error : Update operation failed");
+                if(company.getId() > 0) {
+                    info.append("updated");
                 }
                 else {
-                    info.append("Done ! Company ").append(cie.getName()).append(" has been ");
-
-                    if(cie.getId() > 0) {
-                        info.append("updated");
-                    }
-                    else {
-                        info.append("created");
-                    }
+                    info.append("created");
                 }
-
-                redirectAttributes.addFlashAttribute("info", info.toString());
-
-                mv.setViewName("redirect:/x/company");
-
             }
-            else {
-                mv.addObject("cies", companyService.getCompanies());
-                mv.addObject("err", error);
-                
-                mv.setViewName("company");
 
-            }
-            
-        }
-        
-        return mv;
+            redirectAttributes.addFlashAttribute("info", info.toString());
+
+            viewname = "redirect:/x/company";
+
+    	}
+    	
+    	return viewname;
     }
     
     @RequestMapping(value = "/delete")

@@ -34,13 +34,15 @@ public class CompanyServiceImpl implements CompanyService {
 	
 	@Transactional(readOnly=false)
 	@Override
-	public Company updateCompany(Company cie) {
-        if(cie != null) {
+	public boolean updateCompany(Company cie) {
+        boolean result = false;
+		
+		if(cie != null) {
 
             if(cie.getId() >= 0) {
 
                 try {
-                    cie = companyDao.update(cie);
+                	result = companyDao.update(cie);
                 } catch (DataAccessException e) {
                     logger.warn("Service - update company:"+e.getMessage());
                     logger.warn("Service - update "+ cie);
@@ -50,7 +52,7 @@ public class CompanyServiceImpl implements CompanyService {
             else {
                 
                 try {
-                    cie = companyDao.insert(cie);
+                	result = companyDao.insert(cie);
                 } catch (DataAccessException e) {
                     logger.warn("Service - insert company:"+e.getMessage());
                     logger.warn("Service - insert "+ cie);
@@ -60,7 +62,7 @@ public class CompanyServiceImpl implements CompanyService {
 
         }
 
-        return cie;
+        return result;
 	}
 	
 	@Transactional(readOnly=false)
