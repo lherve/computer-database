@@ -64,7 +64,7 @@ public class ComputerServiceImpl implements ComputerService {
         if(cpu.getId() > 0) {
             
             try {
-                result = computerDao.update(cpu);
+                computerDao.update(cpu);
             } catch (DataAccessException e) {
                 logger.warn("Service - update computer:"+e.getMessage());
                 logger.warn("Service - update "+ cpu);
@@ -74,7 +74,7 @@ public class ComputerServiceImpl implements ComputerService {
         else {
             
             try {
-            	result = computerDao.insert(cpu);
+            	computerDao.insert(cpu);
             } catch (DataAccessException e) {
                 logger.warn("Service - insert computer:"+e.getMessage());
                 logger.warn("Service - insert "+ cpu);

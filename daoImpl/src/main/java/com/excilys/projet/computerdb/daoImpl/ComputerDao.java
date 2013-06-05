@@ -1,23 +1,20 @@
 package com.excilys.projet.computerdb.daoImpl;
 
-import java.sql.Date;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
 
 import com.excilys.projet.computerdb.dao.Dao;
-import com.excilys.projet.computerdb.model.Company;
 import com.excilys.projet.computerdb.model.Computer;
 import com.excilys.projet.computerdb.model.Page;
 import com.excilys.projet.computerdb.model.Page.Order;
 import com.excilys.projet.computerdb.model.Page.Sort;
 
+import org.hibernate.HibernateException;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -25,232 +22,116 @@ public class ComputerDao implements Dao<Computer> {
 	
 	private static final String INSERT_COMPUTER = "INSERT INTO computer (name, introduced, discontinued, company_id) VALUES(?, ?, ?, ?);";
 	private static final String UPDATE_COMPUTER = "UPDATE computer SET name = ? , introduced = ? , discontinued = ? , company_id = ? WHERE id = ?;";
-	private static final String DELETE_COMPUTER = "DELETE FROM computer WHERE id = ?;";
-	private static final String GET_ONE_COMPUTER = "SELECT cpu.id, cpu.name, cpu.introduced, cpu.discontinued, cpu.company_id, cie.name FROM computer cpu LEFT OUTER JOIN company cie ON cpu.company_id = cie.id WHERE cpu.id = ?;";
+	private static final String DELETE_COMPUTER = "delete from Computer c where c.id = :id";
+	private static final String GET_ONE_COMPUTER = "from Computer c left outer join fetch c.company where c.id = :id";
 	private static final String GET_ALL_COMPUTERS = "SELECT cpu.id, cpu.name, cpu.introduced, cpu.discontinued, cpu.company_id, cie.name FROM computer cpu LEFT OUTER JOIN company cie ON cpu.company_id = cie.id;";
-	private static final String COUNT_COMPUTERS = "SELECT count(id) as count FROM computer";
+	private static final String COUNT_COMPUTERS = "select count(c.id) from Computer c";
 	
 	@Autowired
-	private JdbcTemplate jdbcTemplate;
+	private SessionFactory sessionFactory;
 	
 	@Override
-	public boolean insert(Computer o) throws DataAccessException {
-		boolean result = false;
-		
-		if(o != null) {
-			
-			List<Object> list = new ArrayList<Object>();
-			
-			list.add(o.getName());
-			
-			if(o.getIntroduced() != null) {
-				list.add(o.getIntroduced());
-			}
-			else {
-				list.add(null);
-			}
-			
-			if(o.getDiscontinued() != null) {
-				list.add(o.getDiscontinued());
-			}
-			else {
-				list.add(null);
-			}
-			
-			if(o.getCompany() != null) {
-				list.add(o.getCompany().getId());
-			}
-			else {
-				list.add(null);
-			}
-			
-			if(jdbcTemplate.update(INSERT_COMPUTER, list.toArray()) > 0) {
-				result = true;
-			}
-			
-		}
-		return result;
+	public void insert(Computer o) throws HibernateException {
+		getSession().save(o);
 	}
 
 	@Override
-	public boolean update(Computer o) throws DataAccessException {
-		boolean result = false;
-		
-		if(o != null) {
-			
-			List<Object> list = new ArrayList<Object>();
-			
-			list.add(o.getName());
-			
-			if(o.getIntroduced() != null) {
-				list.add(o.getIntroduced());
-			}
-			else {
-				list.add(null);
-			}
-			
-			if(o.getDiscontinued() != null) {
-				list.add(o.getDiscontinued());
-			}
-			else {
-				list.add(null);
-			}
-			
-			if(o.getCompany() != null) {
-				list.add(o.getCompany().getId());
-			}
-			else {
-				list.add(null);
-			}
-			
-			list.add(o.getId());
-			
-			if(jdbcTemplate.update(UPDATE_COMPUTER, list.toArray()) > 0) {
-				result = true;
-			}
-			
-		}
-		return result;
+	public void update(Computer o) throws HibernateException {
+		getSession().update(o);
 	}
 
 	@Override
-	public boolean delete(Computer o) throws DataAccessException {
-		boolean result = false;
-		
-		if(o != null && o.getId() > 0) {
-				
-			if(jdbcTemplate.update(DELETE_COMPUTER, new Object[] {o.getId()}) > 0) {
-				result = true;
-			}
-					
-		}
-		return result;
+	public boolean delete(Computer o) throws HibernateException {
+		return getSession().createQuery(DELETE_COMPUTER).setInteger("id", o.getId()).executeUpdate() > 0 ? true : false;
 	}
+	
 
 	/*
 	 * Retourne null si aucun computer trouvé avec l'id renseigné
 	 */
 	@Override
-	public Computer get(int id) throws DataAccessException {
-		Computer cpu = null;
-		
-		List<Computer> cpus = jdbcTemplate.query(GET_ONE_COMPUTER, new Object[] {id}, new ComputerRowMapper());
-			
-		if(cpus.size() > 0) {
-			cpu = cpus.get(0);
-		}
-		
-		return cpu;
+	public Computer get(int id) throws HibernateException {
+		return (Computer) getSession().createQuery(GET_ONE_COMPUTER).setInteger("id", id).uniqueResult();
 	}
 
 	@Override
-	public List<Computer> getFromTo(int start, int end, Sort sortedBy, Order order, String search) throws DataAccessException {
-		StringBuilder query = new StringBuilder("SELECT cpu.id, cpu.name, cpu.introduced, cpu.discontinued, cpu.company_id, cie.name FROM computer cpu LEFT OUTER JOIN company cie ON cpu.company_id = cie.id ");
+	public List<Computer> getFromTo(int start, int end, Sort sortedBy, Order order, String search) throws HibernateException {
+		StringBuilder query = new StringBuilder("from Computer c left outer join fetch c.company ");
 		
 		if(search != null && search.length() > 0) {
-			query.append("WHERE cpu.name LIKE ? ");
+			query.append("where c.name like :search ");
 		}
 		
-		query.append("ORDER BY ");
+		query.append("order by ");
 		
 		switch(sortedBy) {
 		case ID:
-			query.append("cpu.id");
+			query.append("c.id");
 			break;
 		case NAME:
-			query.append("cpu.name");
+			query.append("c.name");
 			break;
 		case INTRODUCED:
-			query.append("isnull(cpu.introduced) asc, cpu.introduced");
+			query.append("isnull(c.introduced) asc, c.introduced");
 			break;
 		case DISCONTINUED:
-			query.append("isnull(cpu.discontinued) asc, cpu.discontinued");
+			query.append("isnull(c.discontinued) asc, c.discontinued");
 			break;
 		case COMPANY:
-			query.append("isnull(cie.name) asc, cie.name");
+			query.append("isnull(c.name) asc, c.name");
 			break;
 		}
 		
 		if(order.equals(Order.ASC)) {
-			query.append(" ASC");
+			query.append(" asc");
 		}
 		else
 		{
-			query.append(" DESC");
+			query.append(" desc");
 		}
 		
-		query.append(" LIMIT ?,?;");
-
-		List<Object> list = new ArrayList<Object>();
-		
-		if(search != null && search.length() > 0) {
-			list.add("%"+search+"%");
-		}
-                
-		list.add(start == 0 ? 0 : --start);
+		Query q = getSession().createQuery(query.toString()).setFirstResult(start == 0 ? 0 : --start);
 		
 		int i = end - start;
 		if(i < 0) {
-                    i = Page.SIZE;
+            i = Page.SIZE;
 		}
 		
-		list.add(i);
+		q.setMaxResults(i);
+		
+		if(search != null && search.length() > 0) {
+			q.setString("search", "%"+search+"%");
+		}
 
-		return jdbcTemplate.query(query.toString(), list.toArray(), new ComputerRowMapper());
+		return q.list();
 	}
 
 	@Override
-	public List<Computer> getAll(Sort sortedBy, Order order) throws DataAccessException {
-		return jdbcTemplate.query(GET_ALL_COMPUTERS, new Object[] {}, new ComputerRowMapper());
+	public List<Computer> getAll(Sort sortedBy, Order order) throws HibernateException {
+		return getSession().createQuery(GET_ALL_COMPUTERS).list();
 	}
 
 	@Override
 	public int count(String search) throws DataAccessException {
-		int count = -1;
+        StringBuilder query = new StringBuilder(COUNT_COMPUTERS);
 
-                StringBuilder query = new StringBuilder(COUNT_COMPUTERS);
-
-		Object[] o = new Object[] {};
+        if(search != null && !search.trim().isEmpty()) {
+			query.append(" WHERE name LIKE :search");
+			
+		}
+		System.out.println(query.toString());
+		Query q = getSession().createQuery(query.toString());
 		
-		if(search != null && search.length() > 0) {
-			query.append(" WHERE name LIKE ?");
-			o = new Object[] {"%"+search+"%"};
+		if(search != null && !search.trim().isEmpty()) {
+			q.setString("search", "%"+search+"%");
 		}
 		
-		query.append(";");
-		
-		count = jdbcTemplate.queryForObject(query.toString(), o, Integer.class);
-
-                return count;
+        return ((Long)q.uniqueResult()).intValue();
 	}
 	
-	private class ComputerRowMapper implements RowMapper<Computer> {
-
-		@Override
-		public Computer mapRow(ResultSet rs, int line) throws SQLException {
-			Computer c = new Computer(rs.getInt("cpu.id"), rs.getString("cpu.name"));
-			
-			Date dt;
-			
-			if((dt = rs.getDate("cpu.introduced")) != null) {
-				c.setIntroduced(dt);
-			}
-			
-			if((dt = rs.getDate("cpu.discontinued")) != null) {
-				c.setDiscontinued(dt);
-			}
-			
-			int company_id = rs.getInt("cpu.company_id");
-			
-			if(company_id > 0) {
-				c.setCompany(new Company(company_id, rs.getString("cie.name")));
-			}
-			
-			return c;
-		}
-		
+	private Session getSession() {
+		return sessionFactory.getCurrentSession();
 	}
-
 	
 	/**
 	 * Fonction non implémentée 

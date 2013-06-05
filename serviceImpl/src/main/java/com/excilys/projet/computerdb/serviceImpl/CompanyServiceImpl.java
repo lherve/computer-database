@@ -42,7 +42,7 @@ public class CompanyServiceImpl implements CompanyService {
             if(cie.getId() >= 0) {
 
                 try {
-                	result = companyDao.update(cie);
+                	companyDao.update(cie);
                 } catch (DataAccessException e) {
                     logger.warn("Service - update company:"+e.getMessage());
                     logger.warn("Service - update "+ cie);
@@ -52,7 +52,7 @@ public class CompanyServiceImpl implements CompanyService {
             else {
                 
                 try {
-                	result = companyDao.insert(cie);
+                	companyDao.insert(cie);
                 } catch (DataAccessException e) {
                     logger.warn("Service - insert company:"+e.getMessage());
                     logger.warn("Service - insert "+ cie);

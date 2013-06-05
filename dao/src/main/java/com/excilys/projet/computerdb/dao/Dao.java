@@ -7,9 +7,9 @@ import static com.excilys.projet.computerdb.model.Page.*;
 
 public interface Dao<T> {
 
-	boolean insert(T t);
+	void insert(T t);
 	
-	boolean update(T t);
+	void update(T t);
 	
 	boolean delete(T t);
 	
